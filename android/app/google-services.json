@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "403149345679",
+    "project_id": "diu-leaderboard",
+    "storage_bucket": "diu-leaderboard.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:403149345679:android:9e182bd87c2a1e1805f1fa",
+        "android_client_info": {
+          "package_name": "com.example.flutter_first"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3j7s5I2sARbhJaEI_4SX_R9R7Yl5Ztic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
