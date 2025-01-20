@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/main_navigation.dart';
 import 'package:flutter_first/services/auth_service.dart';
-import 'package:flutter_first/Screens/home.dart';
 import 'package:flutter_first/Screens/signup_page.dart';
 import 'package:flutter_first/Screens/forgot_password_page.dart';
 import 'package:flutter_first/services/connection_handler.dart';

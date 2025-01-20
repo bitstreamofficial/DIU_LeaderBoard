@@ -229,10 +229,7 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) => _SemesterDetailsSheet(semester: semester),
     );
   }
@@ -372,7 +369,7 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: Colors.white,
+                  color: Colors.yellowAccent.withOpacity(0.7),
                 ),
               ),
             ),
@@ -450,92 +447,104 @@ class _SemesterDetailsSheet extends StatelessWidget {
       initialChildSize: 0.8,
       maxChildSize: 0.9,
       minChildSize: 0.5,
-      
+      snap: true,
+      snapSizes: const [0.5, 0.8, 0.9],
       builder: (context, scrollController) {
         return Container(
-          padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             color: Color(0xFF1A1A1A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${semester.name} ${semester.year}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    'SGPA: ${semester.sgpa.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Total Credits: ${semester.credits.toStringAsFixed(1)}',
-                  style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const Divider(height: 24),
               Expanded(
-                child: ListView.separated(
-                  controller: scrollController,
-                  itemCount: semester.courses.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final course = semester.courses[index];
-                    return ListTile(
-                      title: Text(
-                        course.courseTitle,
-                        style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-                      ),
-                      subtitle: Text('Credits: ${course.totalCredit}'),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getGradeColor(course.gradeLetter),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${course.gradeLetter} (${course.pointEquivalent})',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${semester.name} ${semester.year}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
+                          Text(
+                            'SGPA: ${semester.sgpa.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Total Credits: ${semester.credits.toStringAsFixed(1)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    );
-                  },
+                      const Divider(height: 24),
+                      Expanded(
+                        child: ListView.separated(
+                          controller: scrollController,
+                          itemCount: semester.courses.length,
+                          separatorBuilder: (context, index) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final course = semester.courses[index];
+                            return ListTile(
+                              title: Text(
+                                course.courseTitle,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Credits: ${course.totalCredit}',
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getGradeColor(course.gradeLetter),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '${course.gradeLetter} (${course.pointEquivalent})',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

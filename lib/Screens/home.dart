@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_first/Screens/profile.dart';
 import 'package:flutter_first/services/connection_handler.dart';
 
 class HomePage extends StatefulWidget {

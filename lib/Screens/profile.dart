@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/home.dart';
 import 'package:flutter_first/Screens/login.dart';
 import 'package:flutter_first/services/auth_service.dart';
 import 'package:flutter_first/services/result_card_service.dart';
