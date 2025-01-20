@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_first/Screens/main_navigation.dart';
 import 'package:flutter_first/services/auth_service.dart';
 import 'package:flutter_first/Screens/home.dart';
 import 'package:flutter_first/Screens/signup_page.dart';
@@ -73,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => MainNavigation()),
         );
       } else if (user != null && !user.emailVerified) {
         // Email not verified - AuthService will handle navigation to verification page

@@ -172,24 +172,24 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       // Profile Icon positioned in top right
-                      Positioned(
-                        top: 20,
-                        right: 20,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.account_circle,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const ProfilePage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                      // Positioned(
+                      //   top: 20,
+                      //   right: 20,
+                      //   child: IconButton(
+                      //     icon: const Icon(
+                      //       Icons.account_circle,
+                      //       color: Colors.white,
+                      //       size: 30,
+                      //     ),
+                      //     onPressed: () {
+                      //       Navigator.of(context).push(
+                      //         MaterialPageRoute(
+                      //           builder: (context) => const ProfilePage(),
+                      //         ),
+                      //       );
+                      //     },
+                      //   ),
+                      // ),
                     ],
                   );
                 },
