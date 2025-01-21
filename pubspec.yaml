@@ -24,6 +24,7 @@ dependencies:
   path_provider: ^2.1.2
   open_file: ^3.3.2
   url_launcher: ^6.3.1
+  csv: ^6.0.0
 
 
 dev_dependencies:
@@ -40,4 +41,9 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
+    - assets/login.png
+    - assets/rafi.jpg
+    - assets/crown.png
+    - assets/splash.gif
+    - assets/studentRank61CSE.csv
     - lib\assets\Images\shakib_dev.jpg
