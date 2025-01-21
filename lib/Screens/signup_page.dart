@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/SignupProgressPage.dart';
+import 'package:lottie/lottie.dart';
 
 enum SignupStep {
   initial,
@@ -27,7 +28,7 @@ class _SignupPageState extends State<SignupPage> {
       TextEditingController();
   final TextEditingController _idController = TextEditingController();
 
-  final _idRegex = RegExp(r'^\d{3}-\d{2}-\d{4}$');
+  // final _idRegex = RegExp(r'^\d{3}-\d{2}-\d{4}$');
   final _diuEmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@diu\.edu\.bd$');
 
   bool _isPasswordVisible = false;
@@ -82,11 +83,22 @@ class _SignupPageState extends State<SignupPage> {
                   const Text(
                     'Create Account',
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
+                      color: Colors.amber,
                     ),
                   ),
                   const SizedBox(height: 8),
+
+                  Lottie.asset(
+                    'assets/signup.json',
+                    width: double.infinity,
+                    height: 220,
+                    
+                  ),
+                  const SizedBox(height: 8),
+
+
                   const Text(
                     'Please fill in the details to create your account',
                     style: TextStyle(
@@ -120,44 +132,88 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Student ID Field
                   TextFormField(
+                    keyboardType: TextInputType.number,
                     controller: _idController,
+                    style: const TextStyle(color: Colors.white),
                     enabled: !isProcessing,
                     decoration: InputDecoration(
                       labelText: 'Student ID',
                       hintText: 'Ex. 221-15-XXXX',
+                      hintStyle: const TextStyle(color: Colors.grey),
                       prefixIcon: const Icon(Icons.badge_outlined),
-                      filled: true,
-                      fillColor: Colors.grey[100],
+                      
+                      labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your student ID';
                       }
-                      if (!_idRegex.hasMatch(value)) {
-                        return 'Please enter a valid ID (Ex. 221-15-XXXX)';
-                      }
-                      return null;
+                      // if (!_idRegex.hasMatch(value)) {
+                      //   return 'Please enter a valid ID (Ex. 221-15-XXXX)';
+                      // }
+                      // return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
                   // Email Field
                   TextFormField(
+                    style: const TextStyle(color: Colors.white),
                     controller: _emailController,
                     enabled: !isProcessing,
                     decoration: InputDecoration(
                       labelText: 'DIU Email',
                       hintText: 'your.name@diu.edu.bd',
                       prefixIcon: const Icon(Icons.email_outlined),
-                      filled: true,
-                      fillColor: Colors.grey[100],
+                      
+                      labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
                     ),
                     validator: (value) {
@@ -174,6 +230,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Password Field
                   TextFormField(
+                    style: const TextStyle(color: Colors.white),
                     controller: _passwordController,
                     enabled: !isProcessing,
                     obscureText: !_isPasswordVisible,
@@ -194,11 +251,31 @@ class _SignupPageState extends State<SignupPage> {
                                 });
                               },
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
+                      
+                      labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
                     ),
                     validator: (value) {
@@ -215,6 +292,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Confirm Password Field
                   TextFormField(
+                    style: const TextStyle(color: Colors.white),
                     controller: _confirmPasswordController,
                     enabled: !isProcessing,
                     obscureText: !_isConfirmPasswordVisible,
@@ -236,11 +314,30 @@ class _SignupPageState extends State<SignupPage> {
                                 });
                               },
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
+                      labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
                     ),
                     validator: (value) {

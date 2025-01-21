@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_first/Screens/main_navigation.dart';
 import 'package:flutter_first/services/auth_service.dart';
 import 'package:flutter_first/Screens/home.dart';
 import 'package:logger/logger.dart';
@@ -28,7 +29,7 @@ class _SignupProgressPageState extends State<SignupProgressPage> {
   final _studentDataService = StudentDataService();
   final _auth = AuthService();
   final _logger = Logger();
-  final int _verificationTimeout = 300; // 5 minutes
+  final int _verificationTimeout = 300; 
 
   SignupStep _currentStep = SignupStep.fetchingStudentInfo;
   Map<String, dynamic>? _studentInfo;
@@ -874,7 +875,7 @@ class _SignupProgressPageState extends State<SignupProgressPage> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const HomePage(),
+                        builder: (context) => const MainNavigation(),
                       ),
                     );
                   },

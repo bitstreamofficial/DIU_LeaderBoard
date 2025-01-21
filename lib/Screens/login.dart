@@ -4,6 +4,7 @@ import 'package:flutter_first/services/auth_service.dart';
 import 'package:flutter_first/Screens/signup_page.dart';
 import 'package:flutter_first/Screens/forgot_password_page.dart';
 import 'package:flutter_first/services/connection_handler.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -107,7 +108,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -117,15 +117,12 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 16),
-                Image.asset(
-                  'assets/login.png',
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  fit: BoxFit.contain,
-                ),
+                Lottie.asset('assets/login.json', height: 250),
                 const SizedBox(height: 24),
                 const Text(
                   'Welcome to',
                   style: TextStyle(
+                    color: Colors.grey,
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
                   ),
@@ -133,6 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Text(
                   'DIU LEADERBOARD',
                   style: TextStyle(
+                    color: Colors.orange,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -141,16 +139,38 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Enter Your DIU Email',
                     hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: const Icon(Icons.email_outlined),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
+                    
+                    
+                    labelStyle: const TextStyle(color: Colors.white),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 16,
@@ -159,18 +179,38 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
+                  style: const TextStyle(color: Colors.white),
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Enter Your Password',
                     hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: const Icon(Icons.lock_outline),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
+                    labelStyle: const TextStyle(color: Colors.white),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 16,

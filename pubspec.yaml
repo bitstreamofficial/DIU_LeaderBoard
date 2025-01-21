@@ -47,3 +47,6 @@ flutter:
     - assets/splash.gif
     - assets/studentRank61CSE.csv
     - lib\assets\Images\shakib_dev.jpg
+    - assets/signup.json
+    - assets/login.json
+    - assets/reset.json

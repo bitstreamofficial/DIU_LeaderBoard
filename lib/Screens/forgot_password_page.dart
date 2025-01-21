@@ -1,6 +1,7 @@
 // forgot_password_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_first/services/auth_service.dart';
+import 'package:lottie/lottie.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   @override
@@ -20,12 +21,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 'Reset Password',
                 style: TextStyle(
-                  fontSize: 28,
+                  color: Colors.orange,
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -38,6 +40,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               ),
               const SizedBox(height: 24),
+
+              Lottie.asset('assets/reset.json', height: 200),
+
+              const SizedBox(height: 24),
+
               // Email Input Field
               TextField(
                 controller: _emailController,
@@ -46,12 +53,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   hintText: 'Enter Your DIU Email',
                   hintStyle: const TextStyle(color: Colors.grey),
                   prefixIcon: const Icon(Icons.email_outlined),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
+                  labelStyle: const TextStyle(color: Colors.white),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,
