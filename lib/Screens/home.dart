@@ -43,7 +43,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    loadStudents();
     userId = _auth.getCurrentUserId();
     _loadPreferences();
     _initializeData();
@@ -98,6 +97,12 @@ class _HomePageState extends State<HomePage> {
       await _fetchStudentData();
     }
 
+    // Load students after getting student info
+    if (_studentInfo != null) {
+      final batch = _studentInfo!['batchNo'].toString();
+      await loadStudents(batch);
+    }
+
     setState(() {});
   }
 
@@ -145,22 +150,43 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> loadStudents() async {
+  String getBatchCsvPath(String batch) {
+    // Add more cases as needed for different batches
+    switch (batch) {
+      case '39':
+        return 'assets/studentRank39NFE.csv';
+      case '61':
+        return 'assets/studentRank61CSE.csv';
+      case '62':
+        return 'assets/studentRank62CSE.csv';
+      case '63':
+        return 'assets/studentRank63CSE.csv';
+      // Add more cases for other batches
+      default:
+        throw Exception('No CSV file available for batch: $batch');
+    }
+  }
+
+  Future<String> loadCsvForBatch(String batch) async {
+    final String path = getBatchCsvPath(batch);
     try {
-      // Load CSV file from assets
-      final String csvData =
-          await rootBundle.loadString('assets/studentRank61CSE.csv');
+      return await rootBundle.loadString(path);
+    } catch (e) {
+      throw Exception('Failed to load CSV for batch $batch: $e');
+    }
+  }
 
-      // Convert CSV to list of values
-      List<List<dynamic>> csvTable =
-          const CsvToListConverter().convert(csvData);
+  Future<void> loadStudents(String batch) async {
+    setState(() {
+      isLoading = true;
+    });
 
-      // Remove header row
-      csvTable.removeAt(0);
+    try {
+      final String csvData = await loadCsvForBatch(batch);
+      List<List<dynamic>> csvTable = const CsvToListConverter().convert(csvData);
+      csvTable.removeAt(0); // Remove header row
 
-      // Convert each row to Student object
-      List<Student> loadedStudents =
-          csvTable.map((row) => Student.fromCsvRow(row)).toList();
+      List<Student> loadedStudents = csvTable.map((row) => Student.fromCsvRow(row)).toList();
 
       setState(() {
         students = loadedStudents;
@@ -170,7 +196,17 @@ class _HomePageState extends State<HomePage> {
       print('Error loading students: $e');
       setState(() {
         isLoading = false;
+        students = []; // Clear students list on error
       });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading ranking data for batch $batch'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -423,7 +459,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'CSE - Batch ${batch}',
+                      'Batch ${batch}',
                       style: TextStyle(
                         color: Colors.grey[400],
                         fontSize: 16,
@@ -554,9 +590,8 @@ class _HomePageState extends State<HomePage> {
 
     final bool isMatch = _searchQuery.isNotEmpty &&
         student.name.toLowerCase().contains(_searchQuery);
-
-    // Create a key for podium items
-    _studentKeys.putIfAbsent(student.id, () => GlobalKey());
+    
+    final bool isCurrentUser = student.id == (_studentInfo?['studentId'] as String? ?? userId);
 
     return Container(
       key: _studentKeys.putIfAbsent(student.id, () => GlobalKey()),
@@ -577,13 +612,33 @@ class _HomePageState extends State<HomePage> {
           Stack(
             alignment: Alignment.center,
             children: [
+              if (isCurrentUser) 
+                Container(
+                  width: rank == 1 ? 100 : 80,
+                  height: rank == 1 ? 100 : 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      for (var i = 0; i < 3; i++)
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.3 - i * 0.1),
+                          spreadRadius: (i + 1) * 4,
+                          blurRadius: (i + 1) * 4,
+                        ),
+                    ],
+                  ),
+                ),
               CircleAvatar(
                 radius: rank == 1 ? 40 : 30,
-                backgroundColor: isMatch ? Colors.amber : getMedalColor(rank),
+                backgroundColor: isMatch 
+                  ? Colors.amber 
+                  : isCurrentUser 
+                    ? Colors.green 
+                    : getMedalColor(rank),
                 child: Text(
                   student.name[0].toUpperCase(),
                   style: TextStyle(
-                    color: isMatch ? Colors.black : Colors.white,
+                    color: isMatch || isCurrentUser ? Colors.black : Colors.white,
                     fontSize: rank == 1 ? 24 : 20,
                   ),
                 ),
@@ -611,7 +666,11 @@ class _HomePageState extends State<HomePage> {
           Text(
             student.name,
             style: TextStyle(
-              color: isMatch ? Colors.amber : Colors.white,
+              color: isMatch 
+                ? Colors.amber 
+                : isCurrentUser 
+                  ? Colors.green 
+                  : Colors.white,
               fontSize: rank == 1 ? 16 : 14,
               fontWeight: FontWeight.bold,
             ),
@@ -620,7 +679,11 @@ class _HomePageState extends State<HomePage> {
           Text(
             student.cgpa.toStringAsFixed(2),
             style: TextStyle(
-              color: isMatch ? Colors.amber : getMedalColor(rank),
+              color: isMatch 
+                ? Colors.amber 
+                : isCurrentUser 
+                  ? Colors.green 
+                  : getMedalColor(rank),
               fontSize: rank == 1 ? 16 : 14,
             ),
           ),

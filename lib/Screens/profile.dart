@@ -159,8 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
           .collection('students')
           .doc(userId)
           .update({'showMe': value});
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> _logout() async {
@@ -257,280 +256,272 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
       body: SafeArea(
-              child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2B2E4A),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2B2E4A),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Column(
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.yellow, width: 3),
-                                ),
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.grey[800],
-                                  radius: 40,
-                                  child: Text(
-                                    _studentInfo?['studentName']
-                                            ?.toString()
-                                            .substring(0, 1)
-                                            .toUpperCase() ??
-                                        '?',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.yellow,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                            ],
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.yellow, width: 3),
                           ),
-                          const SizedBox(height: 15),
-                          Text(
-                            _studentInfo?['studentName'] ?? 'Loading...',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            _studentInfo?['studentId'] ?? 'Loading...',
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.grey[800],
+                            radius: 40,
                             child: Text(
-                              'CGPA: ${_overallCGPA?.toStringAsFixed(2) ?? 'N/A'}',
+                              _studentInfo?['studentName']
+                                      ?.toString()
+                                      .substring(0, 1)
+                                      .toUpperCase() ??
+                                  '?',
                               style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.yellow,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      _studentInfo?['studentName'] ?? 'Loading...',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _studentInfo?['studentId'] ?? 'Loading...',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'CGPA: ${_overallCGPA?.toStringAsFixed(2) ?? 'N/A'}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Show me in Leaderboard',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Switch(
+                            value: _showInLeaderboard,
+                            onChanged: (bool value) =>
+                                _toggleLeaderboardVisibility(value, userId!),
+                            activeColor: Colors.yellow,
+                            activeTrackColor: Colors.yellow.withOpacity(0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_semesterResults != null) ...[
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2B2E4A),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _semesterResults!.length,
+                    itemBuilder: (context, index) {
+                      String semester = _semesterResults!.keys.elementAt(index);
+                      List<dynamic> results = _semesterResults![semester] ?? [];
+                      if (results.isEmpty) return const SizedBox.shrink();
+
+                      var firstResult = results[0] as Map<String, dynamic>;
+                      return ExpansionTile(
+                        title: Text(
+                          '${firstResult['semesterName']} ${firstResult['semesterYear']}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Text(
+                          'CGPA: ${firstResult['cgpa']?.toString() ?? 'N/A'}',
+                          style: const TextStyle(color: Colors.yellow),
+                        ),
+                        children: results.map<Widget>((course) {
+                          return ListTile(
+                            title: Text(
+                              course['courseTitle'] ?? 'Unknown Course',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(
+                              course['customCourseId'] ?? '',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: _getGradeColor(
+                                    course['gradeLetter'] ?? 'N/A'),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                course['gradeLetter'] ?? 'N/A',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ),
+              ],
+              const SizedBox(height: 20),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: _isDataLoading
+                      ? null
+                      : () => ResultCardService.generateAndDownloadPDF(
+                            studentInfo: _studentInfo,
+                            semesterResults: _semesterResults,
+                            overallCGPA: _overallCGPA,
+                            setLoading: (bool loading) {
+                              setState(() {
+                                _isDataLoading = loading;
+                              });
+                            },
+                            context: context,
+                          ),
+                  child: _isDataLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.download, color: Colors.black),
+                            SizedBox(width: 10),
+                            Text(
+                              'Download Result Card',
+                              style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Show me in Leaderboard',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Switch(
-                                  value: _showInLeaderboard,
-                                  onChanged: (bool value) =>
-                                      _toggleLeaderboardVisibility(
-                                          value, userId!),
-                                  activeColor: Colors.yellow,
-                                  activeTrackColor:
-                                      Colors.yellow.withOpacity(0.5),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (_semesterResults != null) ...[
-                      const SizedBox(height: 20),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2B2E4A),
-                          borderRadius: BorderRadius.circular(15),
+                          ],
                         ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _semesterResults!.length,
-                          itemBuilder: (context, index) {
-                            String semester =
-                                _semesterResults!.keys.elementAt(index);
-                            List<dynamic> results =
-                                _semesterResults![semester] ?? [];
-                            if (results.isEmpty)
-                              return const SizedBox.shrink();
-
-                            var firstResult =
-                                results[0] as Map<String, dynamic>;
-                            return ExpansionTile(
-                              title: Text(
-                                '${firstResult['semesterName']} ${firstResult['semesterYear']}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              subtitle: Text(
-                                'CGPA: ${firstResult['cgpa']?.toString() ?? 'N/A'}',
-                                style: const TextStyle(color: Colors.yellow),
-                              ),
-                              children: results.map<Widget>((course) {
-                                return ListTile(
-                                  title: Text(
-                                    course['courseTitle'] ?? 'Unknown Course',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  subtitle: Text(
-                                    course['customCourseId'] ?? '',
-                                    style: const TextStyle(color: Colors.grey),
-                                  ),
-                                  trailing: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      color: _getGradeColor(
-                                          course['gradeLetter'] ?? 'N/A'),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      course['gradeLetter'] ?? 'N/A',
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                    Container(
-  margin: const EdgeInsets.symmetric(horizontal: 20),
-  width: double.infinity,
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 0,
-    ),
-    onPressed: _isDataLoading 
-    ? null 
-    : () => ResultCardService.generateAndDownloadPDF(
-          studentInfo: _studentInfo,
-          semesterResults: _semesterResults,
-          overallCGPA: _overallCGPA,
-          setLoading: (bool loading) {
-            setState(() {
-              _isDataLoading = loading;
-            });
-          },
-          context: context,
-        ),
-    child: _isDataLoading
-        ? const SizedBox(
-            height: 20, 
-            width: 20,
-            child: CircularProgressIndicator(
-              color: Colors.black,
-              strokeWidth: 2,
-            ),
-          )
-        : const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.download, color: Colors.black),
-              SizedBox(width: 10),
-              Text(
-                'Download Result Card',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
                 ),
               ),
+              const SizedBox(height: 10),
+              // Container(
+              //   margin: const EdgeInsets.symmetric(horizontal: 20),
+              //   width: double.infinity,
+              //   child: ElevatedButton(
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Colors.yellow,
+              //       padding: const EdgeInsets.symmetric(vertical: 15),
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(10),
+              //       ),
+              //       elevation: 0,
+              //     ),
+              //     onPressed: _isLoggingOut ? null : _logout,
+              //     child: _isLoggingOut
+              //         ? const SizedBox(
+              //             height: 20,
+              //             width: 20,
+              //             child: CircularProgressIndicator(
+              //               color: Colors.black,
+              //               strokeWidth: 2,
+              //             ),
+              //           )
+              //         : const Row(
+              //             mainAxisAlignment: MainAxisAlignment.center,
+              //             children: [
+              //               Icon(Icons.logout, color: Colors.black),
+              //               SizedBox(width: 10),
+              //               Text(
+              //                 'Log Out',
+              //                 style: TextStyle(
+              //                   color: Colors.black,
+              //                   fontWeight: FontWeight.bold,
+              //                   fontSize: 16,
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //   ),
+              // ),
+              const SizedBox(height: 20),
             ],
           ),
-  ),
-),
-const SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.yellow,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        onPressed: _isLoggingOut ? null : _logout,
-                        child: _isLoggingOut
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.logout, color: Colors.black),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Log Out',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
+        ),
+      ),
     );
   }
 }
