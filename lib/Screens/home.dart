@@ -361,7 +361,7 @@ class _HomePageState extends State<HomePage> {
     // Perform the scroll with a slight offset for better visibility
     _scrollController.animateTo(
       max(0, offset - 100), // Subtract 100 to show some content above
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 100),
       curve: Curves.easeInOut,
     ).then((_) {
       // After main scroll, ensure the specific item is fully visible
