@@ -29,7 +29,7 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _idController = TextEditingController();
 
   // final _idRegex = RegExp(r'^\d{3}-\d{2}-\d{4}$');
-  final _diuEmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@diu\.edu\.bd$');
+  final _diuEmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@(s\.)?diu\.edu\.bd$');
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;

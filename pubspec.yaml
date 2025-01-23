@@ -45,6 +45,7 @@ flutter:
     - assets/rafi.jpg
     - assets/crown.png
     - assets/splash.gif
+    - assets/studentRank39NFE.csv
     - assets/studentRank61CSE.csv
     - lib\assets\Images\shakib_dev.jpg
     - assets/signup.json
