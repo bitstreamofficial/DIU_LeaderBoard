@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math';
-
+import 'package:fl_chart/fl_chart.dart';
 import '../models/semester_model.dart';
 import '../services/student_data_service.dart';
 
@@ -238,9 +238,175 @@ class _CGPAViewState extends State<CGPAView>
   }
 
   Widget _buildCGPAChart(List<SemesterResult> semesters) {
-    // TODO: Implement chart using fl_chart package
-    return Container();
+  if (semesters == null || semesters.isEmpty) {
+    return Container(
+      height: 250,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No CGPA Data Available', 
+              style: TextStyle(
+                color: Colors.grey[600], 
+                fontSize: 18, 
+                fontWeight: FontWeight.w500
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
+
+  final validSemesters = semesters.where((s) => 
+    s?.sgpa != null && 
+    s.sgpa.isFinite && 
+    s.sgpa >= 0 && 
+    s.sgpa <= 4.0
+  ).toList();
+
+  if (validSemesters.isEmpty) {
+    return Container(
+      height: 250, 
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red),
+            SizedBox(height: 16),
+            Text(
+              'Unable to Generate CGPA Chart', 
+              style: TextStyle(
+                color: Colors.red, 
+                fontSize: 18, 
+                fontWeight: FontWeight.w500
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  return Card(
+    elevation: 4,
+    margin: const EdgeInsets.symmetric(horizontal: 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'CGPA Progression',
+            style: TextStyle(
+              fontSize: 18, 
+              fontWeight: FontWeight.bold,
+              color: Colors.black87
+            ),
+          ),
+          SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 0.5,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.grey.withOpacity(0.2),
+                    strokeWidth: 1,
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index < 0 || index >= validSemesters.length) return Container();
+                        final semester = validSemesters[index];
+                        return Text(
+                          '${semester.name}\n${semester.year}', 
+                          style: TextStyle(
+                            fontSize: 10, 
+                            color: Colors.grey[700]
+                          ),
+                          textAlign: TextAlign.center,
+                        );
+                      },
+                      interval: 1,
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontSize: 10, 
+                            color: Colors.grey[700]
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: validSemesters.asMap().entries.map((entry) {
+                      return FlSpot(entry.key.toDouble(), entry.value.sgpa);
+                    }).toList(),
+                    isCurved: true,
+                    color: Theme.of(context).primaryColor,
+                    barWidth: 3,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 5,
+                          color: Theme.of(context).primaryColor,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).primaryColor.withOpacity(0.3),
+                          Theme.of(context).primaryColor.withOpacity(0.1),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                minX: 0,
+                maxX: validSemesters.length.toDouble() - 1,
+                minY: 0,
+                maxY: 4.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Future<void> _calculateCGPA() async {
     if (_formKey.currentState!.validate()) {
