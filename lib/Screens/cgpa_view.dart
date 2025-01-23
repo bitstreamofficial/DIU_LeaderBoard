@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'dart:math';
 
 import '../models/semester_model.dart';
-import '../services/api_service.dart';
-
-
+import '../services/student_data_service.dart';
 
 class CGPAView extends StatefulWidget {
   const CGPAView({super.key});
@@ -17,6 +14,8 @@ class CGPAView extends StatefulWidget {
 class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _studentIdController = TextEditingController();
+  final _studentDataService = StudentDataService();
+  
   bool _isLoading = false;
   CGPAResult? _result;
   late AnimationController _gradientController;
@@ -25,14 +24,11 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: AppBar(
         title: const Text('CGPA Calculator', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF1A1A1A),
       ),
-
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -239,77 +235,50 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
     return Container();
   }
 
-  Future<void> _calculateCGPA() async {
+    Future<void> _calculateCGPA() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
         final studentId = _studentIdController.text;
-        final List<SemesterResult> allSemesters = [];
-        double totalPoints = 0;
-        int totalCredits = 0;
-
-        // Fetch student info first
-        final studentInfo = await ApiService.getStudentInfo(studentId);
-        if (studentInfo.studentId == null) {
-          throw Exception('Invalid Student ID');
-        }
-
-        // Fetch results for each semester
-        for (final semester in ApiService.semestersList) {
-          try {
-            final results = await ApiService.getSemesterResults(
-              studentId,
-              semester['semesterId']!,
-            );
-
-            if (results.isNotEmpty) {
-              double semesterPoints = 0;
-              double semesterCredits = 0;
-              final courses = <CourseResult>[];
-
-              for (final course in results) {
-                if (course['gradeLetter'] != 'F') {
-                  final credit = double.parse(course['totalCredit'].toString());
-                  final point = double.parse(course['pointEquivalent'].toString());
-                  
-                  semesterPoints += credit * point;
-                  semesterCredits += credit;
-
-                  courses.add(CourseResult(
-                    courseTitle: course['courseTitle'],
-                    totalCredit: credit,
-                    gradeLetter: course['gradeLetter'],
-                    pointEquivalent: point,
-                  ));
-                }
-              }
-
-              // Add semester even if it has same SGPA as another semester
-              if (semesterCredits > 0) {
-                final sgpa = semesterPoints / semesterCredits;
-                allSemesters.add(SemesterResult(
-                  name: semester['semesterName']!,
-                  year: int.parse(semester['semesterYear']!),
-                  credits: semesterCredits,
-                  sgpa: sgpa,
-                  courses: courses,
-                ));
-
-                totalPoints += semesterPoints;
-                totalCredits += semesterCredits.toInt();
-              }
-            }
-          } catch (e) {
-            debugPrint('Error fetching semester ${semester['semesterId']}: $e');
-            // Continue with next semester even if one fails
-            continue;
-          }
-        }
-
-        if (allSemesters.isEmpty) {
-          throw Exception('No results found');
-        }
-
+        
+        // Fetch student info
+        final studentInfo = await _studentDataService.fetchStudentInfo(studentId);
+        
+        // Fetch semester results
+        final semesterResults = await _studentDataService.fetchResults(studentId);
+        print(semesterResults);
+        
+        // Calculate overall CGPA
+        final cgpa = _studentDataService.calculateOverallCGPA(semesterResults);
+        
+        // Prepare semester results
+        final allSemesters = <SemesterResult>[];
+        
+        semesterResults.forEach((semesterId, results) {
+          // Calculate semester SGPA
+          final sgpa = _studentDataService.calculateSemesterCGPA(results);
+          
+          // Prepare courses for this semester
+          final courses = results.map((course) => CourseResult(
+            courseTitle: course['courseTitle'],
+            totalCredit: double.parse(course['totalCredit'].toString()),
+            gradeLetter: course['gradeLetter'],
+            pointEquivalent: double.parse(course['pointEquivalent'].toString()),
+          )).toList();
+          
+          // Determine semester name and year from semesterId
+          final semesterName = _getSemesterName(semesterId);
+          final semesterYear = _getSemesterYear(semesterId);
+          
+          allSemesters.add(SemesterResult(
+            name: semesterName,
+            year: semesterYear,
+            credits: courses.fold(0.0, (sum, course) => sum + course.totalCredit),
+            sgpa: sgpa,
+            courses: courses,
+          ));
+        });
+        
         // Sort semesters chronologically
         allSemesters.sort((a, b) {
           if (a.year != b.year) {
@@ -323,12 +292,12 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
 
         setState(() {
           _result = CGPAResult(
-            cgpa: totalPoints / totalCredits,
-            totalCredits: totalCredits,
+            cgpa: cgpa,
+            totalCredits: allSemesters.fold(0, (sum, semester) => sum + semester.credits.toInt()),
             semesters: allSemesters,
-            studentName: studentInfo.studentName ?? 'Unknown Student',
-            programName: studentInfo.programName ?? 'Unknown Program',
-            batchNo: studentInfo.batchNo ?? 'Unknown Batch',
+            studentName: studentInfo['studentName'] ?? 'Unknown Student',
+            programName: studentInfo['programName'] ?? 'Unknown Program',
+            batchNo: studentInfo['batchNo']?.toString() ?? 'Unknown Batch',
           );
         });
       } catch (e) {
@@ -339,6 +308,21 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
         setState(() => _isLoading = false);
       }
     }
+  }
+  // Helper methods to parse semester ID
+  String _getSemesterName(String semesterId) {
+    final lastDigit = semesterId[semesterId.length - 1];
+    switch (lastDigit) {
+      case '1': return 'Spring';
+      case '2': return 'Summer';
+      case '3': return 'Fall';
+      default: return 'Unknown';
+    }
+  }
+
+  int _getSemesterYear(String semesterId) {
+    final yearPrefix = semesterId.substring(0, semesterId.length - 1);
+    return int.parse('20$yearPrefix');
   }
 
   Widget _buildCalculatorForm() {
@@ -415,7 +399,7 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
     );
   }
 
-  @override
+@override
   void initState() {
     super.initState();
     _gradientController = AnimationController(
@@ -432,9 +416,11 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     _gradientController.dispose();
+    _studentIdController.dispose();
     super.dispose();
   }
 }
+
 
 class _SemesterDetailsSheet extends StatelessWidget {
   final SemesterResult semester;
