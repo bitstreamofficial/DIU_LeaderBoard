@@ -125,7 +125,7 @@ Future<Map<String, List<dynamic>>> fetchResults(String studentId) async {
       semesterResults.forEach((_, results) {
         for (var result in results) {
           double credit =
-              double.parse(result['totalCredit']?.toString() ?? '0');
+              double.parse(result['totalCredit']?.toString() ?? '0'); 
           double points =
               double.parse(result['pointEquivalent']?.toString() ?? '0');
 
