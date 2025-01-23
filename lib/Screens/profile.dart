@@ -414,6 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Text(
                                     '$semesterName $semesterYear',
                                     style: const TextStyle(
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),

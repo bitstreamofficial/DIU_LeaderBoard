@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'dart:math';
 
 import '../models/semester_model.dart';
@@ -11,11 +12,12 @@ class CGPAView extends StatefulWidget {
   State<CGPAView> createState() => _CGPAViewState();
 }
 
-class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin {
+class _CGPAViewState extends State<CGPAView>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _studentIdController = TextEditingController();
   final _studentDataService = StudentDataService();
-  
+
   bool _isLoading = false;
   CGPAResult? _result;
   late AnimationController _gradientController;
@@ -25,7 +27,8 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CGPA Calculator', style: TextStyle(color: Colors.white)),
+        title: const Text('CGPA Calculator',
+            style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF1A1A1A),
       ),
@@ -34,7 +37,7 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
         child: Column(
           children: [
             _buildCalculatorForm(),
-            if (_isLoading) 
+            if (_isLoading)
               const _LoadingAnimation()
             else if (_result != null)
               _buildResults(_result!),
@@ -72,18 +75,19 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 24.0, horizontal: 20.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (result.studentName != null) 
+                    if (result.studentName != null)
                       Text(
                         result.studentName!,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 22,
-                        ),
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     if (result.programName != null) ...[
@@ -91,9 +95,9 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
                       Text(
                         result.programName!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 16,
-                        ),
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -102,40 +106,42 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
                       Text(
                         'Batch: ${result.batchNo}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 16,
-                        ),
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                            ),
                       ),
                     ],
                     const SizedBox(height: 20),
                     Text(
                       result.cgpa.toStringAsFixed(2),
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 48,
-                      ),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 48,
+                          ),
                     ),
                     Text(
                       'CGPA',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 18,
-                      ),
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 18,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         'Total Credits: ${result.totalCredits}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
                       ),
                     ),
                   ],
@@ -190,7 +196,8 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -235,50 +242,56 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
     return Container();
   }
 
-    Future<void> _calculateCGPA() async {
+  Future<void> _calculateCGPA() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
         final studentId = _studentIdController.text;
-        
+
         // Fetch student info
-        final studentInfo = await _studentDataService.fetchStudentInfo(studentId);
-        
+        final studentInfo =
+            await _studentDataService.fetchStudentInfo(studentId);
+
         // Fetch semester results
-        final semesterResults = await _studentDataService.fetchResults(studentId);
+        final semesterResults =
+            await _studentDataService.fetchResults(studentId);
         print(semesterResults);
-        
+
         // Calculate overall CGPA
         final cgpa = _studentDataService.calculateOverallCGPA(semesterResults);
-        
+
         // Prepare semester results
         final allSemesters = <SemesterResult>[];
-        
+
         semesterResults.forEach((semesterId, results) {
           // Calculate semester SGPA
           final sgpa = _studentDataService.calculateSemesterCGPA(results);
-          
+
           // Prepare courses for this semester
-          final courses = results.map((course) => CourseResult(
-            courseTitle: course['courseTitle'],
-            totalCredit: double.parse(course['totalCredit'].toString()),
-            gradeLetter: course['gradeLetter'],
-            pointEquivalent: double.parse(course['pointEquivalent'].toString()),
-          )).toList();
-          
+          final courses = results
+              .map((course) => CourseResult(
+                    courseTitle: course['courseTitle'],
+                    totalCredit: double.parse(course['totalCredit'].toString()),
+                    gradeLetter: course['gradeLetter'],
+                    pointEquivalent:
+                        double.parse(course['pointEquivalent'].toString()),
+                  ))
+              .toList();
+
           // Determine semester name and year from semesterId
           final semesterName = _getSemesterName(semesterId);
           final semesterYear = _getSemesterYear(semesterId);
-          
+
           allSemesters.add(SemesterResult(
             name: semesterName,
             year: semesterYear,
-            credits: courses.fold(0.0, (sum, course) => sum + course.totalCredit),
+            credits:
+                courses.fold(0.0, (sum, course) => sum + course.totalCredit),
             sgpa: sgpa,
             courses: courses,
           ));
         });
-        
+
         // Sort semesters chronologically
         allSemesters.sort((a, b) {
           if (a.year != b.year) {
@@ -293,7 +306,8 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
         setState(() {
           _result = CGPAResult(
             cgpa: cgpa,
-            totalCredits: allSemesters.fold(0, (sum, semester) => sum + semester.credits.toInt()),
+            totalCredits: allSemesters.fold(
+                0, (sum, semester) => sum + semester.credits.toInt()),
             semesters: allSemesters,
             studentName: studentInfo['studentName'] ?? 'Unknown Student',
             programName: studentInfo['programName'] ?? 'Unknown Program',
@@ -309,14 +323,19 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
       }
     }
   }
+
   // Helper methods to parse semester ID
   String _getSemesterName(String semesterId) {
     final lastDigit = semesterId[semesterId.length - 1];
     switch (lastDigit) {
-      case '1': return 'Spring';
-      case '2': return 'Summer';
-      case '3': return 'Fall';
-      default: return 'Unknown';
+      case '1':
+        return 'Spring';
+      case '2':
+        return 'Summer';
+      case '3':
+        return 'Fall';
+      default:
+        return 'Unknown';
     }
   }
 
@@ -333,7 +352,7 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
         children: [
           TextFormField(
             controller: _studentIdController,
-            style: const TextStyle(color: Colors.white), 
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Student ID',
               hintText: 'Enter your student ID',
@@ -376,30 +395,21 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
                 ),
                 elevation: 1,
               ),
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'Calculate CGPA',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+              child: Text(
+                _isLoading ? 'Calculating...' : 'Calculate CGPA',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
   }
 
-@override
+  @override
   void initState() {
     super.initState();
     _gradientController = AnimationController(
@@ -420,7 +430,6 @@ class _CGPAViewState extends State<CGPAView> with SingleTickerProviderStateMixin
     super.dispose();
   }
 }
-
 
 class _SemesterDetailsSheet extends StatelessWidget {
   final SemesterResult semester;
@@ -493,7 +502,8 @@ class _SemesterDetailsSheet extends StatelessWidget {
                         child: ListView.separated(
                           controller: scrollController,
                           itemCount: semester.courses.length,
-                          separatorBuilder: (context, index) => const Divider(height: 1),
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
                           itemBuilder: (context, index) {
                             final course = semester.courses[index];
                             return ListTile(
@@ -565,15 +575,11 @@ class _LoadingAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        3,
-        (index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: _BouncingBall(delay: Duration(milliseconds: index * 200)),
-        ),
-      ),
+    return Lottie.asset(
+      'assets/loading.json', 
+      width: 400,
+      height: 400,
+      fit: BoxFit.fill,
     );
   }
 }
@@ -637,4 +643,4 @@ class _BouncingBallState extends State<_BouncingBall>
     _controller.dispose();
     super.dispose();
   }
-} 
+}

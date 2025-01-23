@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import 'dart:math';
 
@@ -140,26 +141,23 @@ class _ResultsViewState extends State<ResultsView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: AppBar(
         title: const Text('Semester Results',
             style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF1A1A1A),
       ),
-
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             _buildSearchForm(),
             if (_isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
+              Lottie.asset(
+                'assets/loading.json', 
+                width: 400,
+                height: 400,
+                fit: BoxFit.fill,
               )
             else if (_studentInfo != null && _sgpa != null)
               Column(
@@ -226,11 +224,7 @@ class _ResultsViewState extends State<ResultsView>
                   return null;
                 },
               ),
-
-
               const SizedBox(height: 16),
-
-
               DropdownButtonFormField<String>(
                 value: _selectedSemester,
                 dropdownColor: const Color(0xFF1A1A1A),
@@ -262,27 +256,19 @@ class _ResultsViewState extends State<ResultsView>
                   return null;
                 },
               ),
-
-
               const SizedBox(height: 16),
-
-
               TextFormField(
                 controller: _studentIdController,
-                style: const TextStyle(color: Colors.white), 
+                style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Student ID',
-                  labelStyle:
-                      TextStyle(color: Colors.white), 
+                  labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Colors.white), 
+                    borderSide: BorderSide(color: Colors.white),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color:
-                            Colors.yellowAccent), 
+                    borderSide: BorderSide(color: Colors.yellowAccent),
                   ),
                 ),
                 validator: (value) {
@@ -305,11 +291,6 @@ class _ResultsViewState extends State<ResultsView>
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
                       )
                     : const Text('Show Results'),
               ),

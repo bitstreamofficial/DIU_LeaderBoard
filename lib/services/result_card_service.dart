@@ -26,14 +26,16 @@ class ResultCardService {
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
+          margin: pw.EdgeInsets.all(40),
           build: (pw.Context context) {
             return [
+              // Header with Institution Name and Logo Area
               pw.Container(
-                padding: pw.EdgeInsets.all(20),
                 decoration: pw.BoxDecoration(
-                  borderRadius: pw.BorderRadius.circular(8),
-                  color: primaryColor,
+                  border: pw.Border.all(color: primaryColor, width: 2),
+                  borderRadius: pw.BorderRadius.circular(10),
                 ),
+                padding: pw.EdgeInsets.all(15),
                 child: pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
@@ -43,33 +45,36 @@ class ResultCardService {
                         pw.Text(
                           'Academic Result Card',
                           style: pw.TextStyle(
-                            color: PdfColors.white,
-                            fontSize: 28,
+                            fontSize: 20,
                             fontWeight: pw.FontWeight.bold,
+                            color: primaryColor,
                           ),
                         ),
                         pw.SizedBox(height: 5),
                         pw.Text(
-                          'Excellence in Education',
+                          'Official Academic Transcript',
                           style: pw.TextStyle(
-                            color: PdfColors.grey300,  // Changed from white70
-                            fontSize: 14,
-                            fontStyle: pw.FontStyle.italic,
+                            fontSize: 12,
+                            color: secondaryColor,
                           ),
                         ),
                       ],
                     ),
                     pw.Container(
-                      padding: pw.EdgeInsets.all(10),
+                      width: 100,
+                      height: 100,
                       decoration: pw.BoxDecoration(
-                        color: PdfColors.white,
-                        borderRadius: pw.BorderRadius.circular(5),
+                        border: pw.Border.all(color: accentColor),
+                        borderRadius: pw.BorderRadius.circular(10),
                       ),
-                      child: pw.Text(
-                        DateTime.now().toString().split('.')[0],
-                        style: pw.TextStyle(
-                          color: primaryColor,
-                          fontSize: 12,
+                      child: pw.Center(
+                        child: pw.Text(
+                          studentInfo?['studentName']?.toString().substring(0, 1).toUpperCase() ?? '?',
+                          style: pw.TextStyle(
+                            fontSize: 48,
+                            fontWeight: pw.FontWeight.bold,
+                            color: primaryColor,
+                          ),
                         ),
                       ),
                     ),
@@ -79,13 +84,13 @@ class ResultCardService {
 
               pw.SizedBox(height: 20),
 
+              // Student Information Section
               pw.Container(
-                padding: pw.EdgeInsets.all(20),
                 decoration: pw.BoxDecoration(
-                  border: pw.Border.all(color: accentColor, width: 2),
-                  borderRadius: pw.BorderRadius.circular(8),
-                  color: PdfColors.white,
+                  border: pw.Border.all(color: secondaryColor),
+                  borderRadius: pw.BorderRadius.circular(10),
                 ),
+                padding: pw.EdgeInsets.all(15),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -95,13 +100,13 @@ class ResultCardService {
                         pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            _buildInfoRow('Student Name', studentInfo?['studentName'] ?? 'N/A'),
-                            pw.SizedBox(height: 10),
+                            _buildInfoRow('Name', studentInfo?['studentName'] ?? 'N/A'),
+                            pw.SizedBox(height: 5),
                             _buildInfoRow('Student ID', studentInfo?['studentId'] ?? 'N/A'),
                           ],
                         ),
                         pw.Container(
-                          padding: pw.EdgeInsets.all(15),
+                          padding: pw.EdgeInsets.all(10),
                           decoration: pw.BoxDecoration(
                             color: successColor,
                             borderRadius: pw.BorderRadius.circular(10),
@@ -115,7 +120,6 @@ class ResultCardService {
                                   fontSize: 12,
                                 ),
                               ),
-                              pw.SizedBox(height: 5),
                               pw.Text(
                                 overallCGPA?.toStringAsFixed(2) ?? 'N/A',
                                 style: pw.TextStyle(
@@ -135,6 +139,7 @@ class ResultCardService {
 
               pw.SizedBox(height: 20),
 
+              // Semester Results
               if (semesterResults != null) ...semesterResults.entries.map((entry) {
                 final semester = entry.key;
                 final results = entry.value;
@@ -146,14 +151,13 @@ class ResultCardService {
                   margin: pw.EdgeInsets.only(bottom: 20),
                   decoration: pw.BoxDecoration(
                     border: pw.Border.all(color: secondaryColor),
-                    borderRadius: pw.BorderRadius.circular(8),
-                    color: PdfColors.white,
+                    borderRadius: pw.BorderRadius.circular(10),
                   ),
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Container(
-                        padding: pw.EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        padding: pw.EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                         decoration: pw.BoxDecoration(
                           color: secondaryColor,
                           borderRadius: pw.BorderRadius.only(
@@ -172,18 +176,11 @@ class ResultCardService {
                                 fontWeight: pw.FontWeight.bold,
                               ),
                             ),
-                            pw.Container(
-                              padding: pw.EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                              decoration: pw.BoxDecoration(
+                            pw.Text(
+                              'Semester CGPA: ${firstResult['cgpa']?.toString() ?? 'N/A'}',
+                              style: pw.TextStyle(
                                 color: PdfColors.white,
-                                borderRadius: pw.BorderRadius.circular(15),
-                              ),
-                              child: pw.Text(
-                                'CGPA: ${firstResult['cgpa']?.toString() ?? 'N/A'}',
-                                style: pw.TextStyle(
-                                  color: secondaryColor,
-                                  fontWeight: pw.FontWeight.bold,
-                                ),
+                                fontWeight: pw.FontWeight.bold,
                               ),
                             ),
                           ],
@@ -195,18 +192,13 @@ class ResultCardService {
                           color: PdfColors.grey100,
                         ),
                         headerHeight: 40,
-                        cellHeight: 50,
+                        cellHeight: 30,
                         headerStyle: pw.TextStyle(
                           fontWeight: pw.FontWeight.bold,
-                          color: secondaryColor,
+                          color: primaryColor,
                         ),
                         cellStyle: pw.TextStyle(
                           fontSize: 12,
-                        ),
-                        cellDecoration: (index, data, rowNum) => pw.BoxDecoration(
-                          border: pw.Border(
-                            bottom: pw.BorderSide(color: PdfColors.grey300),
-                          ),
                         ),
                         cellAlignment: pw.Alignment.center,
                         headers: ['Course Code', 'Course Title', 'Grade'],
@@ -220,6 +212,20 @@ class ResultCardService {
                   ),
                 );
               }).toList(),
+
+              // Footer
+              pw.Padding(
+                padding: pw.EdgeInsets.only(top: 20),
+                child: pw.Center(
+                  child: pw.Text(
+                    'Generated on ${DateTime.now()}',
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey,
+                    ),
+                  ),
+                ),
+              ),
             ];
           },
         ),
@@ -227,13 +233,13 @@ class ResultCardService {
 
       // Get the application documents directory
       final directory = await getApplicationDocumentsDirectory();
-      final fileName = '${studentInfo?['studentId'] ?? 'result'}_card.pdf';
+      final fileName = '${studentInfo?['studentId'] ?? 'result'}_academic_transcript.pdf';
       final file = File('${directory.path}/$fileName');
 
       // Save the PDF
       await file.writeAsBytes(await pdf.save());
 
-      // Open the PDF using the correct import
+      // Open the PDF
       await OpenFile.open(file.path);
 
       setLoading(false);
@@ -267,13 +273,13 @@ class ResultCardService {
           style: pw.TextStyle(
             color: PdfColors.grey700,
             fontSize: 12,
+            fontWeight: pw.FontWeight.bold,
           ),
         ),
         pw.Text(
           value,
           style: pw.TextStyle(
             fontSize: 14,
-            fontWeight: pw.FontWeight.bold,
           ),
         ),
       ],

@@ -379,12 +379,7 @@ class _HomePageState extends State<HomePage> {
       // For podium positions (0, 1, 2), scroll to top
       offset = 0;
     } else {
-      // For list positions (3 and beyond)
-      // Height calculation:
-      // - 200 for podium section
-      // - ~76 for current user rank (if shown)
-      // - 20 for spacing
-      // - ~72 per list item
+      
       double podiumHeight = 200;
       double currentUserHeight = _buildCurrentUserRank().toString() != 'SizedBox.shrink' ? 76 : 0;
       double spacingHeight = 20;
@@ -505,7 +500,7 @@ class _HomePageState extends State<HomePage> {
                   : CustomScrollView(
                       controller: _scrollController,
                       slivers: [
-                        // App Bar with Title
+                        
 
                         // Top 3 Podium
                         if (students.length >= 3)

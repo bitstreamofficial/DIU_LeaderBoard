@@ -25,6 +25,7 @@ dependencies:
   open_file: ^3.3.2
   url_launcher: ^6.3.1
   csv: ^6.0.0
+  printing: ^5.13.4
 
 
 dev_dependencies:
@@ -51,3 +52,4 @@ flutter:
     - assets/signup.json
     - assets/login.json
     - assets/reset.json
+    - assets/loading.json
