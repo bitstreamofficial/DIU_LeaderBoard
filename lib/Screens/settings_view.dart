@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../services/auth_service.dart';
 
 // Team Member Model stays the same
 class TeamMember {
@@ -35,7 +38,8 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
       name: 'Shakib Howlader',
       role: 'Flutter Developer',
       imageUrl: 'lib\\assets\\Images\\shakib_dev.jpg',
-      description: 'Passionate about creating beautiful and functional Flutter applications.',
+      description:
+          'Passionate about creating beautiful and functional Flutter applications.',
       githubUrl: 'https://github.com/mr-shakib',
       linkedinUrl: 'https://www.linkedin.com/in/shakib-howlader',
     ),
@@ -148,7 +152,8 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         member.name,
@@ -185,12 +190,14 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                                 IconButton(
                                   icon: const Icon(Icons.code),
                                   color: Colors.white,
-                                  onPressed: () => _launchUrl(member.githubUrl, context),
+                                  onPressed: () =>
+                                      _launchUrl(member.githubUrl, context),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.people),
                                   color: Colors.white,
-                                  onPressed: () => _launchUrl(member.linkedinUrl, context),
+                                  onPressed: () =>
+                                      _launchUrl(member.linkedinUrl, context),
                                 ),
                               ],
                             ),
@@ -220,6 +227,82 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   bool isDarkMode = false;
   bool isNotificationsEnabled = true;
+  final AuthService _authService = AuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  void _handleAccountDeletion(BuildContext context) async {
+    final bool? confirmDeletion = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title:
+              const Text('Delete Account', style: TextStyle(color: Colors.red)),
+          content: const Text(
+            'Are you absolutely sure you want to delete your account? '
+            'This action cannot be undone and will permanently remove all your data.',
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text(
+                'Delete Account',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+          backgroundColor: Color(0xFF2A2A2A),
+        );
+      },
+    );
+
+    if (confirmDeletion == true) {
+      try {
+        // Get current user ID
+        String? userId = _authService.getCurrentUserId();
+
+        if (userId != null) {
+          // Delete user data from Firestore
+          await _firestore.collection('users').doc(userId).delete();
+
+          // Delete Firebase Authentication account
+          await _authService.deleteUser();
+
+          // Clear SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.clear();
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Account deleted successfully'),
+                backgroundColor: Colors.red,
+              ),
+            );
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+              (route) => false,
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete account: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
 
   void _handleLogout(BuildContext context) async {
     final bool? confirmLogout = await showDialog<bool>(
@@ -369,6 +452,20 @@ class _SettingsViewState extends State<SettingsView> {
             title: const Text('Logout', style: TextStyle(color: Colors.red)),
             trailing: const Icon(Icons.arrow_forward_ios, color: Colors.red),
             onTap: () => _handleLogout(context),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.delete_forever, color: Colors.red),
+            title: const Text(
+              'Delete Account', 
+              style: TextStyle(color: Colors.red),
+            ),
+            subtitle: const Text(
+              'Permanently remove your account and all associated data', 
+              style: TextStyle(color: Colors.grey),
+            ),
+            trailing: const Icon(Icons.warning, color: Colors.red),
+            onTap: () => _handleAccountDeletion(context),
           ),
         ],
       ),
