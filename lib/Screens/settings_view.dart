@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/login.dart';
+import 'package:flutter_first/Screens/privacy_policy.dart';
+import 'package:flutter_first/Screens/support_contact_page.dart';
+import 'package:flutter_first/Screens/terms_conditions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -444,6 +447,41 @@ class _SettingsViewState extends State<SettingsView> {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => TeamBottomSheet(),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip, color: Colors.white),
+            title: const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicyPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.description, color: Colors.white),
+            title:
+                const Text('Terms & Conditions', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TermsConditionsPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.description, color: Colors.white),
+            title:
+                const Text('Support Contact', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SupportContactPage()),
               );
             },
           ),
