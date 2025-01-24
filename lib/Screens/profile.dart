@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/login.dart';
 import 'package:flutter_first/services/auth_service.dart';
@@ -370,6 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               if (_semesterResults != null) ...[
                 const SizedBox(height: 20),
+                _buildCGPAChart(),
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -691,4 +693,233 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+  Widget _buildCGPAChart() {
+  if (_semesterResults == null || _semesterResults!.isEmpty) {
+    return Container(
+      height: 250,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No CGPA Data Available', 
+              style: TextStyle(
+                color: Colors.grey[600], 
+                fontSize: 18, 
+                fontWeight: FontWeight.w500
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Convert semester results to a list of semester data
+  final semesters = _semesterResults!.entries.map((entry) {
+    // Assuming the first result in each semester contains semester metadata
+    var firstResult = entry.value[0];
+    return {
+      'name': _getSemesterName(entry.key),
+      'year': _getSemesterYear(entry.key),
+      'sgpa': _calculateSemesterCGPA(entry.value)
+    };
+  }).toList();
+
+  // Sort semesters chronologically
+  semesters.sort((a, b) {
+    if (a['year'] != b['year']) {
+      return (b['year'] as int).compareTo(a['year'] as int);
+    }
+    final seasonOrder = {'Spring': 1, 'Summer': 2, 'Fall': 3, 'Short': 4};
+    final aOrder = seasonOrder[a['name']] ?? 0;
+    final bOrder = seasonOrder[b['name']] ?? 0;
+    return bOrder - aOrder;
+  });
+
+  // Filter out invalid SGPA values
+  final validSemesters = semesters.where((s) => 
+    s['sgpa'] != null && 
+    (s['sgpa'] as double).isFinite && 
+    (s['sgpa'] as double) >= 0 && 
+    (s['sgpa'] as double) <= 4.0
+  ).toList();
+
+  if (validSemesters.isEmpty) {
+    return Container(
+      height: 250, 
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red),
+            SizedBox(height: 16),
+            Text(
+              'Unable to Generate CGPA Chart', 
+              style: TextStyle(
+                color: Colors.red, 
+                fontSize: 18, 
+                fontWeight: FontWeight.w500
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  return Card(
+    elevation: 4,
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    color: const Color(0xFF2B2E4A),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'CGPA Progression',
+            style: TextStyle(
+              fontSize: 18, 
+              fontWeight: FontWeight.bold,
+              color: Colors.white
+            ),
+          ),
+          SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 0.5,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.white.withOpacity(0.2),
+                    strokeWidth: 1,
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index < 0 || index >= validSemesters.length) return Container();
+                        final semester = validSemesters[index];
+                        return Text(
+                          '${semester['name']}\n${semester['year']}', 
+                          style: TextStyle(
+                            fontSize: 10, 
+                            color: Colors.white
+                          ),
+                          textAlign: TextAlign.center,
+                        );
+                      },
+                      interval: 1,
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontSize: 10, 
+                            color: Colors.white
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: validSemesters.asMap().entries.map((entry) {
+                      return FlSpot(entry.key.toDouble(), entry.value['sgpa'] as double);
+                    }).toList(),
+                    isCurved: true,
+                    color: Colors.yellow,
+                    barWidth: 3,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 5,
+                          color: Colors.yellow,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: Colors.yellow.withOpacity(0.3),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.yellow.withOpacity(0.3),
+                          Colors.yellow.withOpacity(0.1),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                minX: 0,
+                maxX: validSemesters.length.toDouble() - 1,
+                minY: 0,
+                maxY: 4.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// Helper methods to parse semester ID
+String _getSemesterName(String semesterId) {
+  final lastDigit = semesterId[semesterId.length - 1];
+  switch (lastDigit) {
+    case '1':
+      return 'Spring';
+    case '2':
+      return 'Summer';
+    case '3':
+      return 'Fall';
+    default:
+      return 'Unknown';
+  }
+}
+
+int _getSemesterYear(String semesterId) {
+  final yearPrefix = semesterId.substring(0, semesterId.length - 1);
+  return int.parse('20$yearPrefix');
+}
+
+double _calculateSemesterCGPA(List<dynamic> results) {
+  double totalWeightedPoints = 0;
+  double totalCredits = 0;
+
+  for (var course in results) {
+    double credits = double.parse(course['totalCredit'].toString());
+    double pointEquivalent = double.parse(course['pointEquivalent'].toString());
+
+    totalWeightedPoints += credits * pointEquivalent;
+    totalCredits += credits;
+  }
+
+  return totalCredits > 0 ? totalWeightedPoints / totalCredits : 0;
+}
 }
