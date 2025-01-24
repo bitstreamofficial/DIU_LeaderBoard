@@ -161,6 +161,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
