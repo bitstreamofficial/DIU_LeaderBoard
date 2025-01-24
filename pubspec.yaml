@@ -27,6 +27,9 @@ dependencies:
   csv: ^6.0.0
   printing: ^5.13.4
   fl_chart: ^0.70.2
+  dart_openai: ^5.0.0
+  envied: ^0.5.3
+  google_generative_ai: ^0.4.6
 
 
 dev_dependencies:
@@ -54,3 +57,5 @@ flutter:
     - assets/login.json
     - assets/reset.json
     - assets/loading.json
+    - assets/ai_loading.json
+    - assets/achievement.json

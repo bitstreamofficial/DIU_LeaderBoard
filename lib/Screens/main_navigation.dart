@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/cgpa_view.dart';
+import 'package:flutter_first/Screens/academic_performance.dart';
+import 'package:flutter_first/Screens/ai_recommendations.dart';
+import 'package:flutter_first/unnecessary/cgpa_view.dart';
 import 'package:flutter_first/Screens/home.dart';
 import 'package:flutter_first/Screens/profile.dart';
-import 'package:flutter_first/Screens/results_view.dart';
+import 'package:flutter_first/unnecessary/results_view.dart';
 import 'package:flutter_first/Screens/settings_view.dart';
 import '../models/student_model.dart';
+import '../services/auth_service.dart';
 
 
 class MainNavigation extends StatefulWidget {
@@ -15,6 +18,7 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
+  final _auth = AuthService();
   int _selectedIndex = 2;
   
   // Temporary mock student info - replace with actual data later
@@ -33,11 +37,12 @@ class _MainNavigationState extends State<MainNavigation> {
   void initState() {
     super.initState();
     _screens = [
-      const ResultsView(),
-      const CGPAView(),
+      AIRecommendationsPage(userId: _auth.getCurrentUserId() ?? ''),
+      const AcademicPerformancePage(),
       const HomePage(), // Leaderboard
       const SettingsView(),
       const ProfilePage(),
+      
     ];
   }
 
@@ -59,15 +64,16 @@ class _MainNavigationState extends State<MainNavigation> {
         surfaceTintColor: Colors.transparent,
         destinations: const [
           NavigationDestination(
+            icon: Icon(Icons.analytics, color: Colors.white70),
+            selectedIcon: Icon(Icons.analytics, color: Colors.white),
+            label: 'Analyze',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.assignment, color: Colors.white70),
             selectedIcon: Icon(Icons.assignment, color: Colors.white),
             label: 'Results',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.calculate, color: Colors.white70),
-            selectedIcon: Icon(Icons.calculate, color: Colors.white),
-            label: 'CGPA',
-          ),
+          
           NavigationDestination(
             icon: Icon(Icons.leaderboard, color: Colors.white70),
             selectedIcon: Icon(Icons.leaderboard, color: Colors.white),
@@ -83,6 +89,11 @@ class _MainNavigationState extends State<MainNavigation> {
             selectedIcon: Icon(Icons.person, color: Colors.white),
             label: 'Profile',
           ),
+          // NavigationDestination(
+          //   icon: Icon(Icons.person, color: Colors.white70),
+          //   selectedIcon: Icon(Icons.roundabout_left, color: Colors.white),
+          //   label: 'AI',
+          // ),
         ],
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
