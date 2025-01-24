@@ -474,14 +474,24 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.description, color: Colors.white),
+            leading: const Icon(Icons.chat, color: Colors.white),
             title:
-                const Text('Support Contact', style: TextStyle(color: Colors.white)),
+                const Text('Support Chat', style: TextStyle(color: Colors.white)),
             trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SupportContactPage()),
+                MaterialPageRoute(builder: (context) {
+                  final userId = _authService.getCurrentUserId();
+                  if (userId != null) {
+                    return SupportContactPage(userId: userId);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('User ID is null')),
+                    );
+                    return Container(); 
+                  }
+                }),
               );
             },
           ),
