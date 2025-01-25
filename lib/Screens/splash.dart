@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/login.dart';
 import 'package:flutter_first/Screens/update_screens.dart';
+import 'package:flutter_first/main.dart';
 import 'package:flutter_first/services/update_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_first/Screens/main_navigation.dart';
@@ -16,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+    NotificationService().initialize();
     _controller = AnimationController(
       vsync: this,
       duration: Duration(seconds: 3), // Match this with your GIF duration
