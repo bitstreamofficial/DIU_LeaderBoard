@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   final _auth = AuthService();
   final _studentDataService = StudentDataService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Map<String, dynamic>? _studentInfo;
   Map<String, List<dynamic>>? _semesterResults;
   double? _overallCGPA;
@@ -39,12 +41,13 @@ class _HomePageState extends State<HomePage> {
   String _searchQuery = '';
   final Map<String, GlobalKey> _studentKeys = {};
   bool _isScrolling = false;
+  Map<String, bool>? _showMePreferences;
 
   @override
   void initState() {
     super.initState();
     userId = _auth.getCurrentUserId();
-    _loadPreferences();
+    _loadUserPreferences();
     _initializeData();
 
     _scrollController.addListener(() {
@@ -61,7 +64,6 @@ class _HomePageState extends State<HomePage> {
         _searchQuery = _searchController.text.toLowerCase();
       });
       if (_searchQuery.isNotEmpty) {
-        // Add a small delay to ensure the build is complete
         Future.delayed(const Duration(milliseconds: 100), () {
           _scrollToMatchingStudent();
         });
@@ -74,6 +76,79 @@ class _HomePageState extends State<HomePage> {
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchStudentShowMePreferences() async {
+    try {
+      final batch = _studentInfo?['batchNo'].toString();
+      if (batch == null) return;
+
+      final showMePreferences = await Future.wait(
+        students.map((student) async {
+          try {
+            final studentDoc = await _firestore
+                .collection('students')
+                .where('studentId', isEqualTo: student.id)
+                .get();
+            
+            if (studentDoc.docs.isNotEmpty) {
+              return {
+                student.id: studentDoc.docs.first.data()['showMe'] ?? false
+              };
+            }
+            return {student.id: false};
+          } catch (e) {
+            print('Error fetching showMe for ${student.name}: $e');
+            return {student.id: false};
+          }
+        })
+      );
+
+      final showMeMap = showMePreferences.fold<Map<String, bool>>(
+        {}, (acc, current) => acc..addAll(current.cast<String, bool>())
+      );
+
+      setState(() {
+        _showMePreferences = showMeMap;
+      });
+    } catch (e) {
+      print('Error in _fetchStudentShowMePreferences: $e');
+    }
+  }
+
+  Future<void> _loadUserPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    if (userId != null) {
+      try {
+        final userDoc = await _firestore.collection('students').doc(userId).get();
+        bool showFullName = userDoc.data()?['showMe'] ?? false;
+        
+        setState(() {
+          _studentInfo ??= {};
+          _studentInfo!['showMe'] = showFullName;
+        });
+      } catch (e) {
+        print('Error fetching showMe preference: $e');
+      }
+    }
+  }
+
+  Future<String> _anonymizeName(String name, String studentId) {
+    bool showFullName = _showMePreferences?[studentId] ?? false;
+
+    if (showFullName) {
+      return Future.value(name);
+    } else {
+      var nameParts = name.split(' ');
+      if (nameParts.length > 1) {
+        return Future.value(
+          '${nameParts[0][0]} ' + 
+          nameParts.sublist(1).map((part) => '*' * part.length).join(' ')
+        );
+      }
+      return Future.value(name);
+    }
   }
 
   void _scrollToTop() {
@@ -97,10 +172,11 @@ class _HomePageState extends State<HomePage> {
       await _fetchStudentData();
     }
 
-    // Load students after getting student info
     if (_studentInfo != null) {
+      print('Student info: $_studentInfo');
       final batch = _studentInfo!['batchNo'].toString();
       await loadStudents(batch);
+      await _fetchStudentShowMePreferences();
     }
 
     setState(() {});
@@ -151,7 +227,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   String getBatchCsvPath(String batch) {
-    // Add more cases as needed for different batches
     switch (batch) {
       case '39':
         return 'assets/studentRank39NFE.csv';
@@ -161,7 +236,6 @@ class _HomePageState extends State<HomePage> {
         return 'assets/studentRank62CSE.csv';
       case '63':
         return 'assets/studentRank63CSE.csv';
-      // Add more cases for other batches
       default:
         throw Exception('No CSV file available for batch: $batch');
     }
@@ -274,86 +348,6 @@ class _HomePageState extends State<HomePage> {
         false;
   }
 
-  Widget _buildCurrentUserRank() {
-    String? currentUserId = _studentInfo?['studentId'] as String?;
-    currentUserId ??= userId;
-
-    if (currentUserId == null) return const SizedBox.shrink();
-
-    // Find the current user's position
-    int userIndex =
-        students.indexWhere((student) => student.id == currentUserId);
-    if (userIndex < 0 || userIndex < 3) return const SizedBox.shrink();
-
-    final student = students[userIndex];
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: selectedItemColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white24, width: 1),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 30,
-            child: Text(
-              '${userIndex + 1}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: Colors.grey[800],
-            child: Text(
-              student.name[0].toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  student.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  'Your Position',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            student.cgpa.toStringAsFixed(2),
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _scrollToMatchingStudent() {
     if (_searchQuery.isEmpty) return;
 
@@ -407,8 +401,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  
-
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
@@ -419,7 +411,272 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  
+  Future<Widget> _buildCurrentUserRank() async {
+    String? currentUserId = _studentInfo?['studentId'] as String?;
+    currentUserId ??= userId;
+    bool canSeeFullName = _studentInfo?['showMe'] ?? false;
+
+    if (currentUserId == null) return const SizedBox.shrink();
+
+    // Find the current user's position
+    int userIndex =
+        students.indexWhere((student) => student.id == currentUserId);
+    if (userIndex < 0 || userIndex < 3) return const SizedBox.shrink();
+
+    final student = students[userIndex];
+    String displayName = await _anonymizeName(student.name, student.id);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: selectedItemColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24, width: 1),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 30,
+            child: Text(
+              '${userIndex + 1}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: Colors.grey[800],
+            child: Text(
+              displayName[0].toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text('Your Position',
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            student.cgpa.toStringAsFixed(2),
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<Widget> _buildPodiumItem(Student student, int rank) async {
+    Color getMedalColor(int rank) {
+      switch (rank) {
+        case 1:
+          return const Color(0xFFFFD700); // Gold
+        case 2:
+          return const Color(0xFFC0C0C0); // Silver
+        case 3:
+          return const Color(0xFFCD7F32); // Bronze
+        default:
+          return Colors.grey[400]!;
+      }
+    }
+
+    String displayName = await _anonymizeName(student.name, student.id);
+
+    final bool isMatch = _searchQuery.isNotEmpty &&
+        student.name.toLowerCase().contains(_searchQuery);
+    
+    final bool isCurrentUser = student.id == (_studentInfo?['studentId'] as String? ?? userId);
+
+    return Container(
+      key: _studentKeys.putIfAbsent(student.id, () => GlobalKey()),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (rank == 1)
+            Transform.translate(
+              offset: const Offset(0, 10),
+              child: Image.asset(
+                'assets/crown.png',
+                width: 50,
+                height: 50,
+                fit: BoxFit.contain,
+              ),
+            ),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              if (isCurrentUser) 
+                Container(
+                  width: rank == 1 ? 100 : 80,
+                  height: rank == 1 ? 100 : 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      for (var i = 0; i < 3; i++)
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.3 - i * 0.1),
+                          spreadRadius: (i + 1) * 4,
+                          blurRadius: (i + 1) * 4,
+                        ),
+                    ],
+                  ),
+                ),
+              CircleAvatar(
+                radius: rank == 1 ? 40 : 30,
+                backgroundColor: isMatch 
+                  ? Colors.amber 
+                  : isCurrentUser 
+                    ? Colors.green 
+                    : getMedalColor(rank),
+                child: Text(
+                  displayName[0].toUpperCase(),
+                  style: TextStyle(
+                    color: isMatch || isCurrentUser ? Colors.black : Colors.white,
+                    fontSize: rank == 1 ? 24 : 20,
+                  ),
+                ),
+              ),
+              if (rank <= 3)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: CircleAvatar(
+                    radius: 12,
+                    backgroundColor: Colors.grey[600]!,
+                    child: Text(
+                      '$rank',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            displayName,
+            style: TextStyle(
+              color: isMatch 
+                ? Colors.amber 
+                : isCurrentUser 
+                  ? Colors.green 
+                  : Colors.white,
+              fontSize: rank == 1 ? 16 : 14,
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            student.cgpa.toStringAsFixed(2),
+            style: TextStyle(
+              color: isMatch 
+                ? Colors.amber 
+                : isCurrentUser 
+                  ? Colors.green 
+                  : getMedalColor(rank),
+              fontSize: rank == 1 ? 16 : 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<Widget> _buildListItem(Student student, int rank, bool isCurrentUser) async {
+    String displayName = await _anonymizeName(student.name, student.id);
+
+    final bool isMatch = _searchQuery.isNotEmpty &&
+        student.name.toLowerCase().contains(_searchQuery);
+
+    return Container(
+      key: _studentKeys.putIfAbsent(student.id, () => GlobalKey()),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        color: isMatch
+            ? Colors.amber.withOpacity(0.3)
+            : (isCurrentUser ? selectedItemColor : cardColor),
+        borderRadius: BorderRadius.circular(12),
+        border: isMatch ? Border.all(color: Colors.amber, width: 2) : null,
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 40,
+            child: Text(
+              '$rank',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: isMatch ? Colors.amber : Colors.grey[800],
+            child: Text(
+              displayName[0].toUpperCase(),
+              style: TextStyle(
+                color: isMatch ? Colors.black : Colors.white,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              displayName,
+              style: TextStyle(
+                color: isMatch ? Colors.amber : Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            student.cgpa.toStringAsFixed(2),
+            style: TextStyle(
+              color: isMatch ? Colors.amber : Colors.grey[400],
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -488,20 +745,9 @@ class _HomePageState extends State<HomePage> {
                   ? const Center(
                       child: Text('No data available',
                           style: TextStyle(color: Colors.white)))
-                  // : _isSearching
-                  //     ? SingleChildScrollView(
-                  //         child: Column(
-                  //           children: [
-                  //             const SizedBox(height: 16),
-                  //             _buildSearchResults(),
-                  //           ],
-                  //         ),
-                  //       )
                   : CustomScrollView(
                       controller: _scrollController,
                       slivers: [
-                        
-
                         // Top 3 Podium
                         if (students.length >= 3)
                           SliverToBoxAdapter(
@@ -516,14 +762,46 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     Expanded(
                                         child:
-                                            _buildPodiumItem(students[1], 2)),
+                                            FutureBuilder<Widget>(
+                                              future: _buildPodiumItem(students[1], 2),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return const CircularProgressIndicator();
+                                                } else if (snapshot.hasError) {
+                                                  return const Icon(Icons.error);
+                                                } else {
+                                                  return snapshot.data!;
+                                                }
+                                              },
+                                            )),
                                     Expanded(
                                         flex: 2,
-                                        child:
-                                            _buildPodiumItem(students[0], 1)),
+                                        child: FutureBuilder<Widget>(
+                                          future: _buildPodiumItem(students[0], 1),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                              return const CircularProgressIndicator();
+                                            } else if (snapshot.hasError) {
+                                              return const Icon(Icons.error);
+                                            } else {
+                                              return snapshot.data!;
+                                            }
+                                          },
+                                        )),
                                     Expanded(
                                         child:
-                                            _buildPodiumItem(students[2], 3)),
+                                            FutureBuilder<Widget>(
+                                              future: _buildPodiumItem(students[2], 3),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return const CircularProgressIndicator();
+                                                } else if (snapshot.hasError) {
+                                                  return const Icon(Icons.error);
+                                                } else {
+                                                  return snapshot.data!;
+                                                }
+                                              },
+                                            )),
                                   ],
                                 ),
                               ),
@@ -532,7 +810,18 @@ class _HomePageState extends State<HomePage> {
 
                         // Current User's Rank (if not in top 3)
                         SliverToBoxAdapter(
-                          child: _buildCurrentUserRank(),
+                          child: FutureBuilder<Widget>(
+                            future: _buildCurrentUserRank(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return const Icon(Icons.error);
+                              } else {
+                                return snapshot.data ?? const SizedBox.shrink();
+                              }
+                            },
+                          ),
                         ),
 
                         const SliverToBoxAdapter(
@@ -545,8 +834,18 @@ class _HomePageState extends State<HomePage> {
                             (context, index) {
                               final student = students[index + 3];
                               final isCurrentUser = student.id == currentUserId;
-                              return _buildListItem(
-                                  student, index + 4, isCurrentUser);
+                              return FutureBuilder<Widget>(
+                                future: _buildListItem(student, index + 4, isCurrentUser),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return const Icon(Icons.error);
+                                  } else {
+                                    return snapshot.data ?? const SizedBox.shrink();
+                                  }
+                                },
+                              );
                             },
                             childCount:
                                 students.length > 3 ? students.length - 3 : 0,
@@ -565,187 +864,6 @@ class _HomePageState extends State<HomePage> {
             elevation: 1,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPodiumItem(Student student, int rank) {
-    Color getMedalColor(int rank) {
-      switch (rank) {
-        case 1:
-          return const Color(0xFFFFD700); // Gold
-        case 2:
-          return const Color(0xFFC0C0C0); // Silver
-        case 3:
-          return const Color(0xFFCD7F32); // Bronze
-        default:
-          return Colors.grey[400]!;
-      }
-    }
-
-    final bool isMatch = _searchQuery.isNotEmpty &&
-        student.name.toLowerCase().contains(_searchQuery);
-    
-    final bool isCurrentUser = student.id == (_studentInfo?['studentId'] as String? ?? userId);
-
-    return Container(
-      key: _studentKeys.putIfAbsent(student.id, () => GlobalKey()),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (rank == 1)
-            Transform.translate(
-              offset: const Offset(0, 10),
-              child: Image.asset(
-                'assets/crown.png',
-                width: 50,
-                height: 50,
-                fit: BoxFit.contain,
-              ),
-            ),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              if (isCurrentUser) 
-                Container(
-                  width: rank == 1 ? 100 : 80,
-                  height: rank == 1 ? 100 : 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      for (var i = 0; i < 3; i++)
-                        BoxShadow(
-                          color: Colors.green.withOpacity(0.3 - i * 0.1),
-                          spreadRadius: (i + 1) * 4,
-                          blurRadius: (i + 1) * 4,
-                        ),
-                    ],
-                  ),
-                ),
-              CircleAvatar(
-                radius: rank == 1 ? 40 : 30,
-                backgroundColor: isMatch 
-                  ? Colors.amber 
-                  : isCurrentUser 
-                    ? Colors.green 
-                    : getMedalColor(rank),
-                child: Text(
-                  student.name[0].toUpperCase(),
-                  style: TextStyle(
-                    color: isMatch || isCurrentUser ? Colors.black : Colors.white,
-                    fontSize: rank == 1 ? 24 : 20,
-                  ),
-                ),
-              ),
-              if (rank <= 3)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey[600]!,
-                    child: Text(
-                      '$rank',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            student.name,
-            style: TextStyle(
-              color: isMatch 
-                ? Colors.amber 
-                : isCurrentUser 
-                  ? Colors.green 
-                  : Colors.white,
-              fontSize: rank == 1 ? 16 : 14,
-              fontWeight: FontWeight.bold,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            student.cgpa.toStringAsFixed(2),
-            style: TextStyle(
-              color: isMatch 
-                ? Colors.amber 
-                : isCurrentUser 
-                  ? Colors.green 
-                  : getMedalColor(rank),
-              fontSize: rank == 1 ? 16 : 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListItem(Student student, int rank, bool isCurrentUser) {
-    final bool isMatch = _searchQuery.isNotEmpty &&
-        student.name.toLowerCase().contains(_searchQuery);
-
-    return Container(
-      key: _studentKeys.putIfAbsent(student.id, () => GlobalKey()),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: isMatch
-            ? Colors.amber.withOpacity(0.3)
-            : (isCurrentUser ? selectedItemColor : cardColor),
-        borderRadius: BorderRadius.circular(12),
-        border: isMatch ? Border.all(color: Colors.amber, width: 2) : null,
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Text(
-              '$rank',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: isMatch ? Colors.amber : Colors.grey[800],
-            child: Text(
-              student.name[0].toUpperCase(),
-              style: TextStyle(
-                color: isMatch ? Colors.black : Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              student.name,
-              style: TextStyle(
-                color: isMatch ? Colors.amber : Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Text(
-            student.cgpa.toStringAsFixed(2),
-            style: TextStyle(
-              color: isMatch ? Colors.amber : Colors.grey[400],
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
