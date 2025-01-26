@@ -39,15 +39,7 @@ class TeamBottomSheet extends StatefulWidget {
 
 class _TeamBottomSheetState extends State<TeamBottomSheet> {
   final List<TeamMember> teamMembers = [
-    TeamMember(
-      name: 'Shakib Howlader',
-      role: 'Flutter Developer',
-      imageUrl: 'lib\\assets\\Images\\shakib_dev.jpg',
-      description:
-          'Passionate about creating beautiful and functional Flutter applications.',
-      githubUrl: 'https://github.com/mr-shakib',
-      linkedinUrl: 'https://www.linkedin.com/in/shakib-howlader',
-    ),
+    
     TeamMember(
       name: 'Syed Sabbir Ahmed',
       role: 'Flutter Developer',
@@ -56,6 +48,15 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
           'Passionate about creating beautiful and functional Flutter applications.',
       githubUrl: 'https://github.com/member2',
       linkedinUrl: 'https://linkedin.com/in/member2',
+    ),
+    TeamMember(
+      name: 'Shakib Howlader',
+      role: 'Flutter Developer',
+      imageUrl: 'lib\\assets\\Images\\shakib_dev.jpg',
+      description:
+          'Passionate about creating beautiful and functional Flutter applications.',
+      githubUrl: 'https://github.com/mr-shakib',
+      linkedinUrl: 'https://www.linkedin.com/in/shakib-howlader',
     ),
     TeamMember(
       name: 'Sabbir Ahamed',
