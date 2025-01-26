@@ -59,41 +59,37 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        backgroundColor: const Color(0xFF1A1A1A), // Dark background
-        indicatorColor: const Color(0xFF2E4F3A), // Dark green indicator
+        backgroundColor: NavigationBarTheme.of(context).backgroundColor, 
+        indicatorColor: NavigationBarTheme.of(context).indicatorColor, 
         surfaceTintColor: Colors.transparent,
-        destinations: const [
+        destinations:  [
           NavigationDestination(
-            icon: Icon(Icons.analytics, color: Colors.white70),
+            icon: Icon(Icons.analytics, color: Theme.of(context).colorScheme.onSurface),
             selectedIcon: Icon(Icons.analytics, color: Colors.white),
             label: 'Analyze',
           ),
           NavigationDestination(
-            icon: Icon(Icons.assignment, color: Colors.white70),
+            icon: Icon(Icons.assignment, color: Theme.of(context).colorScheme.onSurface),
             selectedIcon: Icon(Icons.assignment, color: Colors.white),
             label: 'Results',
           ),
           
           NavigationDestination(
-            icon: Icon(Icons.leaderboard, color: Colors.white70),
+            icon: Icon(Icons.leaderboard, color: Theme.of(context).colorScheme.onSurface),
             selectedIcon: Icon(Icons.leaderboard, color: Colors.white),
             label: 'Leaderboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings, color: Colors.white70),
+            icon: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
             selectedIcon: Icon(Icons.settings, color: Colors.white),
             label: 'Settings',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person, color: Colors.white70),
+            icon: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface),
             selectedIcon: Icon(Icons.person, color: Colors.white),
             label: 'Profile',
           ),
-          // NavigationDestination(
-          //   icon: Icon(Icons.person, color: Colors.white70),
-          //   selectedIcon: Icon(Icons.roundabout_left, color: Colors.white),
-          //   label: 'AI',
-          // ),
+          
         ],
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),

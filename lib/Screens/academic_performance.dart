@@ -11,13 +11,14 @@ class AcademicPerformancePage extends StatefulWidget {
   const AcademicPerformancePage({super.key});
 
   @override
-  State<AcademicPerformancePage> createState() => _AcademicPerformancePageState();
+  State<AcademicPerformancePage> createState() =>
+      _AcademicPerformancePageState();
 }
 
 class _AcademicPerformancePageState extends State<AcademicPerformancePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
@@ -34,27 +35,31 @@ class _AcademicPerformancePageState extends State<AcademicPerformancePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Academic Performance',
-            style: TextStyle(color: Colors.white)),
+        title: Text('Academic Performance',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         centerTitle: true,
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: Theme.of(context).colorScheme.background,
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
             Tab(text: 'CGPA Calculator'),
             Tab(text: 'Semester Results'),
           ],
-          indicatorColor: Colors.yellowAccent,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey,
+          indicatorColor: Theme.of(context).colorScheme.secondary,
+          labelColor: Theme.of(context).colorScheme.onSurface,
+          unselectedLabelColor:
+              Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          CGPACalculatorTab(),
-          SemesterResultsTab(),
-        ],
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: TabBarView(
+          controller: _tabController,
+          children: const [
+            CGPACalculatorTab(),
+            SemesterResultsTab(),
+          ],
+        ),
       ),
     );
   }
@@ -108,7 +113,7 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
             maxWidth: 500,
           ),
           child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
+            
             elevation: 4,
             child: Container(
               decoration: BoxDecoration(
@@ -117,12 +122,12 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.secondary,
-                    Theme.of(context).colorScheme.tertiary,
+                    Color(0xFFC33764),
+                    Color(0xFF6E388F),
+                    Color(0xFF1D2671),
                   ].map((color) => color.withOpacity(0.8)).toList(),
                   stops: const [0.0, 0.5, 1.0],
-                  transform: GradientRotation(_animationValue * 4 * pi),
+                  transform: GradientRotation(_animationValue * 2 * pi),
                 ),
               ),
               child: Padding(
@@ -218,10 +223,11 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
         final semester = semesters[index];
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-          color: const Color(0xFF1A1A1A),
+          color: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Colors.white, width: 1),
+            side: BorderSide(
+                color: Theme.of(context).colorScheme.onSurface, width: 1),
           ),
           child: InkWell(
             onTap: () => _showSemesterDetails(semester),
@@ -235,10 +241,10 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
                     children: [
                       Text(
                         '${semester.name} ${semester.year}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       Container(
@@ -248,13 +254,13 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
                         ),
                         decoration: BoxDecoration(
                           color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                              Theme.of(context).primaryColor.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           'SGPA: ${semester.sgpa.toStringAsFixed(2)}',
                           style: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -289,175 +295,169 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
   }
 
   Widget _buildCGPAChart(List<SemesterResult> semesters) {
-  if (semesters == null || semesters.isEmpty) {
-    return Container(
-      height: 250,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No CGPA Data Available', 
-              style: TextStyle(
-                color: Colors.grey[600], 
-                fontSize: 18, 
-                fontWeight: FontWeight.w500
+    if (semesters == null || semesters.isEmpty) {
+      return Container(
+        height: 250,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                'No CGPA Data Available',
+                style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  final validSemesters = semesters.where((s) => 
-    s.sgpa != null && 
-    s.sgpa.isFinite && 
-    s.sgpa >= 0 && 
-    s.sgpa <= 4.0
-  ).toList();
-
-  if (validSemesters.isEmpty) {
-    return Container(
-      height: 250, 
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red),
-            SizedBox(height: 16),
-            Text(
-              'Unable to Generate CGPA Chart', 
-              style: TextStyle(
-                color: Colors.red, 
-                fontSize: 18, 
-                fontWeight: FontWeight.w500
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  return Card(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'CGPA Progression',
-            style: TextStyle(
-              fontSize: 18, 
-              fontWeight: FontWeight.bold,
-              color: Colors.black87
-            ),
+            ],
           ),
-          SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            width: double.infinity,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: 0.5,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.grey.withOpacity(0.2),
-                    strokeWidth: 1,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        if (index < 0 || index >= validSemesters.length) return Container();
-                        final semester = validSemesters[index];
-                        return Text(
-                          '${semester.name}\n${semester.year}', 
-                          style: TextStyle(
-                            fontSize: 10, 
-                            color: Colors.grey[700]
-                          ),
-                          textAlign: TextAlign.center,
-                        );
-                      },
-                      interval: 1,
+        ),
+      );
+    }
+
+    final validSemesters = semesters
+        .where((s) =>
+            s.sgpa != null && s.sgpa.isFinite && s.sgpa >= 0 && s.sgpa <= 4.0)
+        .toList();
+
+    if (validSemesters.isEmpty) {
+      return Container(
+        height: 250,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
+              SizedBox(height: 16),
+              Text(
+                'Unable to Generate CGPA Chart',
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'CGPA Progression',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
+            ),
+            SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              width: double.infinity,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: 0.5,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: Colors.grey.withOpacity(0.2),
+                      strokeWidth: 1,
                     ),
                   ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          value.toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 10, 
-                            color: Colors.grey[700]
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: validSemesters.asMap().entries.map((entry) {
-                      return FlSpot(entry.key.toDouble(), entry.value.sgpa);
-                    }).toList(),
-                    isCurved: true,
-                    color: Theme.of(context).primaryColor,
-                    barWidth: 3,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: 5,
-                          color: Theme.of(context).primaryColor,
-                          strokeWidth: 2,
-                          strokeColor: Colors.white,
-                        );
-                      },
-                    ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Theme.of(context).primaryColor.withOpacity(0.3),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Theme.of(context).primaryColor.withOpacity(0.3),
-                          Theme.of(context).primaryColor.withOpacity(0.1),
-                        ],
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index < 0 || index >= validSemesters.length)
+                            return Container();
+                          final semester = validSemesters[index];
+                          return Text(
+                            '${semester.name}\n${semester.year}',
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey[700]),
+                            textAlign: TextAlign.center,
+                          );
+                        },
+                        interval: 1,
                       ),
                     ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toStringAsFixed(1),
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey[700]),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
-                ],
-                minX: 0,
-                maxX: validSemesters.length.toDouble() - 1,
-                minY: 0,
-                maxY: 4.0,
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: validSemesters.asMap().entries.map((entry) {
+                        return FlSpot(entry.key.toDouble(), entry.value.sgpa);
+                      }).toList(),
+                      isCurved: true,
+                      color: Theme.of(context).primaryColor,
+                      barWidth: 3,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 5,
+                            color: Theme.of(context).primaryColor,
+                            strokeWidth: 2,
+                            strokeColor: Colors.white,
+                          );
+                        },
+                      ),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Theme.of(context).primaryColor.withOpacity(0.3),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Theme.of(context).primaryColor.withOpacity(0.3),
+                            Theme.of(context).primaryColor.withOpacity(0.1),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  minX: 0,
+                  maxX: validSemesters.length.toDouble() - 1,
+                  minY: 0,
+                  maxY: 4.0,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Future<void> _calculateCGPA() async {
     if (_formKey.currentState!.validate()) {
@@ -564,64 +564,58 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
   Widget _buildCalculatorForm() {
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            controller: _studentIdController,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              labelText: 'Student ID',
-              hintText: 'Enter your student ID',
-              labelStyle: const TextStyle(color: Colors.white),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+      child: Card(
+        color: Theme.of(context).colorScheme.surface,
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _studentIdController,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Student ID',
+                  labelStyle:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  border: const OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter student ID';
+                  }
+                  return null;
+                },
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _calculateCGPA,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
+                child: Text(_isLoading ? 'Calculating...' : 'Calculate CGPA'),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: Colors.yellowAccent.withOpacity(0.7),
-                ),
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter student ID';
-              }
-              return null;
-            },
+            ],
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 45,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _calculateCGPA,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 1,
-              ),
-              child: Text(
-                _isLoading ? 'Calculating...' : 'Calculate CGPA',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
@@ -663,9 +657,15 @@ class _SemesterDetailsSheet extends StatelessWidget {
       snapSizes: const [0.5, 0.8, 0.9],
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF1A1A1A),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                blurRadius: 10,
+              ),
+            ],
           ),
           child: Column(
             children: [
@@ -674,7 +674,7 @@ class _SemesterDetailsSheet extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(top: 12, bottom: 16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: Theme.of(context).colorScheme.onSurface,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -689,18 +689,18 @@ class _SemesterDetailsSheet extends StatelessWidget {
                         children: [
                           Text(
                             '${semester.name} ${semester.year}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           Text(
                             'SGPA: ${semester.sgpa.toStringAsFixed(2)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -708,10 +708,10 @@ class _SemesterDetailsSheet extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Total Credits: ${semester.credits.toStringAsFixed(1)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const Divider(height: 24),
@@ -726,14 +726,18 @@ class _SemesterDetailsSheet extends StatelessWidget {
                             return ListTile(
                               title: Text(
                                 course.courseTitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               subtitle: Text(
                                 'Credits: ${course.totalCredit}',
-                                style: const TextStyle(color: Colors.grey),
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
                               ),
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -746,8 +750,9 @@ class _SemesterDetailsSheet extends StatelessWidget {
                                 ),
                                 child: Text(
                                   '${course.gradeLetter} (${course.pointEquivalent})',
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -793,7 +798,7 @@ class _LoadingAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Lottie.asset(
-      'assets/loading.json', 
+      'assets/loading.json',
       width: 400,
       height: 400,
       fit: BoxFit.fill,
@@ -862,8 +867,6 @@ class _BouncingBallState extends State<_BouncingBall>
   }
 }
 
-
-
 // Semester Results Tab
 class SemesterResultsTab extends StatefulWidget {
   const SemesterResultsTab({super.key});
@@ -887,8 +890,16 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
   double _animationValue = 0.0;
 
   final List<String> _years = [
-    '2024', '2023', '2022', '2021', '2020',
-    '2019', '2018', '2017', '2016', '2015',
+    '2024',
+    '2023',
+    '2022',
+    '2021',
+    '2020',
+    '2019',
+    '2018',
+    '2017',
+    '2016',
+    '2015',
   ];
 
   final List<String> _semesters = ['Spring', 'Summer', 'Fall', 'Short'];
@@ -1021,7 +1032,7 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
     return Form(
       key: _formKey,
       child: Card(
-        color: const Color(0xFF1A1A1A),
+        color: Theme.of(context).colorScheme.surface,
         elevation: 2,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -1030,21 +1041,28 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
             children: [
               DropdownButtonFormField<String>(
                 value: _selectedYear,
-                dropdownColor: const Color(0xFF1A1A1A), // Dropdown background
-                decoration: const InputDecoration(
+                dropdownColor: Theme.of(context)
+                    .colorScheme
+                    .surface, // Dropdown background
+                decoration: InputDecoration(
                   labelText: 'Year',
-                  labelStyle:
-                      TextStyle(color: Colors.white), // Label text color
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ), // Label text color
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white), // Border color
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ), // Border color
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Colors.white), // Enabled border color
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ), // Enabled border color
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                        color: Colors.yellowAccent), // Highlighted border color
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ), // Highlighted border color
                   ),
                 ),
                 items: _years.map((year) {
@@ -1052,8 +1070,9 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
                     value: year,
                     child: Text(
                       year,
-                      style: const TextStyle(
-                          color: Colors.white), // Text color in the dropdown
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ), // Text color in the dropdown
                     ),
                   );
                 }).toList(),
@@ -1070,23 +1089,33 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedSemester,
-                dropdownColor: const Color(0xFF1A1A1A),
-                decoration: const InputDecoration(
+                dropdownColor: Theme.of(context).colorScheme.surface,
+                decoration: InputDecoration(
                   labelText: 'Semester',
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   border: OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.yellowAccent),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 items: _semesters.map((semester) {
                   return DropdownMenuItem(
                     value: semester,
-                    child: Text(semester,
-                        style: const TextStyle(color: Colors.white)),
+                    child: Text(
+                      semester,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -1102,16 +1131,24 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
               const SizedBox(height: 16),
               TextFormField(
                 controller: _studentIdController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
                   labelText: 'Student ID',
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   border: OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.yellowAccent),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 validator: (value) {
@@ -1125,6 +1162,8 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
               ElevatedButton(
                 onPressed: _isLoading ? null : _fetchResults,
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -1150,21 +1189,22 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
       constraints: const BoxConstraints(maxWidth: 500),
       child: Card(
         elevation: 4,
+        color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary,
-                Theme.of(context).colorScheme.tertiary,
-              ].map((color) => color.withOpacity(0.8)).toList(),
-              stops: const [0.0, 0.5, 1.0],
-              transform: GradientRotation(_animationValue * 4 * pi),
-            ),
-          ),
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFC33764),
+                    Color(0xFF6E388F),
+                    Color(0xFF1D2671),
+                  ].map((color) => color.withOpacity(0.8)).toList(),
+                  stops: const [0.0, 0.5, 1.0],
+                  transform: GradientRotation(_animationValue * 2 * pi),
+                ),
+              ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -1175,19 +1215,18 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
-                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'ID: ${_studentInfo?.studentId ?? 'N/A'}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white,
                       ),
                 ),
                 Text(
                   'Batch: ${_studentInfo?.batchNo ?? 'N/A'}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white,
                       ),
                 ),
                 const SizedBox(height: 16),
@@ -1209,7 +1248,7 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
                 Text(
                   'SGPA',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white,
                       ),
                 ),
               ],
@@ -1223,22 +1262,71 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
   Widget _buildResultsTable() {
     return Card(
       elevation: 2,
+      color: Theme.of(context).colorScheme.surface,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          columns: const [
-            DataColumn(label: Text('Course')),
-            DataColumn(label: Text('Credits')),
-            DataColumn(label: Text('Grade')),
-            DataColumn(label: Text('Points')),
+          columns: [
+            DataColumn(
+              label: Text(
+                'Course',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Credits',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Grade',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Points',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              ),
+            ),
           ],
           rows: _semesterResults?.map((course) {
                 return DataRow(
                   cells: [
-                    DataCell(Text(course.courseTitle)),
-                    DataCell(Text(course.totalCredit.toString())),
-                    DataCell(Text(course.gradeLetter)),
-                    DataCell(Text(course.pointEquivalent.toString())),
+                    DataCell(
+                      Text(
+                        course.courseTitle,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        course.totalCredit.toString(),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        course.gradeLetter,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        course.pointEquivalent.toString(),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                    ),
                   ],
                 );
               }).toList() ??
@@ -1248,8 +1336,6 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
     );
   }
 }
-
-
 
 // Loading Animation Widget
 class LoadingAnimation extends StatelessWidget {
@@ -1266,4 +1352,4 @@ class LoadingAnimation extends StatelessWidget {
       ),
     );
   }
-} 
+}

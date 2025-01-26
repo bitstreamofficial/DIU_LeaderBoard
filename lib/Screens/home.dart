@@ -21,9 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final backgroundColor = const Color(0xFF1A1A1A);
-  final cardColor = const Color(0xFF262626);
-  final selectedItemColor = const Color(0xFF2E4F3A);
+
   List<Student> students = [];
   bool isLoading = true;
   final _auth = AuthService();
@@ -327,7 +325,7 @@ class _HomePageState extends State<HomePage> {
     return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: cardColor,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             title:
                 const Text('Exit App', style: TextStyle(color: Colors.white)),
             content: const Text('Do you want to exit the app?',
@@ -430,9 +428,12 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: selectedItemColor,
+        color: Theme.of(context).colorScheme.tertiary.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white24, width: 1),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -440,8 +441,8 @@ class _HomePageState extends State<HomePage> {
             width: 30,
             child: Text(
               '${userIndex + 1}',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -449,11 +450,11 @@ class _HomePageState extends State<HomePage> {
           ),
           CircleAvatar(
             radius: 20,
-            backgroundColor: Colors.grey[800],
+            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             child: Text(
               displayName[0].toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
               ),
             ),
@@ -465,15 +466,16 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   displayName,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text('Your Position',
+                Text(
+                  'Your Position',
                   style: TextStyle(
-                    color: Colors.grey[400],
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -483,7 +485,7 @@ class _HomePageState extends State<HomePage> {
           Text(
             student.cgpa.toStringAsFixed(2),
             style: TextStyle(
-              color: Colors.grey[400],
+              color: Theme.of(context).colorScheme.tertiary,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -503,15 +505,13 @@ class _HomePageState extends State<HomePage> {
         case 3:
           return const Color(0xFFCD7F32); // Bronze
         default:
-          return Colors.grey[400]!;
+          return Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
       }
     }
 
     String displayName = await _anonymizeName(student.name, student.id);
-
     final bool isMatch = _searchQuery.isNotEmpty &&
         student.name.toLowerCase().contains(_searchQuery);
-    
     final bool isCurrentUser = student.id == (_studentInfo?['studentId'] as String? ?? userId);
 
     return Container(
@@ -542,7 +542,7 @@ class _HomePageState extends State<HomePage> {
                     boxShadow: [
                       for (var i = 0; i < 3; i++)
                         BoxShadow(
-                          color: Colors.green.withOpacity(0.3 - i * 0.1),
+                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3 - i * 0.1),
                           spreadRadius: (i + 1) * 4,
                           blurRadius: (i + 1) * 4,
                         ),
@@ -552,35 +552,20 @@ class _HomePageState extends State<HomePage> {
               CircleAvatar(
                 radius: rank == 1 ? 40 : 30,
                 backgroundColor: isMatch 
-                  ? Colors.amber 
+                  ? Theme.of(context).colorScheme.primary
                   : isCurrentUser 
-                    ? Colors.green 
+                    ? Theme.of(context).colorScheme.tertiary
                     : getMedalColor(rank),
                 child: Text(
                   displayName[0].toUpperCase(),
                   style: TextStyle(
-                    color: isMatch || isCurrentUser ? Colors.black : Colors.white,
+                    color: isMatch || isCurrentUser 
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
                     fontSize: rank == 1 ? 24 : 20,
                   ),
                 ),
               ),
-              if (rank <= 3)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey[600]!,
-                    child: Text(
-                      '$rank',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -588,22 +573,21 @@ class _HomePageState extends State<HomePage> {
             displayName,
             style: TextStyle(
               color: isMatch 
-                ? Colors.amber 
+                ? Theme.of(context).colorScheme.primary
                 : isCurrentUser 
-                  ? Colors.green 
-                  : Colors.white,
+                  ? Theme.of(context).colorScheme.tertiary
+                  : Theme.of(context).colorScheme.onSurface,
               fontSize: rank == 1 ? 16 : 14,
               fontWeight: FontWeight.bold,
             ),
-            overflow: TextOverflow.ellipsis,
           ),
           Text(
             student.cgpa.toStringAsFixed(2),
             style: TextStyle(
               color: isMatch 
-                ? Colors.amber 
+                ? Theme.of(context).colorScheme.primary
                 : isCurrentUser 
-                  ? Colors.green 
+                  ? Theme.of(context).colorScheme.tertiary
                   : getMedalColor(rank),
               fontSize: rank == 1 ? 16 : 14,
             ),
@@ -615,7 +599,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<Widget> _buildListItem(Student student, int rank, bool isCurrentUser) async {
     String displayName = await _anonymizeName(student.name, student.id);
-
     final bool isMatch = _searchQuery.isNotEmpty &&
         student.name.toLowerCase().contains(_searchQuery);
 
@@ -625,10 +608,22 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: BoxDecoration(
         color: isMatch
-            ? Colors.amber.withOpacity(0.3)
-            : (isCurrentUser ? selectedItemColor : cardColor),
+            ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+            : isCurrentUser 
+              ? Theme.of(context).colorScheme.tertiary.withOpacity(0.15)
+              : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: isMatch ? Border.all(color: Colors.amber, width: 2) : null,
+        border: isMatch 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              ) 
+            : isCurrentUser
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                  width: 1,
+                )
+              : null,
       ),
       child: Row(
         children: [
@@ -636,8 +631,8 @@ class _HomePageState extends State<HomePage> {
             width: 40,
             child: Text(
               '$rank',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -645,11 +640,15 @@ class _HomePageState extends State<HomePage> {
           ),
           CircleAvatar(
             radius: 20,
-            backgroundColor: isMatch ? Colors.amber : Colors.grey[800],
+            backgroundColor: isMatch 
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+              : Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             child: Text(
               displayName[0].toUpperCase(),
               style: TextStyle(
-                color: isMatch ? Colors.black : Colors.white,
+                color: isMatch 
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
               ),
             ),
@@ -659,7 +658,9 @@ class _HomePageState extends State<HomePage> {
             child: Text(
               displayName,
               style: TextStyle(
-                color: isMatch ? Colors.amber : Colors.white,
+                color: isMatch 
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -668,7 +669,9 @@ class _HomePageState extends State<HomePage> {
           Text(
             student.cgpa.toStringAsFixed(2),
             style: TextStyle(
-              color: isMatch ? Colors.amber : Colors.grey[400],
+              color: isMatch 
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -680,6 +683,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     String? currentUserId = _studentInfo?['studentId'] as String?;
     currentUserId ??= userId;
     final batch = _studentInfo?['batchNo'].toString();
@@ -698,13 +702,14 @@ class _HomePageState extends State<HomePage> {
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     border: InputBorder.none,
                   ),
+                  
                 )
               : Column(
                   children: [
-                    const Text(
+                     Text(
                       'DIU Leaderboard',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -735,9 +740,9 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
             ),
           ],
-          backgroundColor: backgroundColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
-        backgroundColor: backgroundColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -860,7 +865,7 @@ class _HomePageState extends State<HomePage> {
           child: FloatingActionButton(
             onPressed: _scrollToTop,
             child: const Icon(Icons.arrow_upward, color: Colors.yellowAccent),
-            backgroundColor: cardColor,
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
             elevation: 1,
           ),
         ),

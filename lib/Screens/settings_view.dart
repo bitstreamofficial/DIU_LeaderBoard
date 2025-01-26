@@ -6,8 +6,10 @@ import 'package:flutter_first/Screens/support_contact_page.dart';
 import 'package:flutter_first/Screens/terms_conditions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
+import '../services/theme_service.dart';
 
 // Team Member Model stays the same
 class TeamMember {
@@ -240,15 +242,17 @@ class _SettingsViewState extends State<SettingsView> {
         return AlertDialog(
           title:
               const Text('Delete Account', style: TextStyle(color: Colors.red)),
-          content: const Text(
+          content: Text(
             'Are you absolutely sure you want to delete your account? '
             'This action cannot be undone and will permanently remove all your data.',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text('Cancel',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
@@ -258,7 +262,7 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
           ],
-          backgroundColor: Color(0xFF2A2A2A),
+          backgroundColor: Theme.of(context).colorScheme.onPrimary,
         );
       },
     );
@@ -348,24 +352,27 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
+    final themeService = Provider.of<ThemeService>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings', style: TextStyle(color: Colors.white)),
+        backgroundColor: AppBarTheme.of(context).backgroundColor,
+        title: Text('Settings',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         centerTitle: true,
-        backgroundColor: const Color(0xFF1A1A1A),
       ),
       body: ListView(
         children: [
           ListTile(
-            leading: const Icon(Icons.dark_mode, color: Colors.white),
-            title:
-                const Text('Dark Mode', style: TextStyle(color: Colors.white)),
+            leading: Icon(Icons.dark_mode,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Dark Mode',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             trailing: Switch(
-              value: isDarkMode,
+              value: themeService.isDarkMode,
               onChanged: (value) {
-                setState(() {
-                  isDarkMode = value;
-                });
+                themeService.toggleTheme();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -376,9 +383,11 @@ class _SettingsViewState extends State<SettingsView> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.notifications, color: Colors.white),
-            title: const Text('Notifications',
-                style: TextStyle(color: Colors.white)),
+            leading: Icon(Icons.notifications,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Notifications',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             trailing: Switch(
               value: isNotificationsEnabled,
               onChanged: (value) {
@@ -396,10 +405,13 @@ class _SettingsViewState extends State<SettingsView> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.language, color: Colors.white),
-            title:
-                const Text('Language', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            leading: Icon(Icons.language,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Language',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.arrow_forward_ios,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () {
               showDialog(
                 context: context,
@@ -437,10 +449,13 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.info, color: Colors.white),
-            title:
-                const Text('About Devs', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            leading: Icon(Icons.info,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('About Devs',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.arrow_forward_ios,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () {
               showModalBottomSheet(
                 context: context,
@@ -451,9 +466,13 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.privacy_tip, color: Colors.white),
-            title: const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            leading: Icon(Icons.privacy_tip,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Privacy Policy',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.arrow_forward_ios,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () {
               Navigator.push(
                 context,
@@ -462,10 +481,13 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.description, color: Colors.white),
-            title:
-                const Text('Terms & Conditions', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            leading: Icon(Icons.description,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Terms & Conditions',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.arrow_forward_ios,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () {
               Navigator.push(
                 context,
@@ -474,10 +496,13 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.chat, color: Colors.white),
-            title:
-                const Text('Support Chat', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+            leading: Icon(Icons.chat,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Support Chat',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.arrow_forward_ios,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () {
               Navigator.push(
                 context,
@@ -489,30 +514,34 @@ class _SettingsViewState extends State<SettingsView> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('User ID is null')),
                     );
-                    return Container(); 
+                    return Container();
                   }
                 }),
               );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Logout', style: TextStyle(color: Colors.red)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.red),
+            leading: Icon(Icons.logout,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Logout',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.arrow_forward_ios,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () => _handleLogout(context),
           ),
-
           ListTile(
-            leading: const Icon(Icons.delete_forever, color: Colors.red),
-            title: const Text(
-              'Delete Account', 
-              style: TextStyle(color: Colors.red),
-            ),
-            subtitle: const Text(
-              'Permanently remove your account and all associated data', 
-              style: TextStyle(color: Colors.grey),
-            ),
-            trailing: const Icon(Icons.warning, color: Colors.red),
+            leading: Icon(Icons.delete_forever,
+                color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Delete Account',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            subtitle: Text(
+                'Permanently remove your account and all associated data',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.warning,
+                color: Theme.of(context).colorScheme.onSurface),
             onTap: () => _handleAccountDeletion(context),
           ),
         ],
