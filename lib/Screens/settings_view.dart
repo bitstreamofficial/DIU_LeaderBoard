@@ -43,10 +43,10 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
     TeamMember(
       name: 'Syed Sabbir Ahmed',
       role: 'Flutter Developer',
-      imageUrl: '',
+      imageUrl: 'lib\\assets\\Images\\rafi.jpg',
       description:
           'Passionate about creating beautiful and functional Flutter applications.',
-      githubUrl: 'https://github.com/member2',
+      githubUrl: 'https://github.com/rafi6037',
       linkedinUrl: 'https://linkedin.com/in/member2',
     ),
     TeamMember(

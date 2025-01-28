@@ -51,12 +51,12 @@ flutter:
   uses-material-design: true
   assets:
     - assets/login.png
-    - assets/rafi.jpg
     - assets/crown.png
     - assets/splash.gif
     - assets/studentRank39NFE.csv
     - assets/studentRank61CSE.csv
     - lib\assets\Images\shakib_dev.jpg
+    - lib\assets\Images\rafi.jpg
     - assets/signup.json
     - assets/login.json
     - assets/reset.json
