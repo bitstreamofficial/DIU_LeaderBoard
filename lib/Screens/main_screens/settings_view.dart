@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/login.dart';
-import 'package:flutter_first/Screens/privacy_policy.dart';
-import 'package:flutter_first/Screens/support_contact_page.dart';
-import 'package:flutter_first/Screens/terms_conditions.dart';
+import 'package:flutter_first/Screens/auth/login.dart';
+import 'package:flutter_first/Screens/settings/privacy_policy.dart';
+import 'package:flutter_first/Screens/settings/support_contact_page.dart';
+import 'package:flutter_first/Screens/settings/terms_conditions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 
-import '../services/auth_service.dart';
-import '../services/theme_service.dart';
+import '../../services/auth_service.dart';
+import '../../services/theme_service.dart';
 
 // Team Member Model stays the same
 class TeamMember {

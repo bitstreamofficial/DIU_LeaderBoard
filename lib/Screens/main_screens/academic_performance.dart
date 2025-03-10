@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
-import '../models/semester_model.dart';
-import '../models/student_model.dart';
-import '../services/api_service.dart';
-import '../services/student_data_service.dart';
+import '../../models/semester_model.dart';
+import '../../models/student_model.dart';
+import '../../services/api_service.dart';
+import '../../services/student_data_service.dart';
 
 class AcademicPerformancePage extends StatefulWidget {
   const AcademicPerformancePage({super.key});
@@ -798,7 +798,7 @@ class _LoadingAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Lottie.asset(
-      'assets/loading.json',
+      'assets/jsons/loading.json',
       width: 400,
       height: 400,
       fit: BoxFit.fill,
@@ -1009,7 +1009,7 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
           _buildSearchForm(),
           if (_isLoading)
             Lottie.asset(
-              'assets/loading.json',
+              'assets/jsons/loading.json',
               width: 400,
               height: 400,
               fit: BoxFit.fill,
@@ -1345,7 +1345,7 @@ class LoadingAnimation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Lottie.asset(
-        'assets/loading.json',
+        'assets/jsons/loading.json',
         width: 400,
         height: 400,
         fit: BoxFit.fill,

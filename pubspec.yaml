@@ -52,14 +52,19 @@ flutter:
   assets:
     - assets/login.png
     - assets/crown.png
-    - assets/splash.gif
-    - assets/studentRank39NFE.csv
-    - assets/studentRank61CSE.csv
     - lib\assets\Images\shakib_dev.jpg
     - lib\assets\Images\rafi.jpg
+
+    - assets/splash.gif
+
+    - csv/studentRank39NFE.csv
+    - csv/studentRank61CSE.csv
+
     - assets/signup.json
     - assets/login.json
     - assets/reset.json
-    - assets/loading.json
-    - assets/ai_loading.json
-    - assets/achievement.json
+
+
+    - assets/jsons/loading.json
+    - assets/jsons/ai_loading.json
+    - assets/jsons/achievement.json

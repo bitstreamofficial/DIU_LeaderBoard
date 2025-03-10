@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/login.dart';
-import 'package:flutter_first/Screens/update_screens.dart';
+import 'package:flutter_first/Screens/auth/login.dart';
+import 'package:flutter_first/Screens/updates/update_screens.dart';
 import 'package:flutter_first/main.dart';
 import 'package:flutter_first/services/update_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_first/Screens/main_navigation.dart';
+import 'package:flutter_first/Screens/nav/main_navigation.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/login.dart';
+import 'package:flutter_first/Screens/auth/login.dart';
 import 'package:flutter_first/services/auth_service.dart';
 import 'package:flutter_first/services/result_card_service.dart';
 import 'package:flutter_first/services/student_data_service.dart';
@@ -382,230 +382,7 @@ class _ProfilePageState extends State<ProfilePage> {
               if (_semesterResults != null) ...[
                 const SizedBox(height: 20),
                 _buildCGPAChart(),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _semesterResults!.length,
-                  itemBuilder: (context, index) {
-                    String semester = _semesterResults!.keys.elementAt(index);
-                    List<dynamic> results = _semesterResults![semester] ?? [];
-
-                    if (results.isNotEmpty) {
-                      var firstResult = results[0] as Map<String, dynamic>;
-                      var semesterName = firstResult['semesterName'];
-                      var semesterYear = firstResult['semesterYear'];
-                      var semesterCGPA =
-                          firstResult['cgpa']?.toString() ?? 'N/A';
-
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color.fromARGB(255, 89, 86, 86)),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                              dividerColor:
-                                  const Color.fromARGB(0, 100, 40, 40)),
-                          child: ExpansionTile(
-                            tilePadding: const EdgeInsets.all(16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            title: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '$semesterName $semesterYear',
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                const Spacer(),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Text(
-                                      'Semester CGPA',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    Text(
-                                      semesterCGPA,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange.shade700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(12),
-                                    bottomRight: Radius.circular(12),
-                                  ),
-                                ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: results.length,
-                                  itemBuilder: (context, idx) {
-                                    var course =
-                                        results[idx] as Map<String, dynamic>;
-                                    String grade =
-                                        course['gradeLetter'] ?? 'N/A';
-
-                                    return Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        border: idx != results.length - 1
-                                            ? Border(
-                                                bottom: BorderSide(
-                                                  color: Colors.grey.shade200,
-                                                ),
-                                              )
-                                            : null,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 3,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  course['courseTitle'] ??
-                                                      'Unknown Course',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 15,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue.shade50,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6),
-                                                  ),
-                                                  child: Text(
-                                                    course['customCourseId'] ??
-                                                        'N/A',
-                                                    style: TextStyle(
-                                                      color:
-                                                          Colors.blue.shade700,
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                const Text(
-                                                  'Credits',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${course['totalCredit']?.toString() ?? 'N/A'}',
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: _getGradeColor(grade)
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Column(
-                                                children: [
-                                                  const Text(
-                                                    'Grade',
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    grade,
-                                                    style: TextStyle(
-                                                      color:
-                                                          _getGradeColor(grade),
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 18,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                _buildSemesterResults(),
               ],
               const SizedBox(height: 20),
               Container(
@@ -922,19 +699,55 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-// Helper methods to parse semester ID
+  Widget _buildSemesterResults() {
+    if (_semesterResults == null) return const SizedBox.shrink();
+
+    // Convert semester entries to a list and sort them
+    List<MapEntry<String, List<dynamic>>> sortedSemesters = 
+      _semesterResults!.entries.toList()
+      ..sort((a, b) {
+        // Extract year and semester from semester ID (e.g., "231" -> year: 23, semester: 1)
+        int yearA = int.parse(a.key.substring(0, a.key.length - 1));
+        int yearB = int.parse(b.key.substring(0, b.key.length - 1));
+        
+        // Compare years first
+        if (yearA != yearB) {
+          return yearB.compareTo(yearA); // Descending order of years
+        }
+        
+        // If years are same, compare semesters
+        int semA = int.parse(a.key[a.key.length - 1]);
+        int semB = int.parse(b.key[b.key.length - 1]);
+        return semB.compareTo(semA); // Descending order of semesters
+      });
+
+    return Column(
+      children: sortedSemesters.map((entry) {
+        return _buildSemesterCard(entry.key, entry.value);
+      }).toList(),
+    );
+  }
+
   String _getSemesterName(String semesterId) {
     final lastDigit = semesterId[semesterId.length - 1];
+    final year = '20${semesterId.substring(0, semesterId.length - 1)}';
+    String semester;
+    
     switch (lastDigit) {
       case '1':
-        return 'Spring';
+        semester = 'Spring';
+        break;
       case '2':
-        return 'Summer';
+        semester = 'Summer';
+        break;
       case '3':
-        return 'Fall';
+        semester = 'Fall';
+        break;
       default:
-        return 'Unknown';
+        semester = 'Unknown';
     }
+    
+    return '$semester $year';
   }
 
   int _getSemesterYear(String semesterId) {
@@ -956,5 +769,185 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return totalCredits > 0 ? totalWeightedPoints / totalCredits : 0;
+  }
+
+  Widget _buildSemesterCard(String semesterId, List<dynamic> results) {
+    if (results.isEmpty) return const SizedBox.shrink();
+
+    var firstResult = results[0] as Map<String, dynamic>;
+    var semesterName = firstResult['semesterName'];
+    var semesterYear = firstResult['semesterYear'];
+    var semesterCGPA = firstResult['cgpa']?.toString() ?? 'N/A';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color.fromARGB(255, 89, 86, 86)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: const Color.fromARGB(0, 100, 40, 40)),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                child: Text(
+                  '$semesterName $semesterYear',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'Semester CGPA',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  Text(
+                    semesterCGPA,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: results.length,
+                itemBuilder: (context, idx) {
+                  var course = results[idx] as Map<String, dynamic>;
+                  String grade = course['gradeLetter'] ?? 'N/A';
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: idx != results.length - 1
+                          ? Border(bottom: BorderSide(color: Colors.grey.shade200))
+                          : null,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                course['courseTitle'] ?? 'Unknown Course',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  course['customCourseId'] ?? 'N/A',
+                                  style: TextStyle(
+                                    color: Colors.blue.shade700,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Credits',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              Text(
+                                '${course['totalCredit']?.toString() ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getGradeColor(grade).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Grade',
+                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                                Text(
+                                  grade,
+                                  style: TextStyle(
+                                    color: _getGradeColor(grade),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                Text(
+                                  '(${course['pointEquivalent']?.toStringAsFixed(2) ?? 'N/A'})',
+                                  style: TextStyle(
+                                    color: _getGradeColor(grade).withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

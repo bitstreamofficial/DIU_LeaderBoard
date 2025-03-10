@@ -11,7 +11,7 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _auth = AuthService();
   final TextEditingController _emailController = TextEditingController();
-  final _diuEmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@diu\.edu\.bd$');
+  final _diuEmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@(s\.)?diu\.edu\.bd$');
   bool _isEmailSent = false;
 
   @override

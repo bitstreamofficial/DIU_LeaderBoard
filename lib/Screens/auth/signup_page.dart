@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/SignupProgressPage.dart';
+import 'package:flutter_first/Screens/auth/SignupProgressPage.dart';
 import 'package:lottie/lottie.dart';
 
 enum SignupStep {

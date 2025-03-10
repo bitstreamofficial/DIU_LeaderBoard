@@ -8,9 +8,9 @@ import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/student.dart';
-import '../services/auth_service.dart';
-import '../services/student_data_service.dart';
+import '../../models/student.dart';
+import '../../services/auth_service.dart';
+import '../../services/student_data_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -226,13 +226,13 @@ class _HomePageState extends State<HomePage> {
   String getBatchCsvPath(String batch) {
     switch (batch) {
       case '39':
-        return 'assets/studentRank39NFE.csv';
+        return 'csv/studentRank39NFE.csv';
       case '61':
-        return 'assets/studentRank61CSE.csv';
+        return 'csv/studentRank61CSE.csv';
       case '62':
-        return 'assets/studentRank62CSE.csv';
+        return 'csv/studentRank62CSE.csv';
       case '63':
-        return 'assets/studentRank63CSE.csv';
+        return 'csv/studentRank63CSE.csv';
       default:
         throw Exception('No CSV file available for batch: $batch');
     }
