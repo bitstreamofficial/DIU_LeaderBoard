@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_first/Screens/academic_performance.dart';
 import 'package:flutter_first/Screens/ai_recommendations.dart';
-import 'package:flutter_first/unnecessary/cgpa_view.dart';
 import 'package:flutter_first/Screens/home.dart';
 import 'package:flutter_first/Screens/profile.dart';
-import 'package:flutter_first/unnecessary/results_view.dart';
 import 'package:flutter_first/Screens/settings_view.dart';
 import '../models/student_model.dart';
 import '../services/auth_service.dart';

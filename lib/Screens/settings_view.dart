@@ -39,7 +39,6 @@ class TeamBottomSheet extends StatefulWidget {
 
 class _TeamBottomSheetState extends State<TeamBottomSheet> {
   final List<TeamMember> teamMembers = [
-    
     TeamMember(
       name: 'Syed Sabbir Ahmed',
       role: 'Flutter Developer',
@@ -101,15 +100,18 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF1A1A1A),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
@@ -118,7 +120,7 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[600],
+                  color: colorScheme.onSurface.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -126,10 +128,10 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Meet Our Team',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Expanded(
@@ -142,7 +144,7 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                     return Card(
                       elevation: 4,
                       margin: const EdgeInsets.only(bottom: 16),
-                      color: const Color(0xFF2A2A2A),
+                      color: colorScheme.surfaceVariant,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -153,7 +155,8 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                                 CircleAvatar(
                                   radius: 30,
                                   backgroundImage: AssetImage(member.imageUrl),
-                                  backgroundColor: Colors.grey[800],
+                                  backgroundColor:
+                                      colorScheme.onSurface.withOpacity(0.1),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
@@ -163,8 +166,8 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                                     children: [
                                       Text(
                                         member.name,
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: colorScheme.onSurface,
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -172,7 +175,8 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                                       Text(
                                         member.role,
                                         style: TextStyle(
-                                          color: Colors.grey[400],
+                                          color: colorScheme.onSurface
+                                              .withOpacity(0.7),
                                           fontSize: 14,
                                         ),
                                       ),
@@ -185,7 +189,7 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                             Text(
                               member.description,
                               style: TextStyle(
-                                color: Colors.grey[300],
+                                color: colorScheme.onSurface.withOpacity(0.7),
                                 fontSize: 14,
                               ),
                             ),
@@ -195,13 +199,13 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.code),
-                                  color: Colors.white,
+                                  color: colorScheme.onSurface,
                                   onPressed: () =>
                                       _launchUrl(member.githubUrl, context),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.people),
-                                  color: Colors.white,
+                                  color: colorScheme.onSurface,
                                   onPressed: () =>
                                       _launchUrl(member.linkedinUrl, context),
                                 ),
@@ -241,29 +245,29 @@ class _SettingsViewState extends State<SettingsView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title:
-              const Text('Delete Account', style: TextStyle(color: Colors.red)),
+          title: Text('Delete Account',
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
           content: Text(
             'Are you absolutely sure you want to delete your account? '
             'This action cannot be undone and will permanently remove all your data.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
               child: Text('Cancel',
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground)),
+                      color: Theme.of(context).colorScheme.onSurface)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text(
+              child: Text(
                 'Delete Account',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],
-          backgroundColor: Theme.of(context).colorScheme.onPrimary,
+          backgroundColor: Theme.of(context).colorScheme.surface,
         );
       },
     );
@@ -286,9 +290,9 @@ class _SettingsViewState extends State<SettingsView> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text('Account deleted successfully'),
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
 
@@ -304,7 +308,7 @@ class _SettingsViewState extends State<SettingsView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to delete account: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -317,18 +321,25 @@ class _SettingsViewState extends State<SettingsView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to log out?'),
+          title: Text('Logout',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+          content: Text('Are you sure you want to log out?',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text('Cancel',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Logout'),
+              child: Text('Logout',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface)),
             ),
           ],
+          backgroundColor: Theme.of(context).colorScheme.surface,
         );
       },
     );
@@ -339,7 +350,7 @@ class _SettingsViewState extends State<SettingsView> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logged out successfully')),
+          SnackBar(content: Text('Logged out successfully')),
         );
 
         Navigator.pushAndRemoveUntil(
@@ -354,24 +365,27 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     final themeService = Provider.of<ThemeService>(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppBarTheme.of(context).backgroundColor,
+        backgroundColor: colorScheme.surface,
         title: Text('Settings',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            style:
+                textTheme.titleLarge?.copyWith(color: colorScheme.onSurface)),
         centerTitle: true,
       ),
       body: ListView(
         children: [
           ListTile(
-            leading: Icon(Icons.dark_mode,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.dark_mode, color: colorScheme.onSurface),
             title: Text('Dark Mode',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
             trailing: Switch(
               value: themeService.isDarkMode,
+              activeColor: colorScheme.secondary,
               onChanged: (value) {
                 themeService.toggleTheme();
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -384,13 +398,13 @@ class _SettingsViewState extends State<SettingsView> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.notifications,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.notifications, color: colorScheme.onSurface),
             title: Text('Notifications',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
             trailing: Switch(
               value: isNotificationsEnabled,
+              activeColor: colorScheme.secondary,
               onChanged: (value) {
                 setState(() {
                   isNotificationsEnabled = value;
@@ -406,57 +420,85 @@ class _SettingsViewState extends State<SettingsView> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.language,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.chat, color: colorScheme.onSurface),
+            title: Text('Support Chat',
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
+            trailing:
+                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  final userId = _authService.getCurrentUserId();
+                  if (userId != null) {
+                    return SupportContactPage(userId: userId);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('User ID is null')),
+                    );
+                    return Container();
+                  }
+                }),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.language, color: colorScheme.onSurface),
             title: Text('Language',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.arrow_forward_ios,
-                color: Theme.of(context).colorScheme.onSurface),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
+            trailing:
+                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: const Text('Select Language'),
+                    title: Text('Select Language',
+                        style: textTheme.titleLarge
+                            ?.copyWith(color: colorScheme.onSurface)),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          title: const Text('English'),
+                          title: Text('English',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onSurface)),
                           onTap: () {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                   content: Text('Language set to English')),
                             );
                           },
                         ),
                         ListTile(
-                          title: const Text('Bangla'),
+                          title: Text('Bangla',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onSurface)),
                           onTap: () {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Language set to Bangla')),
+                              SnackBar(content: Text('Language set to Bangla')),
                             );
                           },
                         ),
                       ],
                     ),
+                    backgroundColor: colorScheme.surface,
                   );
                 },
               );
             },
           ),
           ListTile(
-            leading: Icon(Icons.info,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.info, color: colorScheme.onSurface),
             title: Text('About Devs',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.arrow_forward_ios,
-                color: Theme.of(context).colorScheme.onSurface),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
+            trailing:
+                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
             onTap: () {
               showModalBottomSheet(
                 context: context,
@@ -467,13 +509,12 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.privacy_tip,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.privacy_tip, color: colorScheme.onSurface),
             title: Text('Privacy Policy',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.arrow_forward_ios,
-                color: Theme.of(context).colorScheme.onSurface),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
+            trailing:
+                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
             onTap: () {
               Navigator.push(
                 context,
@@ -482,13 +523,12 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.description,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.description, color: colorScheme.onSurface),
             title: Text('Terms & Conditions',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.arrow_forward_ios,
-                color: Theme.of(context).colorScheme.onSurface),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
+            trailing:
+                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
             onTap: () {
               Navigator.push(
                 context,
@@ -497,52 +537,24 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.chat,
-                color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Support Chat',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.arrow_forward_ios,
-                color: Theme.of(context).colorScheme.onSurface),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  final userId = _authService.getCurrentUserId();
-                  if (userId != null) {
-                    return SupportContactPage(userId: userId);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User ID is null')),
-                    );
-                    return Container();
-                  }
-                }),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.logout,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.logout, color: colorScheme.onSurface),
             title: Text('Logout',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.arrow_forward_ios,
-                color: Theme.of(context).colorScheme.onSurface),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
+            trailing:
+                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
             onTap: () => _handleLogout(context),
           ),
           ListTile(
-            leading: Icon(Icons.delete_forever,
-                color: Theme.of(context).colorScheme.onSurface),
+            leading: Icon(Icons.delete_forever, color: colorScheme.onSurface),
             title: Text('Delete Account',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                style: textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurface)),
             subtitle: Text(
                 'Permanently remove your account and all associated data',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            trailing: Icon(Icons.warning,
-                color: Theme.of(context).colorScheme.onSurface),
+                style: textTheme.bodyMedium
+                    ?.copyWith(color: colorScheme.onSurface.withOpacity(0.7))),
+            trailing: Icon(Icons.warning, color: colorScheme.onSurface),
             onTap: () => _handleAccountDeletion(context),
           ),
         ],

@@ -6,7 +6,8 @@ import '../services/gemini_service.dart';
 class AIRecommendationsPage extends StatefulWidget {
   final String userId;
 
-  const AIRecommendationsPage({Key? key, required this.userId}) : super(key: key);
+  const AIRecommendationsPage({Key? key, required this.userId})
+      : super(key: key);
 
   @override
   State<AIRecommendationsPage> createState() => _AIRecommendationsPageState();
@@ -16,6 +17,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
   bool isLoading = true;
   List<Map<String, dynamic>> recommendations = [];
   List<Map<String, dynamic>> retakeSuggestions = [];
+  List<Map<String, dynamic>> lowCgpaRecommendations = [];
+  double? studentCGPA;
   final StudentDataService _studentDataService = StudentDataService();
   final GeminiService _geminiService = GeminiService();
 
@@ -25,9 +28,31 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
     _analyzeStudentResults();
   }
 
+  Map<String, dynamic> _categorizeCourseUrgency(double pointEquivalent) {
+    if (pointEquivalent < 2.0) {
+      return {
+        'urgency': 'Critical',
+        'color': Colors.red,
+        'message':
+            'Immediate attention required. Consider retaking this course.'
+      };
+    } else if (pointEquivalent < 2.5) {
+      return {
+        'urgency': 'High',
+        'color': Colors.orange,
+        'message': 'Strong improvement needed. Focus on this course.'
+      };
+    } else {
+      return {
+        'urgency': 'Moderate',
+        'color': Colors.amber,
+        'message': 'Improvement recommended for better CGPA.'
+      };
+    }
+  }
+
   Future<void> _analyzeStudentResults() async {
     try {
-      // Get user data to fetch student ID
       final userData = await _studentDataService.getUserData(widget.userId);
       if (userData == null) {
         setState(() => isLoading = false);
@@ -35,24 +60,25 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
       }
 
       final studentId = userData['studentId'];
-
-      // Fetch semester results
       final semesterResults = await _studentDataService.fetchResults(studentId);
-      
-      // Calculate current CGPA
       final currentCGPA = _studentDataService.calculateOverallCGPA(semesterResults);
-      
+      studentCGPA = currentCGPA;
+
       List<Map<String, dynamic>> tempRecommendations = [];
       List<Map<String, dynamic>> tempRetakeSuggestions = [];
+      List<Map<String, dynamic>> tempLowCgpaRecommendations = [];
 
-      // Iterate through semester results
+      // Analyze each semester's courses
       for (var entry in semesterResults.entries) {
-        for (var course in entry.value) {
+        String semester = entry.key;
+        List<dynamic> courses = entry.value;
+
+        for (var course in courses) {
           double pointEquivalent = double.parse(course['pointEquivalent']?.toString() ?? '0.0');
-          
-          // Check for courses below passing grade
-          if (pointEquivalent < 3.0) {
-            // Existing recommendations logic
+
+          // Check if course CGPA is below 3.00
+          if (pointEquivalent < 3.00) {
+            // Get recommendations for this specific course
             final courseRecommendations = await _geminiService.getRecommendationsForCourse(
               course['courseTitle'],
               course['gradeLetter'],
@@ -62,12 +88,17 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
             if (courseRecommendations.isNotEmpty) {
               // Calculate CGPA projection for retake
               final cgpaProjection = await _calculateCGPARetakePotential(
-                studentId, 
-                course['customCourseId'], 
-                course['gradeLetter']
+                studentId,
+                course['customCourseId'],
+                course['gradeLetter'],
               );
 
+              // Get urgency categorization
+              final urgencyInfo = _categorizeCourseUrgency(pointEquivalent);
+
+              // Add to retake suggestions
               tempRetakeSuggestions.add({
+                'semester': semester,
                 'courseTitle': course['courseTitle'],
                 'courseCode': course['customCourseId'],
                 'currentGrade': course['gradeLetter'],
@@ -75,24 +106,39 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                 'currentCGPA': currentCGPA,
                 'cgpaProjection': cgpaProjection,
                 'recommendations': courseRecommendations,
+                'urgency': urgencyInfo['urgency'],
+                'urgencyColor': urgencyInfo['color'],
+                'urgencyMessage': urgencyInfo['message'],
               });
 
+              // Add to main recommendations
               tempRecommendations.add({
+                'semester': semester,
                 'courseTitle': course['courseTitle'],
                 'courseCode': course['customCourseId'],
                 'grade': course['gradeLetter'],
                 'point': pointEquivalent,
                 'recommendations': courseRecommendations,
                 'retakeSuggestion': cgpaProjection,
+                'urgency': urgencyInfo['urgency'],
+                'urgencyColor': urgencyInfo['color'],
+                'urgencyMessage': urgencyInfo['message'],
               });
             }
           }
         }
       }
 
+      // Sort recommendations by urgency
+      tempRecommendations.sort((a, b) {
+        final urgencyOrder = {'Critical': 0, 'High': 1, 'Moderate': 2};
+        return urgencyOrder[a['urgency']]!.compareTo(urgencyOrder[b['urgency']]!);
+      });
+
       setState(() {
         recommendations = tempRecommendations;
         retakeSuggestions = tempRetakeSuggestions;
+        lowCgpaRecommendations = tempLowCgpaRecommendations;
         isLoading = false;
       });
     } catch (e) {
@@ -102,35 +148,39 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
   }
 
   Future<Map<String, dynamic>> _calculateCGPARetakePotential(
-    String studentId,
-    String courseCode,
-    String currentGrade
-  ) async {
+      String studentId, String courseCode, String currentGrade) async {
     try {
       // Fetch all semester results
       final semesterResults = await _studentDataService.fetchResults(studentId);
-      
+
       // Calculate current CGPA
-      final currentCGPA = _studentDataService.calculateOverallCGPA(semesterResults);
+      final currentCGPA =
+          _studentDataService.calculateOverallCGPA(semesterResults);
 
       // Grade point mapping
       Map<String, double> gradePoints = {
-        'A+': 4.0, 'A': 3.75, 'A-': 3.50,
-        'B+': 3.25, 'B': 3.0, 'B-': 2.75,
-        'C+': 2.50, 'C': 2.25,
-        'D': 2.0, 'F': 0.0
+        'A+': 4.0,
+        'A': 3.75,
+        'A-': 3.50,
+        'B+': 3.25,
+        'B': 3.0,
+        'B-': 2.75,
+        'C+': 2.50,
+        'C': 2.25,
+        'D': 2.0,
+        'F': 0.0
       };
 
       // Possible retake grade scenarios
       List<String> potentialGrades = ['A+', 'A', 'A-', 'B+', 'B'];
-      
+
       Map<String, dynamic> projections = {};
 
       // Calculate projection for each potential grade
       for (String grade in potentialGrades) {
         // Clone the existing semester results to avoid modifying original
         var modifiedResults = Map<String, List<dynamic>>.from(semesterResults);
-        
+
         // Find and update the specific course's grade
         modifiedResults.forEach((semester, courses) {
           for (var course in courses) {
@@ -142,7 +192,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
         });
 
         // Calculate new CGPA with modified results
-        double newCGPA = _studentDataService.calculateOverallCGPA(modifiedResults);
+        double newCGPA =
+            _studentDataService.calculateOverallCGPA(modifiedResults);
 
         projections[grade] = {
           'projectedCGPA': newCGPA,
@@ -161,11 +212,13 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: isLoading
             ? Center(
@@ -178,10 +231,9 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                       height: 200,
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'AI is analyzing your performance...',
-                      style: TextStyle(
-                        color: Colors.white,
+                      style: textTheme.bodyLarge?.copyWith(
                         fontSize: 16,
                       ),
                     ),
@@ -191,19 +243,41 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Recommendations Section
-                  if (recommendations.isNotEmpty) ...[
-                    const Text(
-                      'Recommendations',
-                      style: TextStyle(
-                        color: Colors.white,
+                  // Display CGPA status
+                  if (studentCGPA != null) ...[
+                    _buildCGPADisplay(studentCGPA!, colorScheme, textTheme),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // CGPA-based recommendations (only shown if CGPA < 3.00)
+                  if (lowCgpaRecommendations.isNotEmpty) ...[
+                    Text(
+                      'Recommended Resources for CGPA Improvement',
+                      style: textTheme.titleLarge?.copyWith(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...recommendations.map((recommendation) => _buildRecommendationCard(recommendation)),
-                  ] else ...[
+                    _buildLowCGPARecommendationsSection(
+                        lowCgpaRecommendations, colorScheme, textTheme),
+                    const SizedBox(height: 32),
+                  ],
+
+                  // Course-specific recommendations
+                  if (recommendations.isNotEmpty) ...[
+                    Text(
+                      'Course-Specific Recommendations',
+                      style: textTheme.titleLarge?.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ...recommendations.map((recommendation) =>
+                        _buildRecommendationCard(
+                            recommendation, colorScheme, textTheme)),
+                  ] else if (lowCgpaRecommendations.isEmpty) ...[
                     Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -214,10 +288,9 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                             height: 200,
                           ),
                           const SizedBox(height: 20),
-                          const Text(
+                          Text(
                             'Great job! No improvements needed.',
-                            style: TextStyle(
-                              color: Colors.white,
+                            style: textTheme.bodyLarge?.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -227,35 +300,30 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                     ),
                   ],
 
-                  // Course Retakes Section
+                  // Retake suggestions section
                   if (retakeSuggestions.isNotEmpty) ...[
                     const SizedBox(height: 32),
-                    const Text(
+                    Text(
                       'Course Retake Suggestions',
-                      style: TextStyle(
-                        color: Colors.white,
+                      style: textTheme.titleLarge?.copyWith(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...retakeSuggestions.map((retakeSuggestion) => _buildRetakeSuggestionCard(retakeSuggestion)),
-                  ] else ...[
+                    ...retakeSuggestions.map((retakeSuggestion) =>
+                        _buildRetakeSuggestionCard(
+                            retakeSuggestion, colorScheme, textTheme)),
+                  ] else if (lowCgpaRecommendations.isEmpty) ...[
                     const SizedBox(height: 32),
                     Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Lottie.asset(
-                            'assets/success.json',
-                            width: 200,
-                            height: 200,
-                          ),
                           const SizedBox(height: 20),
-                          const Text(
+                          Text(
                             'No Recommended Course Retakes',
-                            style: TextStyle(
-                              color: Colors.white,
+                            style: textTheme.bodyLarge?.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -270,21 +338,239 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
     );
   }
 
-  Widget _buildRecommendationCard(Map<String, dynamic> recommendation) {
+  Widget _buildCGPADisplay(
+      double cgpa, ColorScheme colorScheme, TextTheme textTheme) {
+    Color statusColor = cgpa < 3.0 ? colorScheme.error : Colors.green;
+    String statusText = cgpa < 3.0 ? 'Needs Improvement' : 'Good Standing';
+
+    return Card(
+      color: Theme.of(context).cardColor,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Current CGPA',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                cgpa.toStringAsFixed(2),
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: statusColor,
+                ),
+              ),
+            ),
+            if (cgpa < 3.0) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Your CGPA is below 3.00. Explore the AI recommendations below to improve your academic performance.',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ]
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLowCGPARecommendationsSection(
+    List<Map<String, dynamic>> recommendations,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    // Group recommendations by type
+    Map<String, List<Map<String, dynamic>>> groupedRecs = {};
+
+    for (var rec in recommendations) {
+      String type = rec['type'] ?? 'General';
+      if (!groupedRecs.containsKey(type)) {
+        groupedRecs[type] = [];
+      }
+      groupedRecs[type]!.add(rec);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...groupedRecs.entries.map((entry) {
+          String type = entry.key;
+          List<Map<String, dynamic>> typeRecs = entry.value;
+
+          IconData typeIcon;
+          switch (type.toLowerCase()) {
+            case 'course':
+              typeIcon = Icons.school;
+              break;
+            case 'video':
+              typeIcon = Icons.video_library;
+              break;
+            case 'resource':
+              typeIcon = Icons.article;
+              break;
+            case 'book':
+              typeIcon = Icons.book;
+              break;
+            default:
+              typeIcon = Icons.info;
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(typeIcon, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$type Recommendations',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...typeRecs.map(
+                  (rec) => _buildResourceCard(rec, colorScheme, textTheme)),
+              const SizedBox(height: 16),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildResourceCard(
+    Map<String, dynamic> resource,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    IconData typeIcon;
+    switch (resource['type'].toString().toLowerCase()) {
+      case 'course':
+        typeIcon = Icons.school;
+        break;
+      case 'video':
+        typeIcon = Icons.video_library;
+        break;
+      case 'resource':
+        typeIcon = Icons.article;
+        break;
+      case 'book':
+        typeIcon = Icons.book;
+        break;
+      default:
+        typeIcon = Icons.info;
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: colorScheme.surface,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.primary.withOpacity(0.2),
+          child: Icon(typeIcon, color: colorScheme.primary, size: 20),
+        ),
+        title: Text(
+          resource['title'],
+          style: textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          resource['description'] ?? '',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.7),
+          ),
+        ),
+        trailing:
+            resource['link'] != null && resource['link'].toString().isNotEmpty
+                ? Icon(Icons.open_in_new, color: colorScheme.primary)
+                : null,
+        onTap: () {
+          // Handle resource link opening
+          if (resource['link'] != null &&
+              resource['link'].toString().isNotEmpty) {
+            // You can implement a URL launcher here
+            print('Opening link: ${resource['link']}');
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildRecommendationCard(
+    Map<String, dynamic> recommendation,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      color: const Color(0xFF2B2E4A),
+      color: Theme.of(context).cardColor,
       child: ExpansionTile(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              recommendation['courseTitle'],
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    recommendation['courseTitle'],
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (recommendation.containsKey('urgency'))
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: recommendation['urgencyColor'].withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      recommendation['urgency'],
+                      style: TextStyle(
+                        color: recommendation['urgencyColor'],
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 8),
             Row(
@@ -295,13 +581,13 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: colorScheme.primary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     recommendation['courseCode'],
-                    style: const TextStyle(
-                      color: Colors.blue,
+                    style: TextStyle(
+                      color: Colors.green,
                       fontSize: 14,
                     ),
                   ),
@@ -313,19 +599,29 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.2),
+                    color: colorScheme.error.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'Grade: ${recommendation['grade']}',
-                    style: const TextStyle(
-                      color: Colors.red,
+                    style: TextStyle(
+                      color: colorScheme.error,
                       fontSize: 14,
                     ),
                   ),
                 ),
               ],
             ),
+            if (recommendation.containsKey('urgencyMessage')) ...[
+              const SizedBox(height: 8),
+              Text(
+                recommendation['urgencyMessage'],
+                style: TextStyle(
+                  color: recommendation['urgencyColor'],
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ],
         ),
         children: [
@@ -334,22 +630,21 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'AI Recommendations',
                   style: TextStyle(
-                    color: Colors.yellow,
+                    color: colorScheme.secondary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
-                ...recommendation['recommendations']
-                    .map<Widget>((rec) {
+                ...recommendation['recommendations'].map<Widget>((rec) {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: colorScheme.surface.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -360,15 +655,19 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                             Icon(
                               rec['type'] == 'Course'
                                   ? Icons.school
-                                  : Icons.book,
-                              color: Colors.yellow,
+                                  : rec['type'] == 'Video'
+                                      ? Icons.video_library
+                                      : rec['type'] == 'Book'
+                                          ? Icons.book
+                                          : Icons.article,
+                              color: colorScheme.secondary,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               rec['type'],
-                              style: const TextStyle(
-                                color: Colors.yellow,
+                              style: TextStyle(
+                                color: colorScheme.secondary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -378,11 +677,46 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                         const SizedBox(height: 8),
                         Text(
                           rec['title'],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
+                          style: textTheme.bodyMedium,
                         ),
+                        if (rec['description'] != null &&
+                            rec['description'].toString().isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            rec['description'],
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                        if (rec['link'] != null &&
+                            rec['link'].toString().isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              // Handle link opening logic here
+                              print('Opening link: ${rec['link']}');
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.open_in_new,
+                                  color: Colors.blue,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Open Resource',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   );
@@ -395,21 +729,47 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
     );
   }
 
-  Widget _buildRetakeSuggestionCard(Map<String, dynamic> retakeSuggestion) {
+  Widget _buildRetakeSuggestionCard(
+    Map<String, dynamic> retakeSuggestion,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      color: const Color(0xFF2B2E4A),
+      color: Theme.of(context).cardColor,
       child: ExpansionTile(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              retakeSuggestion['courseTitle'],
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    retakeSuggestion['courseTitle'],
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (retakeSuggestion.containsKey('urgency'))
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: retakeSuggestion['urgencyColor'].withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      retakeSuggestion['urgency'],
+                      style: TextStyle(
+                        color: retakeSuggestion['urgencyColor'],
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 8),
             Row(
@@ -420,13 +780,13 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: colorScheme.primary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     retakeSuggestion['courseCode'],
-                    style: const TextStyle(
-                      color: Colors.blue,
+                    style: TextStyle(
+                      color: Colors.green,
                       fontSize: 14,
                     ),
                   ),
@@ -438,19 +798,29 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.2),
+                    color: colorScheme.error.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'Current Grade: ${retakeSuggestion['currentGrade']}',
-                    style: const TextStyle(
-                      color: Colors.red,
+                    style: TextStyle(
+                      color: colorScheme.error,
                       fontSize: 14,
                     ),
                   ),
                 ),
               ],
             ),
+            if (retakeSuggestion.containsKey('urgencyMessage')) ...[
+              const SizedBox(height: 8),
+              Text(
+                retakeSuggestion['urgencyMessage'],
+                style: TextStyle(
+                  color: retakeSuggestion['urgencyColor'],
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ],
         ),
         children: [
@@ -462,49 +832,45 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> {
                 Text(
                   'CGPA Projection Scenarios',
                   style: TextStyle(
-                    color: Colors.yellowAccent,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold
-                  ),
+                      color: colorScheme.secondary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Current CGPA: ${retakeSuggestion['currentCGPA'].toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  style: textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 10),
-                // CGPA Projection Cards
-                ...retakeSuggestion['cgpaProjection']['projections'].entries.map((projectionEntry) {
+                ...retakeSuggestion['cgpaProjection']['projections']
+                    .entries
+                    .map((projectionEntry) {
                   final grade = projectionEntry.key;
                   final projection = projectionEntry.value;
                   return Card(
-                    color: Colors.deepPurple[800],
+                    color: colorScheme.surface,
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
                       title: Text(
                         'If you achieve Grade $grade',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold
-                        ),
+                        style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Projected CGPA: ${projection['projectedCGPA'].toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.white70),
+                            style: TextStyle(
+                                color: colorScheme.onSurface.withOpacity(0.7)),
                           ),
                           Text(
                             'CGPA Improvement: +${projection['cgpaImprovement'].toStringAsFixed(2)}',
                             style: TextStyle(
-                              color: projection['cgpaImprovement'] > 0 
-                                ? Colors.green 
-                                : Colors.red
-                            ),
+                                color: projection['cgpaImprovement'] > 0
+                                    ? Colors.green
+                                    : Colors.red),
                           ),
                         ],
                       ),

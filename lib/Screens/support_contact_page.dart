@@ -39,7 +39,7 @@ class _SupportContactPageState extends State<SupportContactPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Message sent successfully!'),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 
@@ -52,7 +52,7 @@ class _SupportContactPageState extends State<SupportContactPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to send message. Please try again.'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       } finally {
@@ -65,15 +65,18 @@ class _SupportContactPageState extends State<SupportContactPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: colorScheme.surface,
         title: Text(
-          "Contact Support", 
-          style: TextStyle(color: Colors.white),
+          "Contact Support",
+          style: textTheme.titleLarge?.copyWith(color: colorScheme.onSurface),
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -89,10 +92,9 @@ class _SupportContactPageState extends State<SupportContactPage> {
                   children: [
                     Text(
                       "Get in Touch",
-                      style: TextStyle(
-                        fontSize: 28, 
-                        fontWeight: FontWeight.bold, 
-                        color: Colors.white,
+                      style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
                         letterSpacing: 1.2
                       ),
                       textAlign: TextAlign.center,
@@ -126,11 +128,11 @@ class _SupportContactPageState extends State<SupportContactPage> {
                     ),
                     SizedBox(height: 20),
                     _isLoading 
-                      ? Center(child: CircularProgressIndicator(color: Colors.white))
+                      ? Center(child: CircularProgressIndicator(color: colorScheme.onSurface))
                       : ElevatedButton(
                       onPressed: _submitForm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: colorScheme.primary,
                         padding: EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -138,9 +140,8 @@ class _SupportContactPageState extends State<SupportContactPage> {
                       ),
                       child: Text(
                         "Send Message",
-                        style: TextStyle(
-                          fontSize: 18, 
-                          color: Colors.white,
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onPrimary,
                           fontWeight: FontWeight.bold
                         ),
                       ),
@@ -148,8 +149,8 @@ class _SupportContactPageState extends State<SupportContactPage> {
                     SizedBox(height: 20),
                     Text(
                       "We typically respond within 24-48 hours",
-                      style: TextStyle(
-                        color: Colors.white70, 
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withOpacity(0.7),
                         fontStyle: FontStyle.italic,
                       ),
                       textAlign: TextAlign.center,
@@ -162,10 +163,9 @@ class _SupportContactPageState extends State<SupportContactPage> {
               SizedBox(height: 30),
               Text(
                 "Previous Conversations",
-                style: TextStyle(
-                  fontSize: 22, 
-                  fontWeight: FontWeight.bold, 
-                  color: Colors.white,
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -178,6 +178,9 @@ class _SupportContactPageState extends State<SupportContactPage> {
   }
 
   Widget _buildSupportHistory() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('support_messages')
@@ -187,7 +190,7 @@ class _SupportContactPageState extends State<SupportContactPage> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
-            child: CircularProgressIndicator(color: Colors.white),
+            child: CircularProgressIndicator(color: colorScheme.onSurface),
           );
         }
         
@@ -197,7 +200,7 @@ class _SupportContactPageState extends State<SupportContactPage> {
           return Center(
             child: Text(
               'No previous support messages',
-              style: TextStyle(color: Colors.white70),
+              style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface.withOpacity(0.7)),
             ),
           );
         }
@@ -213,7 +216,7 @@ class _SupportContactPageState extends State<SupportContactPage> {
               children: [
                 // User Message
                 Card(
-                  color: Colors.grey[900],
+                  color: colorScheme.surfaceVariant,
                   margin: EdgeInsets.symmetric(vertical: 8),
                   child: Padding(
                     padding: EdgeInsets.all(12.0),
@@ -222,20 +225,20 @@ class _SupportContactPageState extends State<SupportContactPage> {
                       children: [
                         Text(
                           'Your Message:', 
-                          style: TextStyle(
-                            color: Colors.white70, 
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.7),
                             fontWeight: FontWeight.bold
                           ),
                         ),
                         SizedBox(height: 8),
                         Text(
                           message['message'], 
-                          style: TextStyle(color: Colors.white),
+                          style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                         ),
                         SizedBox(height: 8),
                         Text(
                           'Sent: ${_formatTimestamp(message['timestamp'])}',
-                          style: TextStyle(color: Colors.white54, fontSize: 12),
+                          style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.5)),
                         ),
                       ],
                     ),
@@ -245,7 +248,7 @@ class _SupportContactPageState extends State<SupportContactPage> {
                 // Admin Response (if exists)
                 if (message['adminResponse'] != null)
                   Card(
-                    color: Colors.green[900],
+                    color: colorScheme.tertiaryContainer,
                     margin: EdgeInsets.symmetric(vertical: 8),
                     child: Padding(
                       padding: EdgeInsets.all(12.0),
@@ -254,15 +257,15 @@ class _SupportContactPageState extends State<SupportContactPage> {
                         children: [
                           Text(
                             'Support Response:', 
-                            style: TextStyle(
-                              color: Colors.white70, 
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.7),
                               fontWeight: FontWeight.bold
                             ),
                           ),
                           SizedBox(height: 8),
                           Text(
                             message['adminResponse'], 
-                            style: TextStyle(color: Colors.white),
+                            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                           ),
                         ],
                       ),
@@ -284,33 +287,36 @@ class _SupportContactPageState extends State<SupportContactPage> {
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
-      style: TextStyle(color: Colors.white),
+      style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.white70),
+        prefixIcon: Icon(icon, color: colorScheme.onSurface.withOpacity(0.7)),
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white70),
+        labelStyle: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface.withOpacity(0.7)),
         filled: true,
-        fillColor: Colors.grey[900],
+        fillColor: colorScheme.surfaceVariant,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white24),
+          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blue),
+          borderSide: BorderSide(color: colorScheme.primary),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
       ),
     );

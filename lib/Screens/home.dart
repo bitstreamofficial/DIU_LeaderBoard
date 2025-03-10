@@ -1,4 +1,3 @@
-// lib/home.dart
 import 'dart:convert';
 import 'dart:math';
 
@@ -21,7 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   List<Student> students = [];
   bool isLoading = true;
   final _auth = AuthService();
@@ -35,20 +33,19 @@ class _HomePageState extends State<HomePage> {
   bool _showScrollToTop = false;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
-  List<Student> _filteredStudents = [];
   String _searchQuery = '';
   final Map<String, GlobalKey> _studentKeys = {};
-  bool _isScrolling = false;
   Map<String, bool>? _showMePreferences;
+  bool _mounted = true;
 
   @override
   void initState() {
     super.initState();
     userId = _auth.getCurrentUserId();
-    _loadUserPreferences();
-    _initializeData();
+    _loadInitialData();
 
     _scrollController.addListener(() {
+      if (!mounted) return;
       final showScrollToTop = _scrollController.offset > 200;
       if (showScrollToTop != _showScrollToTop) {
         setState(() {
@@ -58,12 +55,13 @@ class _HomePageState extends State<HomePage> {
     });
 
     _searchController.addListener(() {
+      if (!mounted) return;
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
       });
       if (_searchQuery.isNotEmpty) {
         Future.delayed(const Duration(milliseconds: 100), () {
-          _scrollToMatchingStudent();
+          if (mounted) _scrollToMatchingStudent();
         });
       }
     });
@@ -73,38 +71,38 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
+    _mounted = false;
     super.dispose();
   }
 
   Future<void> _fetchStudentShowMePreferences() async {
+    if (!mounted) return;
     try {
       final batch = _studentInfo?['batchNo'].toString();
       if (batch == null) return;
 
-      final showMePreferences = await Future.wait(
-        students.map((student) async {
-          try {
-            final studentDoc = await _firestore
-                .collection('students')
-                .where('studentId', isEqualTo: student.id)
-                .get();
-            
-            if (studentDoc.docs.isNotEmpty) {
-              return {
-                student.id: studentDoc.docs.first.data()['showMe'] ?? false
-              };
-            }
-            return {student.id: false};
-          } catch (e) {
-            print('Error fetching showMe for ${student.name}: $e');
-            return {student.id: false};
-          }
-        })
-      );
+      final showMePreferences = await Future.wait(students.map((student) async {
+        try {
+          final studentDoc = await _firestore
+              .collection('students')
+              .where('studentId', isEqualTo: student.id)
+              .get();
 
+          if (studentDoc.docs.isNotEmpty) {
+            return {
+              student.id: studentDoc.docs.first.data()['showMe'] ?? false
+            };
+          }
+          return {student.id: false};
+        } catch (e) {
+          print('Error fetching showMe for ${student.name}: $e');
+          return {student.id: false};
+        }
+      }));
+
+      if (!mounted) return;
       final showMeMap = showMePreferences.fold<Map<String, bool>>(
-        {}, (acc, current) => acc..addAll(current.cast<String, bool>())
-      );
+          {}, (acc, current) => acc..addAll(current.cast<String, bool>()));
 
       setState(() {
         _showMePreferences = showMeMap;
@@ -115,13 +113,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadUserPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    
+    if (!mounted) return;
+
     if (userId != null) {
       try {
-        final userDoc = await _firestore.collection('students').doc(userId).get();
+        final userDoc =
+            await _firestore.collection('students').doc(userId).get();
+        if (!mounted) return;
         bool showFullName = userDoc.data()?['showMe'] ?? false;
-        
+
         setState(() {
           _studentInfo ??= {};
           _studentInfo!['showMe'] = showFullName;
@@ -140,10 +140,8 @@ class _HomePageState extends State<HomePage> {
     } else {
       var nameParts = name.split(' ');
       if (nameParts.length > 1) {
-        return Future.value(
-          '${nameParts[0][0]} ' + 
-          nameParts.sublist(1).map((part) => '*' * part.length).join(' ')
-        );
+        return Future.value('${nameParts[0][0]} ' +
+            nameParts.sublist(1).map((part) => '*' * part.length).join(' '));
       }
       return Future.value(name);
     }
@@ -157,13 +155,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {});
-  }
-
   Future<void> _initializeData() async {
-    setState(() {});
+    if (!mounted) return;
+    setState(() {
+      isLoading = true;
+    });
 
     final hasCache = await _loadCachedData();
     if (!hasCache) {
@@ -177,7 +173,10 @@ class _HomePageState extends State<HomePage> {
       await _fetchStudentShowMePreferences();
     }
 
-    setState(() {});
+    if (!mounted) return;
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<bool> _loadCachedData() async {
@@ -249,28 +248,33 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadStudents(String batch) async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
 
     try {
       final String csvData = await loadCsvForBatch(batch);
-      List<List<dynamic>> csvTable = const CsvToListConverter().convert(csvData);
+      List<List<dynamic>> csvTable =
+          const CsvToListConverter().convert(csvData);
       csvTable.removeAt(0); // Remove header row
 
-      List<Student> loadedStudents = csvTable.map((row) => Student.fromCsvRow(row)).toList();
+      List<Student> loadedStudents =
+          csvTable.map((row) => Student.fromCsvRow(row)).toList();
 
+      if (!mounted) return;
       setState(() {
         students = loadedStudents;
         isLoading = false;
       });
     } catch (e) {
       print('Error loading students: $e');
+      if (!mounted) return;
       setState(() {
         isLoading = false;
         students = []; // Clear students list on error
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -351,7 +355,7 @@ class _HomePageState extends State<HomePage> {
 
     // Find all matching students
     List<int> matchingIndices = [];
-    
+
     // Check all students, including podium
     for (int i = 0; i < students.length; i++) {
       if (students[i].name.toLowerCase().contains(_searchQuery)) {
@@ -371,22 +375,25 @@ class _HomePageState extends State<HomePage> {
       // For podium positions (0, 1, 2), scroll to top
       offset = 0;
     } else {
-      
       double podiumHeight = 200;
-      double currentUserHeight = _buildCurrentUserRank().toString() != 'SizedBox.shrink' ? 76 : 0;
+      double currentUserHeight = 76;
       double spacingHeight = 20;
       double itemHeight = 72;
-      
-      offset = podiumHeight + currentUserHeight + spacingHeight + 
-               ((matchIndex - 3) * itemHeight);
+
+      offset = podiumHeight +
+          currentUserHeight +
+          spacingHeight +
+          ((matchIndex - 3) * itemHeight);
     }
 
     // Perform the scroll with a slight offset for better visibility
-    _scrollController.animateTo(
+    _scrollController
+        .animateTo(
       max(0, offset - 100), // Subtract 100 to show some content above
       duration: const Duration(milliseconds: 100),
       curve: Curves.easeInOut,
-    ).then((_) {
+    )
+        .then((_) {
       // After main scroll, ensure the specific item is fully visible
       if (_studentKeys[matchingStudent.id]?.currentContext != null) {
         Scrollable.ensureVisible(
@@ -412,7 +419,6 @@ class _HomePageState extends State<HomePage> {
   Future<Widget> _buildCurrentUserRank() async {
     String? currentUserId = _studentInfo?['studentId'] as String?;
     currentUserId ??= userId;
-    bool canSeeFullName = _studentInfo?['showMe'] ?? false;
 
     if (currentUserId == null) return const SizedBox.shrink();
 
@@ -450,7 +456,8 @@ class _HomePageState extends State<HomePage> {
           ),
           CircleAvatar(
             radius: 20,
-            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+            backgroundColor:
+                Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             child: Text(
               displayName[0].toUpperCase(),
               style: TextStyle(
@@ -475,7 +482,10 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   'Your Position',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -512,7 +522,8 @@ class _HomePageState extends State<HomePage> {
     String displayName = await _anonymizeName(student.name, student.id);
     final bool isMatch = _searchQuery.isNotEmpty &&
         student.name.toLowerCase().contains(_searchQuery);
-    final bool isCurrentUser = student.id == (_studentInfo?['studentId'] as String? ?? userId);
+    final bool isCurrentUser =
+        student.id == (_studentInfo?['studentId'] as String? ?? userId);
 
     return Container(
       key: _studentKeys.putIfAbsent(student.id, () => GlobalKey()),
@@ -533,7 +544,7 @@ class _HomePageState extends State<HomePage> {
           Stack(
             alignment: Alignment.center,
             children: [
-              if (isCurrentUser) 
+              if (isCurrentUser)
                 Container(
                   width: rank == 1 ? 100 : 80,
                   height: rank == 1 ? 100 : 80,
@@ -542,7 +553,10 @@ class _HomePageState extends State<HomePage> {
                     boxShadow: [
                       for (var i = 0; i < 3; i++)
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3 - i * 0.1),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3 - i * 0.1),
                           spreadRadius: (i + 1) * 4,
                           blurRadius: (i + 1) * 4,
                         ),
@@ -551,17 +565,17 @@ class _HomePageState extends State<HomePage> {
                 ),
               CircleAvatar(
                 radius: rank == 1 ? 40 : 30,
-                backgroundColor: isMatch 
-                  ? Theme.of(context).colorScheme.primary
-                  : isCurrentUser 
-                    ? Theme.of(context).colorScheme.tertiary
-                    : getMedalColor(rank),
+                backgroundColor: isMatch
+                    ? Theme.of(context).colorScheme.primary
+                    : isCurrentUser
+                        ? Theme.of(context).colorScheme.tertiary
+                        : getMedalColor(rank),
                 child: Text(
                   displayName[0].toUpperCase(),
                   style: TextStyle(
-                    color: isMatch || isCurrentUser 
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurface,
+                    color: isMatch || isCurrentUser
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurface,
                     fontSize: rank == 1 ? 24 : 20,
                   ),
                 ),
@@ -572,11 +586,11 @@ class _HomePageState extends State<HomePage> {
           Text(
             displayName,
             style: TextStyle(
-              color: isMatch 
-                ? Theme.of(context).colorScheme.primary
-                : isCurrentUser 
-                  ? Theme.of(context).colorScheme.tertiary
-                  : Theme.of(context).colorScheme.onSurface,
+              color: isMatch
+                  ? Theme.of(context).colorScheme.primary
+                  : isCurrentUser
+                      ? Theme.of(context).colorScheme.tertiary
+                      : Theme.of(context).colorScheme.onSurface,
               fontSize: rank == 1 ? 16 : 14,
               fontWeight: FontWeight.bold,
             ),
@@ -584,11 +598,11 @@ class _HomePageState extends State<HomePage> {
           Text(
             student.cgpa.toStringAsFixed(2),
             style: TextStyle(
-              color: isMatch 
-                ? Theme.of(context).colorScheme.primary
-                : isCurrentUser 
-                  ? Theme.of(context).colorScheme.tertiary
-                  : getMedalColor(rank),
+              color: isMatch
+                  ? Theme.of(context).colorScheme.primary
+                  : isCurrentUser
+                      ? Theme.of(context).colorScheme.tertiary
+                      : getMedalColor(rank),
               fontSize: rank == 1 ? 16 : 14,
             ),
           ),
@@ -597,7 +611,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<Widget> _buildListItem(Student student, int rank, bool isCurrentUser) async {
+  Future<Widget> _buildListItem(
+      Student student, int rank, bool isCurrentUser) async {
     String displayName = await _anonymizeName(student.name, student.id);
     final bool isMatch = _searchQuery.isNotEmpty &&
         student.name.toLowerCase().contains(_searchQuery);
@@ -609,21 +624,22 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         color: isMatch
             ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-            : isCurrentUser 
-              ? Theme.of(context).colorScheme.tertiary.withOpacity(0.15)
-              : Theme.of(context).cardColor,
+            : isCurrentUser
+                ? Theme.of(context).colorScheme.tertiary.withOpacity(0.15)
+                : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: isMatch 
+        border: isMatch
             ? Border.all(
                 color: Theme.of(context).colorScheme.primary,
                 width: 2,
-              ) 
+              )
             : isCurrentUser
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
-                  width: 1,
-                )
-              : null,
+                ? Border.all(
+                    color:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                    width: 1,
+                  )
+                : null,
       ),
       child: Row(
         children: [
@@ -640,15 +656,15 @@ class _HomePageState extends State<HomePage> {
           ),
           CircleAvatar(
             radius: 20,
-            backgroundColor: isMatch 
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-              : Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+            backgroundColor: isMatch
+                ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                : Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             child: Text(
               displayName[0].toUpperCase(),
               style: TextStyle(
-                color: isMatch 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurface,
+                color: isMatch
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
               ),
             ),
@@ -658,9 +674,9 @@ class _HomePageState extends State<HomePage> {
             child: Text(
               displayName,
               style: TextStyle(
-                color: isMatch 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurface,
+                color: isMatch
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -669,9 +685,9 @@ class _HomePageState extends State<HomePage> {
           Text(
             student.cgpa.toStringAsFixed(2),
             style: TextStyle(
-              color: isMatch 
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: isMatch
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -681,16 +697,69 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _loadInitialData() async {
+    if (!mounted) return;
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final hasCache = await _loadCachedData();
+      if (!hasCache) {
+        await _fetchStudentData();
+      }
+
+      if (_studentInfo != null) {
+        final batch = _studentInfo!['batchNo'].toString();
+        await loadStudents(batch);
+        await _fetchStudentShowMePreferences();
+      }
+    } catch (e) {
+      print('Error loading initial data: $e');
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleRefresh() async {
+    try {
+      await _fetchStudentData();
+      if (_studentInfo != null) {
+        final batch = _studentInfo!['batchNo'].toString();
+        await loadStudents(batch);
+        await _fetchStudentShowMePreferences();
+      }
+    } catch (e) {
+      print('Error refreshing data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to refresh data'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    String? currentUserId = _studentInfo?['studentId'] as String?;
-    currentUserId ??= userId;
-    final batch = _studentInfo?['batchNo'].toString();
-
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        floatingActionButton: AnimatedOpacity(
+          opacity: _showScrollToTop && !_isSearching ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 200),
+          child: FloatingActionButton(
+            onPressed: _scrollToTop,
+            child: const Icon(Icons.arrow_upward, color: Colors.yellowAccent),
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            elevation: 1,
+          ),
+        ),
         appBar: AppBar(
           title: _isSearching
               ? TextField(
@@ -702,11 +771,10 @@ class _HomePageState extends State<HomePage> {
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     border: InputBorder.none,
                   ),
-                  
                 )
               : Column(
                   children: [
-                     Text(
+                    Text(
                       'DIU Leaderboard',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
@@ -716,7 +784,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Batch ${batch}',
+                      'Batch ${_studentInfo?['batchNo'].toString()}',
                       style: TextStyle(
                         color: Colors.grey[400],
                         fontSize: 16,
@@ -726,20 +794,20 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
           centerTitle: true,
-          leading: _isSearching
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  color: Colors.white,
-                  onPressed: _toggleSearch,
-                )
-              : null,
-          actions: [
-            IconButton(
-              icon: Icon(_isSearching ? Icons.clear : Icons.search),
-              onPressed: _toggleSearch,
-              color: Colors.white,
-            ),
-          ],
+          // leading: _isSearching
+          //     ? IconButton(
+          //         icon: const Icon(Icons.arrow_back),
+          //         color: Colors.white,
+          //         onPressed: _toggleSearch,
+          //       )
+          //     : null,
+          // actions: [
+          //   IconButton(
+          //     icon: Icon(_isSearching ? Icons.clear : Icons.search),
+          //     onPressed: _toggleSearch,
+          //     color: Colors.white,
+          //   ),
+          // ],
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -750,41 +818,32 @@ class _HomePageState extends State<HomePage> {
                   ? const Center(
                       child: Text('No data available',
                           style: TextStyle(color: Colors.white)))
-                  : CustomScrollView(
-                      controller: _scrollController,
-                      slivers: [
-                        // Top 3 Podium
-                        if (students.length >= 3)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: SizedBox(
-                                height: 200,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                        child:
-                                            FutureBuilder<Widget>(
-                                              future: _buildPodiumItem(students[1], 2),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                  return const CircularProgressIndicator();
-                                                } else if (snapshot.hasError) {
-                                                  return const Icon(Icons.error);
-                                                } else {
-                                                  return snapshot.data!;
-                                                }
-                                              },
-                                            )),
-                                    Expanded(
-                                        flex: 2,
+                  : RefreshIndicator(
+                      onRefresh: _handleRefresh,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        slivers: [
+                          // Top 3 Podium
+                          if (students.length >= 3)
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
+                                child: SizedBox(
+                                  height: 200,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
                                         child: FutureBuilder<Widget>(
-                                          future: _buildPodiumItem(students[0], 1),
+                                          future:
+                                              _buildPodiumItem(students[1], 2),
                                           builder: (context, snapshot) {
-                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
                                               return const CircularProgressIndicator();
                                             } else if (snapshot.hasError) {
                                               return const Icon(Icons.error);
@@ -792,82 +851,98 @@ class _HomePageState extends State<HomePage> {
                                               return snapshot.data!;
                                             }
                                           },
-                                        )),
-                                    Expanded(
-                                        child:
-                                            FutureBuilder<Widget>(
-                                              future: _buildPodiumItem(students[2], 3),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                  return const CircularProgressIndicator();
-                                                } else if (snapshot.hasError) {
-                                                  return const Icon(Icons.error);
-                                                } else {
-                                                  return snapshot.data!;
-                                                }
-                                              },
-                                            )),
-                                  ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: FutureBuilder<Widget>(
+                                          future:
+                                              _buildPodiumItem(students[0], 1),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const CircularProgressIndicator();
+                                            } else if (snapshot.hasError) {
+                                              return const Icon(Icons.error);
+                                            } else {
+                                              return snapshot.data!;
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: FutureBuilder<Widget>(
+                                          future:
+                                              _buildPodiumItem(students[2], 3),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const CircularProgressIndicator();
+                                            } else if (snapshot.hasError) {
+                                              return const Icon(Icons.error);
+                                            } else {
+                                              return snapshot.data!;
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+
+                          // Current User's Rank
+                          SliverToBoxAdapter(
+                            child: FutureBuilder<Widget>(
+                              future: _buildCurrentUserRank(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return const Icon(Icons.error);
+                                } else {
+                                  return snapshot.data ??
+                                      const SizedBox.shrink();
+                                }
+                              },
+                            ),
                           ),
 
-                        // Current User's Rank (if not in top 3)
-                        SliverToBoxAdapter(
-                          child: FutureBuilder<Widget>(
-                            future: _buildCurrentUserRank(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
-                              } else if (snapshot.hasError) {
-                                return const Icon(Icons.error);
-                              } else {
-                                return snapshot.data ?? const SizedBox.shrink();
-                              }
-                            },
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 20),
                           ),
-                        ),
 
-                        const SliverToBoxAdapter(
-                          child: SizedBox(height: 20),
-                        ),
-
-                        // Remaining Rankings
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final student = students[index + 3];
-                              final isCurrentUser = student.id == currentUserId;
-                              return FutureBuilder<Widget>(
-                                future: _buildListItem(student, index + 4, isCurrentUser),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return const CircularProgressIndicator();
-                                  } else if (snapshot.hasError) {
-                                    return const Icon(Icons.error);
-                                  } else {
-                                    return snapshot.data ?? const SizedBox.shrink();
-                                  }
-                                },
-                              );
-                            },
-                            childCount:
-                                students.length > 3 ? students.length - 3 : 0,
+                          // Remaining Rankings
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final student = students[index + 3];
+                                final isCurrentUser = student.id == userId;
+                                return FutureBuilder<Widget>(
+                                  future: _buildListItem(
+                                      student, index + 4, isCurrentUser),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      return const Icon(Icons.error);
+                                    } else {
+                                      return snapshot.data ??
+                                          const SizedBox.shrink();
+                                    }
+                                  },
+                                );
+                              },
+                              childCount:
+                                  students.length > 3 ? students.length - 3 : 0,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-        ),
-        floatingActionButton: AnimatedOpacity(
-          opacity: _showScrollToTop && !_isSearching ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 200),
-          child: FloatingActionButton(
-            onPressed: _scrollToTop,
-            child: const Icon(Icons.arrow_upward, color: Colors.yellowAccent),
-            backgroundColor: Theme.of(context).colorScheme.tertiary,
-            elevation: 1,
-          ),
         ),
       ),
     );

@@ -227,7 +227,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -240,143 +239,154 @@ class _ProfilePageState extends State<ProfilePage> {
         //     );
         //   },
         // ),
-        title: const Text(
+        title: Text(
           'My Profile',
           style: TextStyle(
-            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _handleRefresh,
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.refresh, color: Colors.white),
+        //     onPressed: _handleRefresh,
+        //   ),
+        // ],
       ),
       body: SafeArea(
-              child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2B2E4A),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Column(
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                            border: Border.all(color: Colors.yellow, width: 3),
-                                ),
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.grey[800],
-                                  radius: 40,
-                                  child: Text(
-                                    _studentInfo?['studentName']
-                                            ?.toString()
-                                            .substring(0, 1)
-                                            .toUpperCase() ??
-                                        '?',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.yellow,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                            ],
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                width: 3),
                           ),
-                          const SizedBox(height: 15),
-                          Text(
-                            _studentInfo?['studentName'] ?? 'Loading...',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            _studentInfo?['studentId'] ?? 'Loading...',
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                          child: CircleAvatar(
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.2),
+                            radius: 40,
                             child: Text(
-                        'CGPA: ${_overallCGPA?.toStringAsFixed(2) ?? 'N/A'}',
-                              style: const TextStyle(
-                                color: Colors.black,
+                              _studentInfo?['studentName']
+                                      ?.toString()
+                                      .substring(0, 1)
+                                      .toUpperCase() ??
+                                  '?',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Show me in Leaderboard',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Switch(
-                                  value: _showInLeaderboard,
-                                  onChanged: (bool value) =>
-                                _toggleLeaderboardVisibility(value, userId!),
-                                  activeColor: Colors.yellow,
-                            activeTrackColor: Colors.yellow.withOpacity(0.5),
-                                ),
-                              ],
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              shape: BoxShape.circle,
                             ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      _studentInfo?['studentName'] ?? 'Loading...',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _studentInfo?['studentId'] ?? 'Loading...',
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'CGPA: ${_overallCGPA?.toStringAsFixed(2) ?? 'N/A'}',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Show me in Leaderboard',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Switch(
+                            value: _showInLeaderboard,
+                            onChanged: (bool value) =>
+                                _toggleLeaderboardVisibility(value, userId!),
+                            activeColor: Theme.of(context).colorScheme.tertiary,
+                            activeTrackColor: Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.5),
                           ),
                         ],
                       ),
                     ),
-                    if (_semesterResults != null) ...[
-                      const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+              if (_semesterResults != null) ...[
+                const SizedBox(height: 20),
                 _buildCGPAChart(),
                 ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _semesterResults!.length,
-                          itemBuilder: (context, index) {
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _semesterResults!.length,
+                  itemBuilder: (context, index) {
                     String semester = _semesterResults!.keys.elementAt(index);
                     List<dynamic> results = _semesterResults![semester] ?? [];
 
@@ -396,8 +406,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Theme(
-                          data: Theme.of(context)
-                              .copyWith(dividerColor: Colors.transparent),
+                          data: Theme.of(context).copyWith(
+                              dividerColor:
+                                  const Color.fromARGB(0, 100, 40, 40)),
                           child: ExpansionTile(
                             tilePadding: const EdgeInsets.all(16),
                             shape: RoundedRectangleBorder(
@@ -415,8 +426,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   child: Text(
                                     '$semesterName $semesterYear',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
@@ -448,7 +461,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: const BorderRadius.only(
                                     bottomLeft: Radius.circular(12),
                                     bottomRight: Radius.circular(12),
@@ -581,9 +594,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                         ],
                                       ),
-                            );
-                          },
-                        ),
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
@@ -592,176 +605,315 @@ class _ProfilePageState extends State<ProfilePage> {
                     }
                     return const SizedBox.shrink();
                   },
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                    Container(
-  margin: const EdgeInsets.symmetric(horizontal: 20),
-  width: double.infinity,
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 0,
-    ),
-    onPressed: _isDataLoading 
-    ? null 
-    : () => ResultCardService.generateAndDownloadPDF(
-          studentInfo: _studentInfo,
-          semesterResults: _semesterResults,
-          overallCGPA: _overallCGPA,
-          setLoading: (bool loading) {
-            setState(() {
-              _isDataLoading = loading;
-            });
-          },
-          context: context,
+                ),
+              ],
+              const SizedBox(height: 20),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: _isDataLoading
+                      ? null
+                      : () => ResultCardService.generateAndDownloadPDF(
+                            studentInfo: _studentInfo,
+                            semesterResults: _semesterResults,
+                            overallCGPA: _overallCGPA,
+                            setLoading: (bool loading) {
+                              setState(() {
+                                _isDataLoading = loading;
+                              });
+                            },
+                            context: context,
+                          ),
+                  child: _isDataLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.download, color: Colors.black),
+                            SizedBox(width: 10),
+                            Text(
+                              'Download Result Card',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Container(
+              //   margin: const EdgeInsets.symmetric(horizontal: 20),
+              //   width: double.infinity,
+              //   child: ElevatedButton(
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Colors.yellow,
+              //       padding: const EdgeInsets.symmetric(vertical: 15),
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(10),
+              //       ),
+              //       elevation: 0,
+              //     ),
+              //     onPressed: _isLoggingOut ? null : _logout,
+              //     child: _isLoggingOut
+              //         ? const SizedBox(
+              //             height: 20,
+              //             width: 20,
+              //             child: CircularProgressIndicator(
+              //               color: Colors.black,
+              //               strokeWidth: 2,
+              //             ),
+              //           )
+              //         : const Row(
+              //             mainAxisAlignment: MainAxisAlignment.center,
+              //             children: [
+              //               Icon(Icons.logout, color: Colors.black),
+              //               SizedBox(width: 10),
+              //               Text(
+              //                 'Log Out',
+              //                 style: TextStyle(
+              //                   color: Colors.black,
+              //                   fontWeight: FontWeight.bold,
+              //                   fontSize: 16,
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //   ),
+              // ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
-    child: _isDataLoading
-        ? const SizedBox(
-            height: 20, 
-            width: 20,
-            child: CircularProgressIndicator(
-              color: Colors.black,
-              strokeWidth: 2,
-            ),
-          )
-        : const Row(
+      ),
+    );
+  }
+
+  Widget _buildCGPAChart() {
+    if (_semesterResults == null || _semesterResults!.isEmpty) {
+      return Container(
+        height: 250,
+        child: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.download, color: Colors.black),
-              SizedBox(width: 10),
+              Icon(Icons.analytics_outlined,
+                  size: 64,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+              SizedBox(height: 16),
               Text(
-                'Download Result Card',
+                'No CGPA Data Available',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500),
               ),
             ],
           ),
-  ),
-),
-const SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.yellow,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        onPressed: _isLoggingOut ? null : _logout,
-                        child: _isLoggingOut
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.logout, color: Colors.black),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Log Out',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-    );
-  }
-  Widget _buildCGPAChart() {
-  if (_semesterResults == null || _semesterResults!.isEmpty) {
-    return Container(
-      height: 250,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No CGPA Data Available', 
-              style: TextStyle(
-                color: Colors.grey[600], 
-                fontSize: 18, 
-                fontWeight: FontWeight.w500
-              ),
-            ),
-          ],
         ),
-      ),
-    );
-  }
-
-  // Convert semester results to a list of semester data
-  final semesters = _semesterResults!.entries.map((entry) {
-    // Assuming the first result in each semester contains semester metadata
-    var firstResult = entry.value[0];
-    return {
-      'name': _getSemesterName(entry.key),
-      'year': _getSemesterYear(entry.key),
-      'sgpa': _calculateSemesterCGPA(entry.value)
-    };
-  }).toList();
-
-  // Sort semesters chronologically
-  semesters.sort((a, b) {
-    if (a['year'] != b['year']) {
-      return (b['year'] as int).compareTo(a['year'] as int);
+      );
     }
-    final seasonOrder = {'Spring': 1, 'Summer': 2, 'Fall': 3, 'Short': 4};
-    final aOrder = seasonOrder[a['name']] ?? 0;
-    final bOrder = seasonOrder[b['name']] ?? 0;
-    return bOrder - aOrder;
-  });
 
-  // Filter out invalid SGPA values
-  final validSemesters = semesters.where((s) => 
-    s['sgpa'] != null && 
-    (s['sgpa'] as double).isFinite && 
-    (s['sgpa'] as double) >= 0 && 
-    (s['sgpa'] as double) <= 4.0
-  ).toList();
+    // Convert semester results to a list of semester data
+    final semesters = _semesterResults!.entries.map((entry) {
+      // Assuming the first result in each semester contains semester metadata
+      var firstResult = entry.value[0];
+      return {
+        'name': _getSemesterName(entry.key),
+        'year': _getSemesterYear(entry.key),
+        'sgpa': _calculateSemesterCGPA(entry.value)
+      };
+    }).toList();
 
-  if (validSemesters.isEmpty) {
-    return Container(
-      height: 250, 
-      child: Center(
+    // Sort semesters chronologically
+    semesters.sort((a, b) {
+      if (a['year'] != b['year']) {
+        return (b['year'] as int).compareTo(a['year'] as int);
+      }
+      final seasonOrder = {'Spring': 1, 'Summer': 2, 'Fall': 3, 'Short': 4};
+      final aOrder = seasonOrder[a['name']] ?? 0;
+      final bOrder = seasonOrder[b['name']] ?? 0;
+      return bOrder - aOrder;
+    });
+
+    // Filter out invalid SGPA values
+    final validSemesters = semesters
+        .where((s) =>
+            s['sgpa'] != null &&
+            (s['sgpa'] as double).isFinite &&
+            (s['sgpa'] as double) >= 0 &&
+            (s['sgpa'] as double) <= 4.0)
+        .toList();
+
+    if (validSemesters.isEmpty) {
+      return Container(
+        height: 250,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline,
+                  size: 64, color: Theme.of(context).colorScheme.error),
+              SizedBox(height: 16),
+              Text(
+                'Unable to Generate CGPA Chart',
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red),
-            SizedBox(height: 16),
             Text(
-              'Unable to Generate CGPA Chart', 
+              'CGPA Progression',
               style: TextStyle(
-                color: Colors.red, 
-                fontSize: 18, 
-                fontWeight: FontWeight.w500
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface),
+            ),
+            SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              width: double.infinity,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: 0.5,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.2),
+                      strokeWidth: 1,
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index < 0 || index >= validSemesters.length)
+                            return Container();
+                          final semester = validSemesters[index];
+                          return Text(
+                            '${semester['name']}\n${semester['year']}',
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Theme.of(context).colorScheme.onSurface),
+                            textAlign: TextAlign.center,
+                          );
+                        },
+                        interval: 1,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toStringAsFixed(1),
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Theme.of(context).colorScheme.onSurface),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: validSemesters.asMap().entries.map((entry) {
+                        return FlSpot(entry.key.toDouble(),
+                            entry.value['sgpa'] as double);
+                      }).toList(),
+                      isCurved: true,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      barWidth: 3,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 5,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            strokeWidth: 2,
+                            strokeColor:
+                                Theme.of(context).colorScheme.onSurface,
+                          );
+                        },
+                      ),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .tertiary
+                            .withOpacity(0.3),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.3),
+                            Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.1),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  minX: 0,
+                  maxX: validSemesters.length.toDouble() - 1,
+                  minY: 0,
+                  maxY: 4.0,
+                ),
               ),
             ),
           ],
@@ -769,157 +921,40 @@ const SizedBox(height: 10),
       ),
     );
   }
-
-  return Card(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    color: const Color(0xFF2B2E4A),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'CGPA Progression',
-            style: TextStyle(
-              fontSize: 18, 
-              fontWeight: FontWeight.bold,
-              color: Colors.white
-            ),
-          ),
-          SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            width: double.infinity,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: 0.5,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.white.withOpacity(0.2),
-                    strokeWidth: 1,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        if (index < 0 || index >= validSemesters.length) return Container();
-                        final semester = validSemesters[index];
-                        return Text(
-                          '${semester['name']}\n${semester['year']}', 
-                          style: TextStyle(
-                            fontSize: 10, 
-                            color: Colors.white
-                          ),
-                          textAlign: TextAlign.center,
-                        );
-                      },
-                      interval: 1,
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          value.toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 10, 
-                            color: Colors.white
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: validSemesters.asMap().entries.map((entry) {
-                      return FlSpot(entry.key.toDouble(), entry.value['sgpa'] as double);
-                    }).toList(),
-                    isCurved: true,
-                    color: Colors.yellow,
-                    barWidth: 3,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: 5,
-                          color: Colors.yellow,
-                          strokeWidth: 2,
-                          strokeColor: Colors.white,
-                        );
-                      },
-                    ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Colors.yellow.withOpacity(0.3),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.yellow.withOpacity(0.3),
-                          Colors.yellow.withOpacity(0.1),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                minX: 0,
-                maxX: validSemesters.length.toDouble() - 1,
-                minY: 0,
-                maxY: 4.0,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
 // Helper methods to parse semester ID
-String _getSemesterName(String semesterId) {
-  final lastDigit = semesterId[semesterId.length - 1];
-  switch (lastDigit) {
-    case '1':
-      return 'Spring';
-    case '2':
-      return 'Summer';
-    case '3':
-      return 'Fall';
-    default:
-      return 'Unknown';
-  }
-}
-
-int _getSemesterYear(String semesterId) {
-  final yearPrefix = semesterId.substring(0, semesterId.length - 1);
-  return int.parse('20$yearPrefix');
-}
-
-double _calculateSemesterCGPA(List<dynamic> results) {
-  double totalWeightedPoints = 0;
-  double totalCredits = 0;
-
-  for (var course in results) {
-    double credits = double.parse(course['totalCredit'].toString());
-    double pointEquivalent = double.parse(course['pointEquivalent'].toString());
-
-    totalWeightedPoints += credits * pointEquivalent;
-    totalCredits += credits;
+  String _getSemesterName(String semesterId) {
+    final lastDigit = semesterId[semesterId.length - 1];
+    switch (lastDigit) {
+      case '1':
+        return 'Spring';
+      case '2':
+        return 'Summer';
+      case '3':
+        return 'Fall';
+      default:
+        return 'Unknown';
+    }
   }
 
-  return totalCredits > 0 ? totalWeightedPoints / totalCredits : 0;
+  int _getSemesterYear(String semesterId) {
+    final yearPrefix = semesterId.substring(0, semesterId.length - 1);
+    return int.parse('20$yearPrefix');
+  }
+
+  double _calculateSemesterCGPA(List<dynamic> results) {
+    double totalWeightedPoints = 0;
+    double totalCredits = 0;
+
+    for (var course in results) {
+      double credits = double.parse(course['totalCredit'].toString());
+      double pointEquivalent =
+          double.parse(course['pointEquivalent'].toString());
+
+      totalWeightedPoints += credits * pointEquivalent;
+      totalCredits += credits;
+    }
+
+    return totalCredits > 0 ? totalWeightedPoints / totalCredits : 0;
   }
 }
