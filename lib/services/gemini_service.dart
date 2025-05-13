@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_first/services/api_constant.dart';
+import 'package:diuleaderboard/services/api_constant.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiService {
@@ -8,7 +8,7 @@ class GeminiService {
 
   GeminiService() {
     _model = GenerativeModel(
-      model: 'gemini-1.5-pro',
+      model: 'gemini-2.0-flash',
       apiKey: ApiConstants.geminiApiKey,
     );
   }
@@ -64,38 +64,46 @@ class GeminiService {
         return _getDefaultCourseRecommendations(courseTitle);
       }
 
-      return parsedJson.map<Map<String, dynamic>>((item) => item as Map<String, dynamic>).toList();
+      return parsedJson
+          .map<Map<String, dynamic>>((item) => item as Map<String, dynamic>)
+          .toList();
     } catch (e) {
       debugPrint('Error generating recommendations: $e');
       return _getDefaultCourseRecommendations(courseTitle);
     }
   }
 
-  List<Map<String, dynamic>> _getDefaultCourseRecommendations(String courseTitle) {
+  List<Map<String, dynamic>> _getDefaultCourseRecommendations(
+      String courseTitle) {
     return [
       {
         "type": "Course",
         "title": "Introduction to $courseTitle",
-        "description": "Comprehensive Coursera course covering fundamentals of $courseTitle",
-        "link": "https://www.coursera.org/search?query=${Uri.encodeComponent(courseTitle)}"
+        "description":
+            "Comprehensive Coursera course covering fundamentals of $courseTitle",
+        "link":
+            "https://www.coursera.org/search?query=${Uri.encodeComponent(courseTitle)}"
       },
       {
         "type": "Video",
         "title": "$courseTitle Fundamentals",
         "description": "Clear explanations of core concepts by freeCodeCamp",
-        "link": "https://www.youtube.com/results?search_query=${Uri.encodeComponent('$courseTitle tutorial freeCodeCamp')}"
+        "link":
+            "https://www.youtube.com/results?search_query=${Uri.encodeComponent('$courseTitle tutorial freeCodeCamp')}"
       },
       {
         "type": "Book",
         "title": "Essential $courseTitle Guide",
         "description": "Comprehensive textbook covering all major topics",
-        "link": "https://www.amazon.com/s?k=${Uri.encodeComponent('$courseTitle textbook')}"
+        "link":
+            "https://www.amazon.com/s?k=${Uri.encodeComponent('$courseTitle textbook')}"
       },
       {
         "type": "Resource",
         "title": "Practice Problems",
         "description": "Interactive exercises and problem sets",
-        "link": "https://www.khanacademy.org/search?search_again=1&page_search_query=${Uri.encodeComponent(courseTitle)}"
+        "link":
+            "https://www.khanacademy.org/search?search_again=1&page_search_query=${Uri.encodeComponent(courseTitle)}"
       }
     ];
   }
@@ -162,7 +170,6 @@ class GeminiService {
       
       Only respond with the JSON array of recommendations and nothing else.
       ''';
-
 
       final response = await _model.generateContent([Content.text(prompt)]);
       final responseText = response.text;

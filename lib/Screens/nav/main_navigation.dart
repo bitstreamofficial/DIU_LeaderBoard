@@ -1,12 +1,12 @@
+import 'package:diuleaderboard/Screens/main_screens/newHome.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/main_screens/academic_performance.dart';
-import 'package:flutter_first/Screens/main_screens/ai_recommendations.dart';
-import 'package:flutter_first/Screens/main_screens/home.dart';
-import 'package:flutter_first/Screens/main_screens/profile.dart';
-import 'package:flutter_first/Screens/main_screens/settings_view.dart';
+import 'package:diuleaderboard/Screens/main_screens/academic_performance.dart';
+import 'package:diuleaderboard/Screens/main_screens/ai_recommendations.dart';
+import 'package:diuleaderboard/Screens/main_screens/home.dart';
+import 'package:diuleaderboard/Screens/main_screens/profile.dart';
+import 'package:diuleaderboard/Screens/main_screens/settings_view.dart';
 import '../../models/student_model.dart';
 import '../../services/auth_service.dart';
-
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -18,17 +18,17 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   final _auth = AuthService();
   int _selectedIndex = 2;
-  
+
   // Temporary mock student info - replace with actual data later
   final studentInfo = StudentInfo(
-    studentId: '201-15-3000',
-    studentName: 'John Doe',
+    studentId: '221-15-6029',
+    studentName: 'Shakib Howlader',
     programName: 'BSc in CSE',
     departmentName: 'CSE',
-    batchNo: '201',
+    batchNo: '221',
     shift: 'Day',
   );
-  
+
   late List<Widget> _screens;
 
   @override
@@ -37,7 +37,7 @@ class _MainNavigationState extends State<MainNavigation> {
     _screens = [
       AIRecommendationsPage(userId: _auth.getCurrentUserId() ?? ''),
       const AcademicPerformancePage(),
-      const HomePage(),
+      const NewHomePage(),
       const SettingsView(),
       const ProfilePage(),
     ];
@@ -52,46 +52,65 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final padding = MediaQuery.of(context).padding;
-    
+
+    // Calculate adaptive font size based on screen width
+    // with minimum and maximum bounds
+    final double adaptiveFontSize = size.width * 0.025;
+    final double fontSize = adaptiveFontSize.clamp(9.0, 12.0);
+
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         height: size.height * 0.08, // 8% of screen height
-        child: NavigationBar(
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: _onItemTapped,
-          backgroundColor: NavigationBarTheme.of(context).backgroundColor,
-          indicatorColor: NavigationBarTheme.of(context).indicatorColor,
-          surfaceTintColor: Colors.transparent,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          destinations: [
-            _buildNavigationDestination(
-              icon: Icons.analytics,
-              label: 'Analyze',
-              size: size,
+        child: Theme(
+          // Apply custom theme to NavigationBar to control label text size
+          data: Theme.of(context).copyWith(
+            navigationBarTheme: NavigationBarThemeData(
+              labelTextStyle: MaterialStateProperty.all(
+                TextStyle(
+                  fontSize: fontSize,
+                  overflow: TextOverflow.ellipsis,
+                  height: 1.1, // Reduced line height
+                ),
+              ),
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
             ),
-            _buildNavigationDestination(
-              icon: Icons.assignment,
-              label: 'Results',
-              size: size,
-            ),
-            _buildNavigationDestination(
-              icon: Icons.leaderboard,
-              label: 'Leaderboard',
-              size: size,
-            ),
-            _buildNavigationDestination(
-              icon: Icons.settings,
-              label: 'Settings',
-              size: size,
-            ),
-            _buildNavigationDestination(
-              icon: Icons.person,
-              label: 'Profile',
-              size: size,
-            ),
-          ],
+          ),
+          child: NavigationBar(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _onItemTapped,
+            backgroundColor: NavigationBarTheme.of(context).backgroundColor,
+            indicatorColor: NavigationBarTheme.of(context).indicatorColor,
+            surfaceTintColor: Colors.transparent,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: [
+              _buildNavigationDestination(
+                icon: Icons.analytics,
+                label: 'Analyze',
+                size: size,
+              ),
+              _buildNavigationDestination(
+                icon: Icons.assignment,
+                label: 'Results',
+                size: size,
+              ),
+              _buildNavigationDestination(
+                icon: Icons.leaderboard,
+                label: 'Leaderboard',
+                size: size,
+              ),
+              _buildNavigationDestination(
+                icon: Icons.settings,
+                label: 'Settings',
+                size: size,
+              ),
+              _buildNavigationDestination(
+                icon: Icons.person,
+                label: 'Profile',
+                size: size,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -104,7 +123,7 @@ class _MainNavigationState extends State<MainNavigation> {
   }) {
     return NavigationDestination(
       icon: Icon(
-        icon, 
+        icon,
         color: Theme.of(context).colorScheme.onSurface,
         size: size.width * 0.06, // 6% of screen width
       ),
@@ -116,4 +135,4 @@ class _MainNavigationState extends State<MainNavigation> {
       label: label,
     );
   }
-} 
+}

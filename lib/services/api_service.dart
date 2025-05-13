@@ -7,12 +7,18 @@ class ApiService {
   static Future<StudentInfo> getStudentInfo(String studentId) async {
     try {
       debugPrint('Fetching student info for ID: $studentId');
-      final response = await http.get(
-        Uri.parse('http://software.diu.edu.bd:8006/result/studentInfo?studentId=$studentId'),
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => throw Exception('Connection timeout. Please try again.'),
-      );
+      final response = await http
+          .get(
+            Uri.parse(
+                'http://peoplepulse.diu.edu.bd:8189/result/studentInfo?studentId=$studentId'),
+            // 'https://diurecords.vercel.app/api/result/studentInfo?studentId=$studentId'),
+            //'http://software.diu.edu.bd:8006/result/studentInfo?studentId=$studentId'
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () =>
+                throw Exception('Connection timeout. Please try again.'),
+          );
 
       debugPrint('Response status code: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');
@@ -30,10 +36,11 @@ class ApiService {
 
           // Log the structure of the response
           debugPrint('JSON data structure: ${jsonData.runtimeType}');
-          debugPrint('JSON data keys: ${jsonData is Map ? jsonData.keys.toString() : 'Not a map'}');
+          debugPrint(
+              'JSON data keys: ${jsonData is Map ? jsonData.keys.toString() : 'Not a map'}');
 
           final studentInfo = StudentInfo.fromJson(jsonData);
-          
+
           // Validate essential fields
           if (studentInfo.studentId?.isEmpty ?? true) {
             throw Exception('Invalid student data received');
@@ -47,7 +54,8 @@ class ApiService {
       } else if (response.statusCode == 404) {
         throw Exception('Student not found');
       } else {
-        throw Exception('Server error (${response.statusCode}). Please try again later.');
+        throw Exception(
+            'Server error (${response.statusCode}). Please try again later.');
       }
     } catch (e) {
       debugPrint('API Error: $e');
@@ -59,6 +67,10 @@ class ApiService {
   }
 
   static final List<Map<String, String>> semestersList = [
+    {"semesterId": "254", "semesterYear": "2025", "semesterName": "Short"},
+    {"semesterId": "253", "semesterYear": "2025", "semesterName": "Fall"},
+    {"semesterId": "252", "semesterYear": "2025", "semesterName": "Summer"},
+    {"semesterId": "251", "semesterYear": "2025", "semesterName": "Spring"},
     {"semesterId": "244", "semesterYear": "2024", "semesterName": "Short"},
     {"semesterId": "243", "semesterYear": "2024", "semesterName": "Fall"},
     {"semesterId": "242", "semesterYear": "2024", "semesterName": "Summer"},
@@ -111,15 +123,21 @@ class ApiService {
     {"semesterId": "083", "semesterYear": "2008", "semesterName": "Fall"},
   ];
 
-  static Future<List<Map<String, dynamic>>> getSemesterResults(String studentId, String semesterId) async {
+  static Future<List<Map<String, dynamic>>> getSemesterResults(
+      String studentId, String semesterId) async {
     try {
       debugPrint('Fetching results for semester: $semesterId');
-      final response = await http.get(
-        Uri.parse('http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId'),
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => throw Exception('Connection timeout'),
-      );
+      final response = await http
+          .get(
+            Uri.parse(
+                'http://peoplepulse.diu.edu.bd:8189/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId'),
+            // 'https://diurecords.vercel.app/api/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId'),
+            // 'http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId'),
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -132,4 +150,4 @@ class ApiService {
       return [];
     }
   }
-} 
+}

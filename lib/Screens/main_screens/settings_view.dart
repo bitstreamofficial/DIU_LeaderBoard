@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/auth/login.dart';
-import 'package:flutter_first/Screens/settings/privacy_policy.dart';
-import 'package:flutter_first/Screens/settings/support_contact_page.dart';
-import 'package:flutter_first/Screens/settings/terms_conditions.dart';
+import 'package:diuleaderboard/Screens/auth/login.dart';
+import 'package:diuleaderboard/Screens/settings/privacy_policy.dart';
+import 'package:diuleaderboard/Screens/settings/support_contact_page.dart';
+import 'package:diuleaderboard/Screens/settings/terms_conditions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +17,7 @@ class TeamMember {
   final String role;
   final String imageUrl;
   final String description;
+  final String portfolio;
   final String githubUrl;
   final String linkedinUrl;
 
@@ -25,6 +26,7 @@ class TeamMember {
     required this.role,
     required this.imageUrl,
     required this.description,
+    required this.portfolio,
     required this.githubUrl,
     required this.linkedinUrl,
   });
@@ -41,40 +43,44 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
   final List<TeamMember> teamMembers = [
     TeamMember(
       name: 'Syed Sabbir Ahmed',
-      role: 'Flutter Developer',
+      role: 'UI/UX Engineer',
       imageUrl: 'lib\\assets\\Images\\rafi.jpg',
       description:
-          'Passionate about creating beautiful and functional Flutter applications.',
+          'Dedicated UI/UX engineer focused on crafting seamless user experiences and intuitive interfaces using Flutter. Combines design principles with technical skills to deliver polished mobile apps.',
+      portfolio: '',
       githubUrl: 'https://github.com/rafi6037',
-      linkedinUrl: 'https://linkedin.com/in/member2',
+      linkedinUrl: 'https://www.linkedin.com/in/syed-sabbir-ahmed',
     ),
     TeamMember(
       name: 'Shakib Howlader',
-      role: 'Flutter Developer',
+      role: 'Mobile App Architect',
       imageUrl: 'lib\\assets\\Images\\shakib_dev.jpg',
       description:
-          'Passionate about creating beautiful and functional Flutter applications.',
+          'Experienced in designing scalable Flutter architectures and managing full app lifecycles. Adept at implementing clean code practices and optimizing performance for robust mobile applications.',
+      portfolio: 'https://shakibhowlader.vercel.app/',
       githubUrl: 'https://github.com/mr-shakib',
       linkedinUrl: 'https://www.linkedin.com/in/shakib-howlader',
     ),
     TeamMember(
       name: 'Sabbir Ahamed',
-      role: 'Flutter Developer',
-      imageUrl: '',
+      role: 'Backend Integrator',
+      imageUrl: 'lib\\assets\\Images\\sabbir_dev.jpg',
       description:
-          'Passionate about creating beautiful and functional Flutter applications.',
-      githubUrl: 'https://github.com/member2',
-      linkedinUrl: 'https://linkedin.com/in/member2',
+          'Skilled in integrating RESTful APIs and Firebase services into Flutter applications. Focused on creating responsive, data-driven features that enhance app functionality and reliability.',
+      portfolio: 'https://sites.google.com/diu.edu.bd/sabbir-ahamed-rs/home',
+      githubUrl: 'https://github.com/Redoy0',
+      linkedinUrl: 'https://www.linkedin.com/in/md-sabbir-ahamed',
     ),
-    TeamMember(
-      name: 'Sakib Mahmudd Rahat',
-      role: 'UI/UX Designer',
-      imageUrl: 'assets/images/member2.jpg',
-      description:
-          'Creative designer with a focus on user-centered design principles.',
-      githubUrl: 'https://github.com/member2',
-      linkedinUrl: 'https://linkedin.com/in/member2',
-    ),
+
+    // TeamMember(
+    //   name: 'Sakib Mahmudd Rahat',
+    //   role: 'Marketing',
+    //   imageUrl: 'assets/images/member2.jpg',
+    //   description:
+    //       'Strategic marketer with a strong background in brand communication and digital engagement. Passionate about crafting compelling messages and driving user growth through innovative campaigns.',
+    //   githubUrl: 'https://github.com/member2',
+    //   linkedinUrl: 'https://linkedin.com/in/member2',
+    // ),
   ];
 
   Future<void> _launchUrl(String url, BuildContext context) async {
@@ -195,17 +201,32 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
                             ),
                             const SizedBox(height: 12),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.code),
-                                  color: colorScheme.onSurface,
+                                  icon: Image.asset(
+                                    'assets/images/portfolio.png',
+                                    width: 28,
+                                    height: 28,
+                                  ),
+                                  onPressed: () =>
+                                      _launchUrl(member.portfolio, context),
+                                ),
+                                IconButton(
+                                  icon: Image.asset(
+                                    'assets/images/github-mark-white.png',
+                                    width: 24,
+                                    height: 24,
+                                  ),
                                   onPressed: () =>
                                       _launchUrl(member.githubUrl, context),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.people),
-                                  color: colorScheme.onSurface,
+                                  icon: Image.asset(
+                                    'assets/images/linkedin_icon.png',
+                                    width: 24,
+                                    height: 24,
+                                  ),
                                   onPressed: () =>
                                       _launchUrl(member.linkedinUrl, context),
                                 ),
@@ -443,55 +464,55 @@ class _SettingsViewState extends State<SettingsView> {
               );
             },
           ),
-          ListTile(
-            leading: Icon(Icons.language, color: colorScheme.onSurface),
-            title: Text('Language',
-                style: textTheme.bodyLarge
-                    ?.copyWith(color: colorScheme.onSurface)),
-            trailing:
-                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text('Select Language',
-                        style: textTheme.titleLarge
-                            ?.copyWith(color: colorScheme.onSurface)),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text('English',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onSurface)),
-                          onTap: () {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text('Language set to English')),
-                            );
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Bangla',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onSurface)),
-                          onTap: () {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Language set to Bangla')),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    backgroundColor: colorScheme.surface,
-                  );
-                },
-              );
-            },
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.language, color: colorScheme.onSurface),
+          //   title: Text('Language',
+          //       style: textTheme.bodyLarge
+          //           ?.copyWith(color: colorScheme.onSurface)),
+          //   trailing:
+          //       Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
+          //   onTap: () {
+          //     showDialog(
+          //       context: context,
+          //       builder: (context) {
+          //         return AlertDialog(
+          //           title: Text('Select Language',
+          //               style: textTheme.titleLarge
+          //                   ?.copyWith(color: colorScheme.onSurface)),
+          //           content: Column(
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               ListTile(
+          //                 title: Text('English',
+          //                     style: textTheme.bodyLarge
+          //                         ?.copyWith(color: colorScheme.onSurface)),
+          //                 onTap: () {
+          //                   Navigator.pop(context);
+          //                   ScaffoldMessenger.of(context).showSnackBar(
+          //                     SnackBar(
+          //                         content: Text('Language set to English')),
+          //                   );
+          //                 },
+          //               ),
+          //               ListTile(
+          //                 title: Text('Bangla',
+          //                     style: textTheme.bodyLarge
+          //                         ?.copyWith(color: colorScheme.onSurface)),
+          //                 onTap: () {
+          //                   Navigator.pop(context);
+          //                   ScaffoldMessenger.of(context).showSnackBar(
+          //                     SnackBar(content: Text('Language set to Bangla')),
+          //                   );
+          //                 },
+          //               ),
+          //             ],
+          //           ),
+          //           backgroundColor: colorScheme.surface,
+          //         );
+          //       },
+          //     );
+          //   },
+          // ),
           ListTile(
             leading: Icon(Icons.info, color: colorScheme.onSurface),
             title: Text('About Devs',
@@ -536,15 +557,7 @@ class _SettingsViewState extends State<SettingsView> {
               );
             },
           ),
-          ListTile(
-            leading: Icon(Icons.logout, color: colorScheme.onSurface),
-            title: Text('Logout',
-                style: textTheme.bodyLarge
-                    ?.copyWith(color: colorScheme.onSurface)),
-            trailing:
-                Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface),
-            onTap: () => _handleLogout(context),
-          ),
+
           ListTile(
             leading: Icon(Icons.delete_forever, color: colorScheme.onSurface),
             title: Text('Delete Account',
@@ -556,6 +569,50 @@ class _SettingsViewState extends State<SettingsView> {
                     ?.copyWith(color: colorScheme.onSurface.withOpacity(0.7))),
             trailing: Icon(Icons.warning, color: colorScheme.onSurface),
             onTap: () => _handleAccountDeletion(context),
+          ),
+
+          const SizedBox(
+            height: 30,
+          ),
+
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: InkWell(
+              onTap: () => _handleLogout(context),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: Theme.of(context).brightness == Brightness.dark
+                        ? [Colors.deepPurple, Colors.indigo] // Dark mode colors
+                        : [
+                            Colors.deepOrangeAccent,
+                            Colors.deepPurpleAccent,
+                          ], // Light mode colors
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 12.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.white),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        'Logout',
+                        style:
+                            textTheme.bodyLarge?.copyWith(color: Colors.white),
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

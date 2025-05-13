@@ -1,89 +1,91 @@
-Rank,Student ID,Name,Program,Department,Batch,Overall CGPA,Total Credits,Completed Semesters,GPA 2022 Fall,Credits 2022 Fall,GPA 2022 Summer,Credits 2022 Summer,GPA 2023 Fall,Credits 2023 Fall,GPA 2023 Spring,Credits 2023 Spring,GPA 2024 Fall,Credits 2024 Fall,GPA 2024 Spring,Credits 2024 Spring
-1,222-34-736,Samia  Islam,B.Sc. in NFE,NFE,39,3.99,95.00,6,3.94,13.00,4.00,6.00,3.99,21.00,4.00,18.00,4.00,18.00,4.00,19.00
-2,222-34-753,MARZIA,B.Sc. in NFE,NFE,39,3.97,95.00,6,3.88,13.00,4.00,6.00,4.00,21.00,3.90,18.00,4.00,18.00,4.00,19.00
-3,222-34-674,Tasrin Jahan Mim,B.Sc. in NFE,NFE,39,3.97,95.00,6,3.77,13.00,4.00,6.00,4.00,21.00,4.00,18.00,4.00,18.00,4.00,19.00
-4,222-34-670,Mst. Jakia Sultana,B.Sc. in NFE,NFE,39,3.94,95.00,6,3.88,13.00,4.00,6.00,3.89,21.00,3.92,18.00,4.00,18.00,4.00,19.00
-5,222-34-684,Ayshee Tabassum,B.Sc. in NFE,NFE,39,3.94,95.00,6,3.83,13.00,3.38,6.00,4.00,21.00,4.00,18.00,4.00,18.00,4.00,19.00
-6,222-34-708,Farhana Akter,B.Sc. in NFE,NFE,39,3.93,95.00,6,3.88,13.00,4.00,6.00,3.90,21.00,3.94,18.00,3.92,18.00,3.96,19.00
-7,222-34-669,Jannatul Mawa Nijhum,B.Sc. in NFE,NFE,39,3.92,77.00,5,3.71,13.00,4.00,6.00,3.93,21.00,4.00,18.00,,,3.96,19.00
-8,222-34-734,Shanjidah Kabir Showmik,B.Sc. in NFE,NFE,39,3.91,95.00,6,3.81,13.00,4.00,6.00,3.99,21.00,3.86,18.00,4.00,18.00,3.80,19.00
-9,222-34-740,S. M. Sa- Adh Reza,B.Sc. in NFE,NFE,39,3.91,95.00,6,3.83,13.00,3.38,6.00,4.00,21.00,3.83,18.00,4.00,18.00,4.00,19.00
-10,222-34-680,Abu Jobayer Akash,B.Sc. in NFE,NFE,39,3.89,95.00,6,3.77,13.00,4.00,6.00,4.00,21.00,3.89,18.00,3.96,18.00,3.78,19.00
-11,222-34-712,Shajmin Akter,B.Sc. in NFE,NFE,39,3.89,95.00,6,3.75,13.00,4.00,6.00,3.86,21.00,3.96,18.00,3.92,18.00,3.91,19.00
-12,222-34-695,Razia  Sultana,B.Sc. in NFE,NFE,39,3.86,95.00,6,3.71,13.00,4.00,6.00,3.89,21.00,3.79,18.00,3.96,18.00,3.84,19.00
-13,222-34-746,Sonia Aktar,B.Sc. in NFE,NFE,39,3.85,40.00,3,,,3.38,6.00,,,,,4.00,21.00,3.83,13.00
-14,222-34-726,Abritty Podder,B.Sc. in NFE,NFE,39,3.84,95.00,6,3.52,13.00,4.00,6.00,3.96,21.00,3.67,18.00,4.00,18.00,3.87,19.00
-15,222-34-701,AMENA  TANOUS,B.Sc. in NFE,NFE,39,3.83,95.00,6,3.75,13.00,4.00,6.00,3.86,21.00,3.78,18.00,3.92,18.00,3.79,19.00
-16,222-34-709,Ajija Sultana Prova,B.Sc. in NFE,NFE,39,3.83,80.00,5,3.88,13.00,4.00,6.00,4.00,21.00,4.00,18.00,3.45,22.00,,
-17,222-34-735,Rabia Sanjida,B.Sc. in NFE,NFE,39,3.83,95.00,6,3.44,13.00,4.00,6.00,3.93,21.00,3.71,18.00,4.00,18.00,3.91,19.00
-18,222-34-668,Bushra Maharuth,B.Sc. in NFE,NFE,39,3.82,95.00,6,3.88,13.00,4.00,6.00,3.85,21.00,3.69,18.00,3.85,18.00,3.80,19.00
-19,222-34-711,Estiaque Ahmad,B.Sc. in NFE,NFE,39,3.82,95.00,6,3.71,13.00,4.00,6.00,3.79,21.00,3.81,18.00,3.96,18.00,3.75,19.00
-20,222-34-694,Nursat Jannat Mithela,B.Sc. in NFE,NFE,39,3.81,95.00,6,3.31,13.00,3.88,6.00,3.86,21.00,3.83,18.00,4.00,18.00,3.86,19.00
-21,222-34-688,Zunayeed Ahmed Tamim,B.Sc. in NFE,NFE,39,3.79,95.00,6,3.50,13.00,3.88,6.00,3.74,21.00,3.72,18.00,4.00,18.00,3.87,19.00
-22,222-34-732,MD HASIBUR RAHMAN,B.Sc. in NFE,NFE,39,3.75,95.00,6,3.46,13.00,4.00,6.00,3.74,21.00,3.86,18.00,3.83,18.00,3.68,19.00
-23,222-34-718,Muhammad Shahir Rafid,B.Sc. in NFE,NFE,39,3.74,95.00,6,3.65,13.00,4.00,6.00,3.65,21.00,3.43,18.00,3.96,18.00,3.91,19.00
-24,222-34-723,Mst. Rukaya Jannat Ria,B.Sc. in NFE,NFE,39,3.73,95.00,6,3.58,13.00,3.62,6.00,3.71,21.00,3.82,18.00,3.83,18.00,3.71,19.00
-25,222-34-722,Anika Tabassum,B.Sc. in NFE,NFE,39,3.69,95.00,6,3.56,13.00,3.88,6.00,3.63,21.00,3.69,18.00,3.75,18.00,3.71,19.00
-26,222-34-728,SHEIKH ZAHID HASSAN,B.Sc. in NFE,NFE,39,3.68,95.00,6,3.65,13.00,3.75,6.00,3.58,21.00,3.64,18.00,3.74,18.00,3.75,19.00
-27,222-34-705,Md. Hossain Shah Riar,B.Sc. in NFE,NFE,39,3.62,95.00,6,3.38,13.00,3.12,6.00,3.89,21.00,3.33,18.00,3.83,18.00,3.72,19.00
-28,222-34-730,Mt. Eliza Parvin Alo,B.Sc. in NFE,NFE,39,3.61,95.00,6,3.60,13.00,3.75,6.00,3.86,21.00,3.58,18.00,3.46,18.00,3.49,19.00
-29,222-34-751,Surovi Sultana Mim,B.Sc. in NFE,NFE,39,3.61,95.00,6,3.40,13.00,3.25,6.00,3.68,21.00,3.36,18.00,4.00,18.00,3.66,19.00
-30,222-34-715,Kaniz Farzana,B.Sc. in NFE,NFE,39,3.58,95.00,6,3.42,13.00,3.38,6.00,3.73,21.00,3.40,18.00,3.78,18.00,3.58,19.00
-31,222-34-696,Mifta Hul Jannat Mridu,B.Sc. in NFE,NFE,39,3.56,95.00,6,3.56,13.00,3.62,6.00,3.60,21.00,3.38,18.00,3.67,18.00,3.59,19.00
-32,222-34-747,Tahia Tarannum,B.Sc. in NFE,NFE,39,3.56,95.00,6,3.08,13.00,2.88,6.00,3.68,21.00,3.33,18.00,3.89,18.00,3.88,19.00
-33,222-34-690,Tasnia Salmin Onti,B.Sc. in NFE,NFE,39,3.54,95.00,6,3.15,13.00,2.50,6.00,3.65,21.00,3.32,18.00,3.90,18.00,3.88,19.00
-34,222-34-699,Sabikun Nahar Arpita,B.Sc. in NFE,NFE,39,3.53,95.00,6,3.50,13.00,3.38,6.00,3.64,21.00,3.17,18.00,3.72,18.00,3.63,19.00
-35,222-34-707,Khondokar Tanjila Islam,B.Sc. in NFE,NFE,39,3.53,95.00,6,3.46,13.00,3.12,6.00,3.48,21.00,3.21,18.00,3.92,18.00,3.68,19.00
-36,222-34-693,Md. Ashikur Rahman Farazi Ashraful,B.Sc. in NFE,NFE,39,3.50,95.00,6,3.63,13.00,3.38,6.00,3.27,21.00,3.47,18.00,3.67,18.00,3.55,19.00
-37,222-34-741,Khusbu Akter,B.Sc. in NFE,NFE,39,3.47,95.00,6,3.12,13.00,3.00,6.00,3.56,21.00,3.33,18.00,3.83,18.00,3.54,19.00
-38,222-34-729,ARPITA DEV,B.Sc. in NFE,NFE,39,3.45,95.00,6,3.83,13.00,4.00,6.00,4.00,21.00,3.94,18.00,1.29,18.00,4.00,19.00
-39,222-34-672,JAFRINA AKTER DISHA,B.Sc. in NFE,NFE,39,3.43,95.00,6,3.40,13.00,3.38,6.00,3.46,21.00,3.08,18.00,3.56,18.00,3.62,19.00
-40,222-34-754,JANNAT,B.Sc. in NFE,NFE,39,3.43,95.00,6,3.37,13.00,3.12,6.00,3.40,21.00,3.11,18.00,3.83,18.00,3.53,19.00
-41,222-34-704,MD. MAHIDUL ISLAM MAHFUZ,B.Sc. in NFE,NFE,39,3.42,95.00,6,3.46,13.00,3.50,6.00,3.39,21.00,3.22,18.00,3.57,18.00,3.42,19.00
-42,222-34-720,MST. JANNATUL FERDOUSHE JASIA,B.Sc. in NFE,NFE,39,3.41,95.00,6,3.35,13.00,3.00,6.00,3.48,21.00,3.04,18.00,3.86,18.00,3.45,19.00
-43,222-34-673,Rakiba Islam Rosney,B.Sc. in NFE,NFE,39,3.37,95.00,6,3.17,13.00,3.75,6.00,3.39,21.00,3.39,18.00,3.42,18.00,3.32,19.00
-44,222-34-706,Mst. Jannatul Ferdousi,B.Sc. in NFE,NFE,39,3.37,95.00,6,3.17,13.00,3.25,6.00,3.56,21.00,3.31,18.00,3.56,18.00,3.24,19.00
-45,222-34-716,Israt Jahan Tuly,B.Sc. in NFE,NFE,39,3.35,95.00,6,3.23,13.00,3.38,6.00,3.38,21.00,3.42,18.00,3.39,18.00,3.29,19.00
-46,222-34-703,Fahmida Noor,B.Sc. in NFE,NFE,39,3.34,95.00,6,3.50,13.00,3.50,6.00,3.23,21.00,3.35,18.00,3.39,18.00,3.28,19.00
-47,222-34-671,Mst. Maksura  Akter,B.Sc. in NFE,NFE,39,3.33,95.00,6,3.35,13.00,2.88,6.00,3.35,21.00,3.08,18.00,3.58,18.00,3.45,19.00
-48,222-34-689,NURE AFRIN ONTU,B.Sc. in NFE,NFE,39,3.31,95.00,6,3.52,13.00,3.00,6.00,3.00,21.00,3.12,18.00,3.94,18.00,3.20,19.00
-49,222-34-738,Sharmin Akhter,B.Sc. in NFE,NFE,39,3.27,37.00,3,2.75,13.00,3.88,6.00,,,3.44,18.00,,,,
-50,222-34-742,AHSANA  AYUB FARIHA,B.Sc. in NFE,NFE,39,3.27,95.00,6,3.62,13.00,3.25,6.00,2.98,21.00,3.38,18.00,3.33,18.00,3.22,19.00
-51,222-34-727,Sihab Uddin,B.Sc. in NFE,NFE,39,3.22,95.00,6,3.40,13.00,3.50,6.00,3.04,21.00,3.00,18.00,3.54,18.00,3.13,19.00
-52,222-34-710,Most. Sabikun Nahar Sabiha,B.Sc. in NFE,NFE,39,3.21,95.00,6,3.33,13.00,2.12,6.00,3.21,21.00,3.01,18.00,3.47,18.00,3.42,19.00
-53,222-34-697,Md. Rahad Uddin,B.Sc. in NFE,NFE,39,3.20,98.00,6,3.41,16.00,1.88,6.00,3.35,21.00,3.08,18.00,3.29,18.00,3.32,19.00
-54,222-34-698,MD. MASUDUL ISLAM KHAN,B.Sc. in NFE,NFE,39,3.18,98.00,6,3.10,13.00,3.25,6.00,3.11,21.00,2.74,18.00,3.55,21.00,3.30,19.00
-55,222-34-687,Humaira Akter Tuli,B.Sc. in NFE,NFE,39,3.06,95.00,6,3.33,13.00,2.25,6.00,2.92,21.00,2.62,18.00,3.50,18.00,3.30,19.00
-56,222-34-681,Sumaya Akter Priya,B.Sc. in NFE,NFE,39,3.05,19.00,2,2.96,13.00,3.25,6.00,,,,,,,,
-57,222-34-683,AFRIN TAMANNA ASHA,B.Sc. in NFE,NFE,39,3.05,98.00,6,3.09,16.00,1.38,6.00,3.07,21.00,3.21,18.00,3.17,18.00,3.28,19.00
-58,222-34-749,Shamema Akter,B.Sc. in NFE,NFE,39,3.05,98.00,6,2.96,13.00,2.38,6.00,3.25,21.00,3.10,18.00,2.71,18.00,3.32,22.00
-59,222-34-667,Israt  Jahan,B.Sc. in NFE,NFE,39,3.01,95.00,6,3.17,13.00,2.88,6.00,2.93,21.00,2.76,18.00,3.21,18.00,3.09,19.00
-60,222-34-733,Mohammad Abu Hurayra,B.Sc. in NFE,NFE,39,2.97,37.00,3,3.13,13.00,3.00,6.00,,,2.85,18.00,,,,
-61,222-34-756,TAMANNA  TAKIA,B.Sc. in NFE,NFE,39,2.95,95.00,6,3.33,13.00,2.50,6.00,3.08,21.00,2.67,18.00,2.85,18.00,3.07,19.00
-62,222-34-750,ONAMIKA SHRABONY,B.Sc. in NFE,NFE,39,2.93,95.00,6,2.79,13.00,2.00,6.00,2.99,21.00,2.38,18.00,3.62,18.00,3.14,19.00
-63,222-34-678,Sanjana Hossain,B.Sc. in NFE,NFE,39,2.84,95.00,6,3.00,13.00,2.75,6.00,2.79,21.00,2.72,18.00,3.10,18.00,2.71,19.00
-64,222-34-731,Md. Abdullah Al Maruf,B.Sc. in NFE,NFE,39,2.82,98.00,6,2.75,16.00,2.75,6.00,2.90,21.00,2.50,18.00,3.07,18.00,2.89,19.00
-65,222-34-721,Most. Lamisha Tajnin,B.Sc. in NFE,NFE,39,2.76,95.00,6,3.15,13.00,2.62,6.00,2.85,21.00,2.54,18.00,2.81,18.00,2.62,19.00
-66,222-34-752,Nusrat Jahan Rupa,B.Sc. in NFE,NFE,39,2.66,95.00,6,2.98,13.00,2.50,6.00,2.67,21.00,2.65,18.00,2.54,18.00,2.62,19.00
-67,222-34-675,Mahria Sultana Rikta,B.Sc. in NFE,NFE,39,2.63,95.00,6,2.92,13.00,2.38,6.00,2.77,21.00,2.28,18.00,2.75,18.00,2.58,19.00
-68,222-34-755,SADIA AFRIN JEMI,B.Sc. in NFE,NFE,39,2.62,95.00,6,3.27,13.00,2.62,6.00,2.92,21.00,2.11,18.00,2.07,18.00,2.87,19.00
-69,222-34-685,Ramisa Alam Chowdhury,B.Sc. in NFE,NFE,39,2.48,98.00,6,2.70,16.00,1.62,6.00,2.35,21.00,2.72,18.00,2.61,18.00,2.36,19.00
-70,222-34-682,THAUHIDA FERDOWSI,B.Sc. in NFE,NFE,39,2.44,98.00,6,3.00,16.00,1.25,6.00,2.33,21.00,2.36,18.00,2.47,18.00,2.50,19.00
-71,222-34-702,Tanmin Sultana Nitu,B.Sc. in NFE,NFE,39,2.39,37.00,3,3.08,13.00,2.62,6.00,,,1.81,18.00,,,,
-72,222-34-719,Md. Maharuf Islam,B.Sc. in NFE,NFE,39,2.31,98.00,6,2.79,13.00,2.25,6.00,2.07,21.00,1.97,18.00,2.79,21.00,2.05,19.00
-73,222-34-739,Jannatul Ferdous Juwana,B.Sc. in NFE,NFE,39,2.31,97.00,5,1.92,19.00,,,2.31,21.00,2.39,20.00,2.43,18.00,2.50,19.00
-74,222-34-677,Fardin Islam Ononno,B.Sc. in NFE,NFE,39,2.24,74.00,5,2.69,13.00,2.38,6.00,,,1.94,18.00,2.46,18.00,1.97,19.00
-75,222-34-724,Marufa Akter,B.Sc. in NFE,NFE,39,2.14,95.00,6,2.77,16.00,1.12,6.00,1.65,18.00,1.28,18.00,2.64,18.00,2.72,19.00
-76,222-34-679,Sanzida Akter Suma,B.Sc. in NFE,NFE,39,1.92,92.00,6,2.00,13.00,1.25,6.00,2.07,18.00,2.01,18.00,2.46,18.00,1.33,19.00
-77,222-34-676,Suraiya Akther,B.Sc. in NFE,NFE,39,1.88,98.00,6,2.80,16.00,1.12,6.00,2.04,21.00,0.88,18.00,1.99,18.00,2.00,19.00
-78,222-34-744,Khadija Akhter Mitu,B.Sc. in NFE,NFE,39,1.86,95.00,6,2.81,13.00,2.12,6.00,1.08,21.00,1.72,18.00,2.21,18.00,1.80,19.00
-79,222-34-686,PUSPITA MONDOL PRITY,B.Sc. in NFE,NFE,39,1.57,95.00,6,2.79,13.00,2.62,6.00,0.00,21.00,2.06,18.00,1.46,18.00,1.79,19.00
-80,222-34-700,Musaddiqa Maliat Monisha,B.Sc. in NFE,NFE,39,1.50,6.00,1,,,1.50,6.00,,,,,,,,
-81,222-34-745,Barbara Alisha Gouri,B.Sc. in NFE,NFE,39,1.50,77.00,5,1.61,16.00,1.00,6.00,,,0.88,18.00,1.99,18.00,1.70,19.00
-82,222-34-743,MST. SHADIA ISLAM,B.Sc. in NFE,NFE,39,1.38,6.00,1,,,1.38,6.00,,,,,,,,
-83,222-34-717,Syeda Novashat Nur Sristy,B.Sc. in NFE,NFE,39,1.07,19.00,2,0.00,13.00,3.38,6.00,,,,,,,,
-84,222-34-691,F.M. Shahed Bin Ananta,B.Sc. in NFE,NFE,39,0.34,22.00,2,0.00,16.00,1.25,6.00,,,,,,,,
-85,222-34-713,MD. MOSADDIKUL ISLAM,B.Sc. in NFE,NFE,39,0.00,6.00,1,,,0.00,6.00,,,,,,,,
-86,222-34-725,Sharmin Jahan Bristy,B.Sc. in NFE,NFE,39,0.00,6.00,1,,,0.00,6.00,,,,,,,,
-87,222-34-737,Rezaul Karim,B.Sc. in NFE,NFE,39,0.00,6.00,1,,,0.00,6.00,,,,,,,,
-88,222-34-748,Tanjila Zaman,B.Sc. in NFE,NFE,39,0.00,6.00,1,,,0.00,6.00,,,,,,,,
+Rank,Student ID,Name,Program,Department,Batch,Overall CGPA
+1,222-34-736,Samia  Islam,B.Sc. in Nutrition and Food Engineering,NFE,39,3.99
+2,222-34-709,Ajija Sultana Prova,B.Sc. in Nutrition and Food Engineering,NFE,39,3.98
+3,222-34-674,Tasrin Jahan Mim,B.Sc. in Nutrition and Food Engineering,NFE,39,3.97
+4,222-34-753,MARZIA,B.Sc. in Nutrition and Food Engineering,NFE,39,3.97
+5,222-34-684,Ayshee Tabassum,B.Sc. in Nutrition and Food Engineering,NFE,39,3.95
+6,222-34-708,Farhana Akter,B.Sc. in Nutrition and Food Engineering,NFE,39,3.95
+7,222-34-670,Mst. Jakia Sultana,B.Sc. in Nutrition and Food Engineering,NFE,39,3.93
+8,222-34-669,Jannatul Mawa Nijhum,B.Sc. in Nutrition and Food Engineering,NFE,39,3.93
+9,222-34-734,Shanjidah Kabir Showmik,B.Sc. in Nutrition and Food Engineering,NFE,39,3.92
+10,222-34-712,Shajmin Akter,B.Sc. in Nutrition and Food Engineering,NFE,39,3.90
+11,222-34-740,S. M. Sa- Adh Reza,B.Sc. in Nutrition and Food Engineering,NFE,39,3.90
+12,222-34-680,Abu Jobayer Akash,B.Sc. in Nutrition and Food Engineering,NFE,39,3.88
+13,222-34-695,Razia  Sultana,B.Sc. in Nutrition and Food Engineering,NFE,39,3.85
+14,222-34-726,Abritty Podder,B.Sc. in Nutrition and Food Engineering,NFE,39,3.85
+15,222-34-668,Bushra Maharuth,B.Sc. in Nutrition and Food Engineering,NFE,39,3.83
+16,222-34-694,Nursat Jannat Mithela,B.Sc. in Nutrition and Food Engineering,NFE,39,3.83
+17,222-34-711,Estiaque Ahmad,B.Sc. in Nutrition and Food Engineering,NFE,39,3.83
+18,222-34-735,Rabia Sanjida,B.Sc. in Nutrition and Food Engineering,NFE,39,3.82
+19,222-34-688,Zunayeed Ahmed Tamim,B.Sc. in Nutrition and Food Engineering,NFE,39,3.80
+20,222-34-701,AMENA  TANOUS,B.Sc. in Nutrition and Food Engineering,NFE,39,3.80
+21,222-34-732,MD HASIBUR RAHMAN,B.Sc. in Nutrition and Food Engineering,NFE,39,3.76
+22,222-34-723,Mst. Rukaya Jannat Ria,B.Sc. in Nutrition and Food Engineering,NFE,39,3.75
+23,222-34-722,Anika Tabassum,B.Sc. in Nutrition and Food Engineering,NFE,39,3.71
+24,222-34-718,Muhammad Shahir Rafid,B.Sc. in Nutrition and Food Engineering,NFE,39,3.69
+25,222-34-751,Surovi Sultana Mim,B.Sc. in Nutrition and Food Engineering,NFE,39,3.66
+26,222-34-746,Sonia Aktar,B.Sc. in Nutrition and Food Engineering,NFE,39,3.65
+27,222-34-728,SHEIKH ZAHID HASSAN,B.Sc. in Nutrition and Food Engineering,NFE,39,3.62
+28,222-34-705,Md. Hossain Shah Riar,B.Sc. in Nutrition and Food Engineering,NFE,39,3.60
+29,222-34-715,Kaniz Farzana,B.Sc. in Nutrition and Food Engineering,NFE,39,3.60
+30,222-34-747,Tahia Tarannum,B.Sc. in Nutrition and Food Engineering,NFE,39,3.57
+31,222-34-696,Mifta Hul Jannat Mridu,B.Sc. in Nutrition and Food Engineering,NFE,39,3.56
+32,222-34-738,Sharmin Akhter,B.Sc. in Nutrition and Food Engineering,NFE,39,3.56
+33,222-34-707,Khondokar Tanjila Islam,B.Sc. in Nutrition and Food Engineering,NFE,39,3.55
+34,222-34-730,Mt. Eliza Parvin Alo,B.Sc. in Nutrition and Food Engineering,NFE,39,3.54
+35,222-34-690,Tasnia Salmin Onti,B.Sc. in Nutrition and Food Engineering,NFE,39,3.53
+36,222-34-699,Sabikun Nahar Arpita,B.Sc. in Nutrition and Food Engineering,NFE,39,3.52
+37,222-34-741,Khusbu Akter,B.Sc. in Nutrition and Food Engineering,NFE,39,3.51
+38,222-34-693,Md. Ashikur Rahman Farazi Ashraful,B.Sc. in Nutrition and Food Engineering,NFE,39,3.48
+39,222-34-729,ARPITA DEV,B.Sc. in Nutrition and Food Engineering,NFE,39,3.45
+40,222-34-720,MST. JANNATUL FERDOUSHE JASIA,B.Sc. in Nutrition and Food Engineering,NFE,39,3.42
+41,222-34-754,JANNAT,B.Sc. in Nutrition and Food Engineering,NFE,39,3.42
+42,222-34-704,MD. MAHIDUL ISLAM MAHFUZ,B.Sc. in Nutrition and Food Engineering,NFE,39,3.41
+43,222-34-672,JAFRINA AKTER DISHA,B.Sc. in Nutrition and Food Engineering,NFE,39,3.40
+44,222-34-706,Mst. Jannatul Ferdousi,B.Sc. in Nutrition and Food Engineering,NFE,39,3.39
+45,222-34-716,Israt Jahan Tuly,B.Sc. in Nutrition and Food Engineering,NFE,39,3.34
+46,222-34-689,NURE AFRIN ONTU,B.Sc. in Nutrition and Food Engineering,NFE,39,3.33
+47,222-34-673,Rakiba Islam Rosney,B.Sc. in Nutrition and Food Engineering,NFE,39,3.32
+48,222-34-671,Mst. Maksura  Akter,B.Sc. in Nutrition and Food Engineering,NFE,39,3.29
+49,222-34-742,AHSANA  AYUB FARIHA,B.Sc. in Nutrition and Food Engineering,NFE,39,3.29
+50,222-34-697,Md. Rahad Uddin,B.Sc. in Nutrition and Food Engineering,NFE,39,3.24
+51,222-34-727,Sihab Uddin,B.Sc. in Nutrition and Food Engineering,NFE,39,3.24
+52,222-34-703,Fahmida Noor,B.Sc. in Nutrition and Food Engineering,NFE,39,3.22
+53,222-34-698,MD. MASUDUL ISLAM KHAN,B.Sc. in Nutrition and Food Engineering,NFE,39,3.21
+54,222-34-710,Most. Sabikun Nahar Sabiha,B.Sc. in Nutrition and Food Engineering,NFE,39,3.15
+55,222-34-749,Shamema Akter,B.Sc. in Nutrition and Food Engineering,NFE,39,3.14
+56,222-34-683,AFRIN TAMANNA ASHA,B.Sc. in Nutrition and Food Engineering,NFE,39,3.13
+57,222-34-687,Humaira Akter Tuli,B.Sc. in Nutrition and Food Engineering,NFE,39,3.07
+58,222-34-667,Israt  Jahan,B.Sc. in Nutrition and Food Engineering,NFE,39,3.00
+59,222-34-756,TAMANNA  TAKIA,B.Sc. in Nutrition and Food Engineering,NFE,39,2.99
+60,222-34-750,ONAMIKA SHRABONY,B.Sc. in Nutrition and Food Engineering,NFE,39,2.96
+61,222-34-678,Sanjana Hossain,B.Sc. in Nutrition and Food Engineering,NFE,39,2.82
+62,222-34-731,Md. Abdullah Al Maruf,B.Sc. in Nutrition and Food Engineering,NFE,39,2.81
+63,222-34-755,SADIA AFRIN JEMI,B.Sc. in Nutrition and Food Engineering,NFE,39,2.79
+64,222-34-721,Most. Lamisha Tajnin,B.Sc. in Nutrition and Food Engineering,NFE,39,2.71
+65,222-34-675,Mahria Sultana Rikta,B.Sc. in Nutrition and Food Engineering,NFE,39,2.61
+66,222-34-752,Nusrat Jahan Rupa,B.Sc. in Nutrition and Food Engineering,NFE,39,2.60
+67,222-34-682,THAUHIDA FERDOWSI,B.Sc. in Nutrition and Food Engineering,NFE,39,2.46
+68,222-34-702,Tanmin Sultana Nitu,B.Sc. in Nutrition and Food Engineering,NFE,39,2.39
+69,222-34-724,Marufa Akter,B.Sc. in Nutrition and Food Engineering,NFE,39,2.33
+70,222-34-677,Fardin Islam Ononno,B.Sc. in Nutrition and Food Engineering,NFE,39,2.29
+71,222-34-719,Md. Maharuf Islam,B.Sc. in Nutrition and Food Engineering,NFE,39,2.29
+72,222-34-685,Ramisa Alam Chowdhury,B.Sc. in Nutrition and Food Engineering,NFE,39,2.21
+73,222-34-739,Jannatul Ferdous Juwana,B.Sc. in Nutrition and Food Engineering,NFE,39,2.21
+74,222-34-679,Sanzida Akter Suma,B.Sc. in Nutrition and Food Engineering,NFE,39,1.93
+75,222-34-676,Suraiya Akther,B.Sc. in Nutrition and Food Engineering,NFE,39,1.83
+76,222-34-744,Khadija Akhter Mitu,B.Sc. in Nutrition and Food Engineering,NFE,39,1.78
+77,222-34-686,PUSPITA MONDOL PRITY,B.Sc. in Nutrition and Food Engineering,NFE,39,1.57
+78,222-34-700,Musaddiqa Maliat Monisha,B.Sc. in Nutrition and Food Engineering,NFE,39,1.50
+79,222-34-745,Barbara Alisha Gouri,B.Sc. in Nutrition and Food Engineering,NFE,39,1.50
+80,222-34-743,MST. SHADIA ISLAM,B.Sc. in Nutrition and Food Engineering,NFE,39,1.38
+81,222-34-717,Syeda Novashat Nur Sristy,B.Sc. in Nutrition and Food Engineering,NFE,39,1.07
+82,222-34-691,F.M. Shahed Bin Ananta,B.Sc. in Nutrition and Food Engineering,NFE,39,0.39
+83,222-34-681,Sumaya Akter Priya,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+84,222-34-692,Mariya Akter Tamanna,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+85,222-34-713,MD. MOSADDIKUL ISLAM,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+86,222-34-714,AMENA SULTANA,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+87,222-34-725,Sharmin Jahan Bristy,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+88,222-34-733,Mohammad Abu Hurayra,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+89,222-34-737,Rezaul Karim,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00
+90,222-34-748,Tanjila Zaman,B.Sc. in Nutrition and Food Engineering,NFE,39,0.00

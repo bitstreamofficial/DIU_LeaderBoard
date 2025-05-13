@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'firebase_options.dart'; // Import Firebase options
+import 'firebase_options.dart'; 
 import 'Screens/main_screens/splash.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,7 @@ import 'services/theme_service.dart';
 // Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Fix for web
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   print("Handling background message: ${message.messageId}");
 }
@@ -24,7 +24,7 @@ void main() async {
 
   // Initialize Firebase with proper options
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Fix for web
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   // Set background message handler
@@ -32,7 +32,8 @@ void main() async {
 
   // Initialize local notifications
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher'); // Change icon if needed
+      AndroidInitializationSettings(
+          '@mipmap/ic_launcher'); // Change icon if needed
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
@@ -53,7 +54,7 @@ class MyApp extends StatelessWidget {
         builder: (context, themeService, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'DIU Buddy',
+            title: 'DIU LeaderBoard',
             theme: themeService.currentTheme,
             home: SplashScreen(),
           );
@@ -76,7 +77,8 @@ class NotificationService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print("User granted permission");
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
       print("User granted provisional permission");
     } else {
       print("User denied permission");
@@ -109,7 +111,8 @@ class NotificationService {
 
   // Show notification using flutter_local_notifications
   Future<void> _showNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
       'channel_id',
       'channel_name',
       importance: Importance.high,

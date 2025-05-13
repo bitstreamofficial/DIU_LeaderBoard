@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/auth/login.dart';
-import 'package:flutter_first/Screens/updates/update_screens.dart';
-import 'package:flutter_first/main.dart';
-import 'package:flutter_first/services/update_service.dart';
+import 'package:diuleaderboard/Screens/auth/login.dart';
+import 'package:diuleaderboard/Screens/updates/update_screens.dart';
+import 'package:diuleaderboard/main.dart';
+import 'package:diuleaderboard/services/update_service.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_first/Screens/nav/main_navigation.dart';
+import 'package:diuleaderboard/Screens/nav/main_navigation.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -20,9 +21,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     NotificationService().initialize();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 3), // Match this with your GIF duration
+      duration: const Duration(seconds: 3),
     )..forward();
-    _checkVersionAndLogin();
+    
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _checkVersionAndLogin();
+      }
+    });
   }
 
   @override
@@ -32,8 +38,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _checkVersionAndLogin() async {
-    await Future.delayed(Duration(seconds: 3));
-
     if (!mounted) return;
 
     final updateService = UpdateService();
@@ -85,18 +89,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Image.asset(
-              'assets/splash.gif',
-              fit: BoxFit.fill,
-              width: double.infinity,
-              height: double.infinity,
-              gaplessPlayback: true,
-              repeat: ImageRepeat.noRepeat,
-            );
-          },
+        color: Theme.of(context).scaffoldBackgroundColor, // Background color
+        child: Center(
+          child: Lottie.asset(
+            'assets/splash_animation.json', // Place your Lottie JSON file here
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            controller: _controller,
+            fit: BoxFit.contain,
+            animate: true,
+          ),
         ),
       ),
     );

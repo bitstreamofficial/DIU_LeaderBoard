@@ -5,13 +5,20 @@ plugins {
     id "com.google.gms.google-services"  // For Firebase services
 }
 
+// Load keystore properties (NEW added part)
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.flutter_first"
+    namespace = "com.diu.leaderboard"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     defaultConfig {
-        applicationId = "com.example.flutter_first"
+        applicationId = "com.diu.leaderboard"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -28,9 +35,21 @@ android {
         jvmTarget = "1.8"
     }
 
+    signingConfigs {
+    release {
+        keyAlias 'upload'
+        keyPassword 'J7dGRxbQ&8w6WcZhu'
+        storeFile file('upload-keystore.jks')
+        storePassword 'J7dGRxbQ&8w6WcZhu'
+    }
+}
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
+            minifyEnabled true  // Enable shrinking
+            shrinkResources true  // Enable resource shrinking
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

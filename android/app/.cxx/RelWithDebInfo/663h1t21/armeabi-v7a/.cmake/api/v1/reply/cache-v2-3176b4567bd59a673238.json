@@ -11,7 +11,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "x86"
+			"value" : "armeabi-v7a"
 		},
 		{
 			"name" : "ANDROID_NDK",
@@ -63,7 +63,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "x86"
+			"value" : "armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_ANDROID_NDK",
@@ -139,7 +139,7 @@
 				}
 			],
 			"type" : "STRING",
-			"value" : "Debug"
+			"value" : "RelWithDebInfo"
 		},
 		{
 			"name" : "CMAKE_CACHEFILE_DIR",
@@ -151,7 +151,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "f:/BitStream/DIU_LeaderBoard/android/app/.cxx/Debug/11672747/x86"
+			"value" : "f:/BitStream/DIU_LeaderBoard/android/app/.cxx/RelWithDebInfo/663h1t21/armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -527,7 +527,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/msys64/ucrt64/bin/dlltool.exe"
+			"value" : "CMAKE_DLLTOOL-NOTFOUND"
 		},
 		{
 			"name" : "CMAKE_ERROR_DEPRECATED",
@@ -751,7 +751,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "F:\\BitStream\\DIU_LeaderBoard\\build\\app\\intermediates\\cxx\\Debug\\11672747\\obj\\x86"
+			"value" : "F:\\BitStream\\DIU_LeaderBoard\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\663h1t21\\obj\\armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -1023,7 +1023,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "F:\\BitStream\\DIU_LeaderBoard\\build\\app\\intermediates\\cxx\\Debug\\11672747\\obj\\x86"
+			"value" : "F:\\BitStream\\DIU_LeaderBoard\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\663h1t21\\obj\\armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1331,7 +1331,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "F:/BitStream/DIU_LeaderBoard/android/app/.cxx/Debug/11672747/x86"
+			"value" : "F:/BitStream/DIU_LeaderBoard/android/app/.cxx/RelWithDebInfo/663h1t21/armeabi-v7a"
 		},
 		{
 			"name" : "Project_IS_TOP_LEVEL",

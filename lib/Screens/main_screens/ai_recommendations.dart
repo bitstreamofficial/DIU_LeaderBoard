@@ -13,7 +13,8 @@ class AIRecommendationsPage extends StatefulWidget {
   State<AIRecommendationsPage> createState() => _AIRecommendationsPageState();
 }
 
-class _AIRecommendationsPageState extends State<AIRecommendationsPage> with AutomaticKeepAliveClientMixin {
+class _AIRecommendationsPageState extends State<AIRecommendationsPage>
+    with AutomaticKeepAliveClientMixin {
   bool isLoading = true;
   bool _mounted = true;
   List<Map<String, dynamic>> recommendations = [];
@@ -63,23 +64,24 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
 
   Future<void> _analyzeStudentResults() async {
     if (!_mounted) return;
-    
+
     try {
       final userData = await _studentDataService.getUserData(widget.userId);
       if (!_mounted) return;
-      
+
       if (userData == null) {
         if (_mounted) {
-        setState(() => isLoading = false);
+          setState(() => isLoading = false);
         }
         return;
       }
 
       final studentId = userData['studentId'];
       final semesterResults = await _studentDataService.fetchResults(studentId);
-      final currentCGPA = _studentDataService.calculateOverallCGPA(semesterResults);
+      final currentCGPA =
+          _studentDataService.calculateOverallCGPA(semesterResults);
       studentCGPA = currentCGPA;
-      
+
       List<Map<String, dynamic>> tempRecommendations = [];
       List<Map<String, dynamic>> tempRetakeSuggestions = [];
       List<Map<String, dynamic>> tempLowCgpaRecommendations = [];
@@ -90,12 +92,14 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
         List<dynamic> courses = entry.value;
 
         for (var course in courses) {
-          double pointEquivalent = double.parse(course['pointEquivalent']?.toString() ?? '0.0');
-          
+          double pointEquivalent =
+              double.parse(course['pointEquivalent']?.toString() ?? '0.0');
+
           // Check if course CGPA is below 3.00
           if (pointEquivalent < 3.00) {
             // Get recommendations for this specific course
-            final courseRecommendations = await _geminiService.getRecommendationsForCourse(
+            final courseRecommendations =
+                await _geminiService.getRecommendationsForCourse(
               course['courseTitle'],
               course['gradeLetter'],
               pointEquivalent,
@@ -104,8 +108,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
             if (courseRecommendations.isNotEmpty) {
               // Calculate CGPA projection for retake
               final cgpaProjection = await _calculateCGPARetakePotential(
-                studentId, 
-                course['customCourseId'], 
+                studentId,
+                course['customCourseId'],
                 course['gradeLetter'],
               );
 
@@ -148,21 +152,22 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
       // Sort recommendations by urgency
       tempRecommendations.sort((a, b) {
         final urgencyOrder = {'Critical': 0, 'High': 1, 'Moderate': 2};
-        return urgencyOrder[a['urgency']]!.compareTo(urgencyOrder[b['urgency']]!);
+        return urgencyOrder[a['urgency']]!
+            .compareTo(urgencyOrder[b['urgency']]!);
       });
 
       if (_mounted) {
-      setState(() {
-        recommendations = tempRecommendations;
-        retakeSuggestions = tempRetakeSuggestions;
+        setState(() {
+          recommendations = tempRecommendations;
+          retakeSuggestions = tempRetakeSuggestions;
           lowCgpaRecommendations = tempLowCgpaRecommendations;
-        isLoading = false;
-      });
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Error analyzing results: $e');
       if (_mounted) {
-      setState(() => isLoading = false);
+        setState(() => isLoading = false);
       }
     }
   }
@@ -172,7 +177,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
     try {
       // Fetch all semester results
       final semesterResults = await _studentDataService.fetchResults(studentId);
-      
+
       // Calculate current CGPA
       final currentCGPA =
           _studentDataService.calculateOverallCGPA(semesterResults);
@@ -193,14 +198,14 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
 
       // Possible retake grade scenarios
       List<String> potentialGrades = ['A+', 'A', 'A-', 'B+', 'B'];
-      
+
       Map<String, dynamic> projections = {};
 
       // Calculate projection for each potential grade
       for (String grade in potentialGrades) {
         // Clone the existing semester results to avoid modifying original
         var modifiedResults = Map<String, List<dynamic>>.from(semesterResults);
-        
+
         // Find and update the specific course's grade
         modifiedResults.forEach((semester, courses) {
           for (var course in courses) {
@@ -239,7 +244,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
     final textTheme = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
     final padding = MediaQuery.of(context).padding;
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -264,11 +269,13 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
                 ),
               )
             : ListView(
-                padding: EdgeInsets.all(size.width * 0.04), // Responsive padding
+                padding:
+                    EdgeInsets.all(size.width * 0.04), // Responsive padding
                 children: [
                   // Display CGPA status with responsive sizing
                   if (studentCGPA != null) ...[
-                    _buildCGPADisplay(studentCGPA!, colorScheme, textTheme, size),
+                    _buildCGPADisplay(
+                        studentCGPA!, colorScheme, textTheme, size),
                     SizedBox(height: size.height * 0.03),
                   ],
 
@@ -362,8 +369,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
   }
 
   Widget _buildCGPADisplay(
-    double cgpa, 
-    ColorScheme colorScheme, 
+    double cgpa,
+    ColorScheme colorScheme,
     TextTheme textTheme,
     Size size,
   ) {
@@ -577,7 +584,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
               children: [
                 Expanded(
                   child: Text(
-              recommendation['courseTitle'],
+                    recommendation['courseTitle'],
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -596,8 +603,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
                       style: TextStyle(
                         color: recommendation['urgencyColor'],
                         fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
               ],
@@ -776,7 +783,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
               children: [
                 Expanded(
                   child: Text(
-              retakeSuggestion['courseTitle'],
+                    retakeSuggestion['courseTitle'],
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -795,8 +802,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
                       style: TextStyle(
                         color: retakeSuggestion['urgencyColor'],
                         fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
               ],
@@ -863,7 +870,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
                   'CGPA Projection Scenarios',
                   style: TextStyle(
                       color: colorScheme.secondary,
-                    fontSize: 18,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -898,8 +905,8 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage> with Auto
                           Text(
                             'CGPA Improvement: +${projection['cgpaImprovement'].toStringAsFixed(2)}',
                             style: TextStyle(
-                              color: projection['cgpaImprovement'] > 0 
-                                ? Colors.green 
+                                color: projection['cgpaImprovement'] > 0
+                                    ? Colors.green
                                     : Colors.red),
                           ),
                         ],

@@ -54,6 +54,7 @@ class ThemeService extends ChangeNotifier {
       onPrimary: Colors.black,
       onSecondary: Colors.white,
       
+      
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: _darkBackground,

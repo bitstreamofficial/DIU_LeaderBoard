@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/auth/SignupProgressPage.dart';
+import 'package:diuleaderboard/Screens/auth/SignupProgressPage.dart';
 import 'package:lottie/lottie.dart';
 
 enum SignupStep {
@@ -94,10 +94,8 @@ class _SignupPageState extends State<SignupPage> {
                     'assets/signup.json',
                     width: double.infinity,
                     height: 220,
-                    
                   ),
                   const SizedBox(height: 8),
-
 
                   const Text(
                     'Please fill in the details to create your account',
@@ -134,14 +132,13 @@ class _SignupPageState extends State<SignupPage> {
                   TextFormField(
                     keyboardType: TextInputType.number,
                     controller: _idController,
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.grey),
                     enabled: !isProcessing,
                     decoration: InputDecoration(
                       labelText: 'Student ID',
                       hintText: 'Ex. 221-15-XXXX',
                       hintStyle: const TextStyle(color: Colors.black),
                       prefixIcon: const Icon(Icons.badge_outlined),
-                      
                       labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -182,14 +179,13 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Email Field
                   TextFormField(
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.grey),
                     controller: _emailController,
                     enabled: !isProcessing,
                     decoration: InputDecoration(
                       labelText: 'DIU Email',
                       hintText: 'your.name@diu.edu.bd',
                       prefixIcon: const Icon(Icons.email_outlined),
-                      
                       labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -230,7 +226,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Password Field
                   TextFormField(
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.grey),
                     controller: _passwordController,
                     enabled: !isProcessing,
                     obscureText: !_isPasswordVisible,
@@ -251,8 +247,7 @@ class _SignupPageState extends State<SignupPage> {
                                 });
                               },
                       ),
-                      
-                      labelStyle: const TextStyle(color: Colors.black),
+                      labelStyle: const TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
@@ -292,7 +287,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Confirm Password Field
                   TextFormField(
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.grey),
                     controller: _confirmPasswordController,
                     enabled: !isProcessing,
                     obscureText: !_isConfirmPasswordVisible,

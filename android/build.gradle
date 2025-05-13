@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.8.10'
     repositories {
         google()
         mavenCentral()
@@ -19,12 +19,20 @@ allprojects {
     }
 }
 
+// Flutter-specific settings
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
     project.evaluationDependsOn(':app')
 }
 
+// Clean task
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
+}
+
+// Ensure Flutter plugins can be located
+def flutterPlugins = new File(rootDir, '.flutter-plugins')
+if (flutterPlugins.exists()) {
+    apply from: flutterPlugins
 }

@@ -1,4 +1,4 @@
-package com.example.flutter_first
+package com.diu.leaderboard
 
 import io.flutter.embedding.android.FlutterActivity
 

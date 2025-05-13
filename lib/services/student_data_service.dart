@@ -33,7 +33,8 @@ class StudentDataService {
   Future<Map<String, dynamic>> fetchStudentInfo(String studentId) async {
     try {
       final infoUrl = Uri.parse(
-        'http://software.diu.edu.bd:8006/result/studentInfo?studentId=$studentId',
+        'http://peoplepulse.diu.edu.bd:8189/result/studentInfo?studentId=$studentId',
+        // 'http://software.diu.edu.bd:8006/result/studentInfo?studentId=$studentId',
       );
       final infoResponse = await http.get(infoUrl);
 
@@ -47,75 +48,85 @@ class StudentDataService {
     }
   }
 
-Future<Map<String, List<dynamic>>> fetchResults(String studentId) async {
-  try {
-    // List of valid semester IDs
-    List<String> validSemesterIds = [
-      "244", "243", "242", "241", "233", "232", "231", "223", "222", "221",
-      "213", "212", "211", "203", "202", "201", "193", "192", "191", "183",
-      "182", "181", "173", "172", "171", "163", "162", "161", "153", "152",
-      "151", "143", "142", "141", "133", "132", "131", "123", "122", "121",
-      "113", "112", "111", "103", "102", "101", "093", "092", "091", "083"
-    ];
+  Future<Map<String, List<dynamic>>> fetchResults(String studentId) async {
+    try {
+      // List of valid semester IDs
+      List<String> validSemesterIds = [
+        "251",
+        "244",
+        "243",
+        "242",
+        "241",
+        "233",
+        "232",
+        "231",
+        "223",
+        "222",
+        "221"
+      ];
 
-    final startSemester = studentId.split('-')[0];
-    final currentSemester = '244'; // Update this as needed
+      final startSemester = studentId.split('-')[0];
+      final currentSemester = '251'; // Update this as needed
 
-    List<String> semesterIdsInRange = validSemesterIds.where((semesterId) {
-      return int.parse(semesterId) >= int.parse(startSemester) &&
-          int.parse(semesterId) <= int.parse(currentSemester);
-    }).toList().reversed.toList();
+      List<String> semesterIdsInRange = validSemesterIds
+          .where((semesterId) {
+            return int.parse(semesterId) >= int.parse(startSemester) &&
+                int.parse(semesterId) <= int.parse(currentSemester);
+          })
+          .toList()
+          .reversed
+          .toList();
 
-    print(semesterIdsInRange);
+      print(semesterIdsInRange);
 
-    Map<String, List<dynamic>> semesterResults = {};
-    Map<String, String> latestSemesterForCourse = {};
+      Map<String, List<dynamic>> semesterResults = {};
+      Map<String, String> latestSemesterForCourse = {};
 
-    for (final semesterId in semesterIdsInRange) {
-      final resultUrl = Uri.parse(
-        'http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId',
-      );
+      for (final semesterId in semesterIdsInRange) {
+        final resultUrl = Uri.parse(
+          'http://peoplepulse.diu.edu.bd:8189/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId',
+          // 'http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=$semesterId&studentId=$studentId',
+        );
 
-      try {
-        final resultResponse = await http.get(resultUrl);
-        if (resultResponse.statusCode == 200) {
-          final results = json.decode(resultResponse.body);
-          if (results is List && results.isNotEmpty) {
-            for (var result in results) {
-              String customCourseId = result['customCourseId'];
+        try {
+          final resultResponse = await http.get(resultUrl);
+          if (resultResponse.statusCode == 200) {
+            final results = json.decode(resultResponse.body);
+            if (results is List && results.isNotEmpty) {
+              for (var result in results) {
+                String customCourseId = result['customCourseId'];
 
-              if (latestSemesterForCourse.containsKey(customCourseId)) {
-                String previousSemester = latestSemesterForCourse[customCourseId]!;
-                semesterResults[previousSemester]?.removeWhere(
-                  (course) => course['customCourseId'] == customCourseId,
-                );
+                if (latestSemesterForCourse.containsKey(customCourseId)) {
+                  String previousSemester =
+                      latestSemesterForCourse[customCourseId]!;
+                  semesterResults[previousSemester]?.removeWhere(
+                    (course) => course['customCourseId'] == customCourseId,
+                  );
+                }
+
+                latestSemesterForCourse[customCourseId] = semesterId;
+
+                if (!semesterResults.containsKey(semesterId)) {
+                  semesterResults[semesterId] = [];
+                }
+                semesterResults[semesterId]!.add(result);
               }
-
-              latestSemesterForCourse[customCourseId] = semesterId;
-
-              if (!semesterResults.containsKey(semesterId)) {
-                semesterResults[semesterId] = [];
-              }
-              semesterResults[semesterId]!.add(result);
             }
           }
+        } catch (e) {
+          print('Error fetching semester $semesterId: $e');
         }
-      } catch (e) {
-        print('Error fetching semester $semesterId: $e');
       }
-    }
 
-    if (semesterResults.isEmpty) {
-      throw 'No results found for any semester';
-    }
+      if (semesterResults.isEmpty) {
+        throw 'No results found for any semester';
+      }
 
-    return semesterResults;
-  } catch (e) {
-    throw 'Error fetching results: ${e.toString()}';
+      return semesterResults;
+    } catch (e) {
+      throw 'Error fetching results: ${e.toString()}';
+    }
   }
-}
-
-
 
   double calculateOverallCGPA(Map<String, List<dynamic>> semesterResults) {
     try {
@@ -125,7 +136,7 @@ Future<Map<String, List<dynamic>>> fetchResults(String studentId) async {
       semesterResults.forEach((_, results) {
         for (var result in results) {
           double credit =
-              double.parse(result['totalCredit']?.toString() ?? '0'); 
+              double.parse(result['totalCredit']?.toString() ?? '0');
           double points =
               double.parse(result['pointEquivalent']?.toString() ?? '0');
 

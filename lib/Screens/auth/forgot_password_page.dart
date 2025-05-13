@@ -1,6 +1,6 @@
 // forgot_password_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_first/services/auth_service.dart';
+import 'package:diuleaderboard/services/auth_service.dart';
 import 'package:lottie/lottie.dart';
 
 class ForgotPasswordPage extends StatefulWidget {

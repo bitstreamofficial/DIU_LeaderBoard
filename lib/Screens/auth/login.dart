@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/nav/main_navigation.dart';
-import 'package:flutter_first/services/auth_service.dart';
-import 'package:flutter_first/Screens/auth/signup_page.dart';
-import 'package:flutter_first/Screens/auth/forgot_password_page.dart';
-import 'package:flutter_first/services/connection_handler.dart';
+import 'package:diuleaderboard/Screens/nav/main_navigation.dart';
+import 'package:diuleaderboard/services/auth_service.dart';
+import 'package:diuleaderboard/Screens/auth/signup_page.dart';
+import 'package:diuleaderboard/Screens/auth/forgot_password_page.dart';
+import 'package:diuleaderboard/services/connection_handler.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/auth/login.dart';
-import 'package:flutter_first/services/auth_service.dart';
-import 'package:flutter_first/services/result_card_service.dart';
-import 'package:flutter_first/services/student_data_service.dart';
+import 'package:diuleaderboard/Screens/auth/login.dart';
+import 'package:diuleaderboard/services/auth_service.dart';
+import 'package:diuleaderboard/services/result_card_service.dart';
+import 'package:diuleaderboard/services/student_data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -524,15 +524,16 @@ class _ProfilePageState extends State<ProfilePage> {
       };
     }).toList();
 
-    // Sort semesters chronologically
+    // Sort semesters chronologically (oldest first)
     semesters.sort((a, b) {
       if (a['year'] != b['year']) {
-        return (b['year'] as int).compareTo(a['year'] as int);
+        return (a['year'] as int)
+            .compareTo(b['year'] as int); // Ascending year order
       }
       final seasonOrder = {'Spring': 1, 'Summer': 2, 'Fall': 3, 'Short': 4};
       final aOrder = seasonOrder[a['name']] ?? 0;
       final bOrder = seasonOrder[b['name']] ?? 0;
-      return bOrder - aOrder;
+      return aOrder - bOrder; // Ascending season order within the same year
     });
 
     // Filter out invalid SGPA values
@@ -613,10 +614,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             return Container();
                           final semester = validSemesters[index];
                           return Text(
-                            '${semester['name']}\n${semester['year']}',
+                            ((semester['name'] as String?) ?? '')
+                                .replaceFirst(' ', '\n'),
                             style: TextStyle(
-                                fontSize: 10,
-                                color: Theme.of(context).colorScheme.onSurface),
+                              fontSize: 10,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                             textAlign: TextAlign.center,
                           );
                         },
@@ -645,8 +648,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   lineBarsData: [
                     LineChartBarData(
                       spots: validSemesters.asMap().entries.map((entry) {
-                        return FlSpot(entry.key.toDouble(),
-                            entry.value['sgpa'] as double);
+                        return FlSpot(
+                          entry.key.toDouble(),
+                          double.parse((entry.value['sgpa'] as double)
+                              .toStringAsFixed(2)),
+                        );
                       }).toList(),
                       isCurved: true,
                       color: Theme.of(context).colorScheme.tertiary,
@@ -703,23 +709,23 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_semesterResults == null) return const SizedBox.shrink();
 
     // Convert semester entries to a list and sort them
-    List<MapEntry<String, List<dynamic>>> sortedSemesters = 
-      _semesterResults!.entries.toList()
-      ..sort((a, b) {
-        // Extract year and semester from semester ID (e.g., "231" -> year: 23, semester: 1)
-        int yearA = int.parse(a.key.substring(0, a.key.length - 1));
-        int yearB = int.parse(b.key.substring(0, b.key.length - 1));
-        
-        // Compare years first
-        if (yearA != yearB) {
-          return yearB.compareTo(yearA); // Descending order of years
-        }
-        
-        // If years are same, compare semesters
-        int semA = int.parse(a.key[a.key.length - 1]);
-        int semB = int.parse(b.key[b.key.length - 1]);
-        return semB.compareTo(semA); // Descending order of semesters
-      });
+    List<MapEntry<String, List<dynamic>>> sortedSemesters =
+        _semesterResults!.entries.toList()
+          ..sort((a, b) {
+            // Extract year and semester from semester ID (e.g., "231" -> year: 23, semester: 1)
+            int yearA = int.parse(a.key.substring(0, a.key.length - 1));
+            int yearB = int.parse(b.key.substring(0, b.key.length - 1));
+
+            // Compare years first
+            if (yearA != yearB) {
+              return yearB.compareTo(yearA); // Descending order of years
+            }
+
+            // If years are same, compare semesters
+            int semA = int.parse(a.key[a.key.length - 1]);
+            int semB = int.parse(b.key[b.key.length - 1]);
+            return semB.compareTo(semA); // Descending order of semesters
+          });
 
     return Column(
       children: sortedSemesters.map((entry) {
@@ -732,7 +738,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final lastDigit = semesterId[semesterId.length - 1];
     final year = '20${semesterId.substring(0, semesterId.length - 1)}';
     String semester;
-    
+
     switch (lastDigit) {
       case '1':
         semester = 'Spring';
@@ -746,7 +752,7 @@ class _ProfilePageState extends State<ProfilePage> {
       default:
         semester = 'Unknown';
     }
-    
+
     return '$semester $year';
   }
 
@@ -786,15 +792,19 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: const Color.fromARGB(0, 100, 40, 40)),
+        data: Theme.of(context)
+            .copyWith(dividerColor: const Color.fromARGB(0, 100, 40, 40)),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           title: Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
                 child: Text(
                   '$semesterName $semesterYear',
                   style: TextStyle(
@@ -845,7 +855,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       border: idx != results.length - 1
-                          ? Border(bottom: BorderSide(color: Colors.grey.shade200))
+                          ? Border(
+                              bottom: BorderSide(color: Colors.grey.shade200))
                           : null,
                     ),
                     child: Row(
@@ -891,7 +902,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               const Text(
                                 'Credits',
-                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.grey),
                               ),
                               Text(
                                 '${course['totalCredit']?.toString() ?? 'N/A'}',
@@ -918,7 +930,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               children: [
                                 const Text(
                                   'Grade',
-                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.grey),
                                 ),
                                 Text(
                                   grade,
@@ -931,7 +944,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text(
                                   '(${course['pointEquivalent']?.toStringAsFixed(2) ?? 'N/A'})',
                                   style: TextStyle(
-                                    color: _getGradeColor(grade).withOpacity(0.8),
+                                    color:
+                                        _getGradeColor(grade).withOpacity(0.8),
                                     fontSize: 12,
                                   ),
                                 ),

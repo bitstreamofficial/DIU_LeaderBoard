@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_first/Screens/nav/main_navigation.dart';
-import 'package:flutter_first/services/auth_service.dart';
-import 'package:flutter_first/Screens/main_screens/home.dart';
+import 'package:diuleaderboard/Screens/nav/main_navigation.dart';
+import 'package:diuleaderboard/services/auth_service.dart';
+import 'package:diuleaderboard/Screens/main_screens/home.dart';
 import 'package:logger/logger.dart';
 import 'package:timeline_tile/timeline_tile.dart';
-import 'package:flutter_first/services/student_data_service.dart';
+import 'package:diuleaderboard/services/student_data_service.dart';
 
 class SignupProgressPage extends StatefulWidget {
   final String studentId;

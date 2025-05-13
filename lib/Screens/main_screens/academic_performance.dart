@@ -22,7 +22,10 @@ class _AcademicPerformancePageState extends State<AcademicPerformancePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+        length: 2,
+        vsync: this,
+        initialIndex: 1); // Starts with "Semester Results"
   }
 
   @override
@@ -113,7 +116,6 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
             maxWidth: 500,
           ),
           child: Card(
-            
             elevation: 4,
             child: Container(
               decoration: BoxDecoration(
@@ -358,7 +360,7 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: Colors.white),
             ),
             SizedBox(height: 16),
             SizedBox(
@@ -387,8 +389,7 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
                           final semester = validSemesters[index];
                           return Text(
                             '${semester.name}\n${semester.year}',
-                            style: TextStyle(
-                                fontSize: 10, color: Colors.grey[700]),
+                            style: TextStyle(fontSize: 10, color: Colors.white),
                             textAlign: TextAlign.center,
                           );
                         },
@@ -401,8 +402,7 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toStringAsFixed(1),
-                            style: TextStyle(
-                                fontSize: 10, color: Colors.grey[700]),
+                            style: TextStyle(fontSize: 10, color: Colors.white),
                           );
                         },
                       ),
@@ -416,31 +416,44 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
                   lineBarsData: [
                     LineChartBarData(
                       spots: validSemesters.asMap().entries.map((entry) {
-                        return FlSpot(entry.key.toDouble(), entry.value.sgpa);
+                        return FlSpot(
+                          entry.key.toDouble(),
+                          double.parse(entry.value.sgpa.toStringAsFixed(2)),
+                        );
                       }).toList(),
                       isCurved: true,
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.tertiary,
                       barWidth: 3,
                       dotData: FlDotData(
                         show: true,
                         getDotPainter: (spot, percent, barData, index) {
                           return FlDotCirclePainter(
                             radius: 5,
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             strokeWidth: 2,
-                            strokeColor: Colors.white,
+                            strokeColor:
+                                Theme.of(context).colorScheme.onSurface,
                           );
                         },
                       ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context).primaryColor.withOpacity(0.3),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .tertiary
+                            .withOpacity(0.3),
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Theme.of(context).primaryColor.withOpacity(0.3),
-                            Theme.of(context).primaryColor.withOpacity(0.1),
+                            Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.3),
+                            Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.1),
                           ],
                         ),
                       ),
@@ -890,6 +903,7 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
   double _animationValue = 0.0;
 
   final List<String> _years = [
+    '2025',
     '2024',
     '2023',
     '2022',
@@ -1192,19 +1206,19 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFC33764),
-                    Color(0xFF6E388F),
-                    Color(0xFF1D2671),
-                  ].map((color) => color.withOpacity(0.8)).toList(),
-                  stops: const [0.0, 0.5, 1.0],
-                  transform: GradientRotation(_animationValue * 2 * pi),
-                ),
-              ),
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFC33764),
+                Color(0xFF6E388F),
+                Color(0xFF1D2671),
+              ].map((color) => color.withOpacity(0.8)).toList(),
+              stops: const [0.0, 0.5, 1.0],
+              transform: GradientRotation(_animationValue * 2 * pi),
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
