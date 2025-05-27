@@ -33,7 +33,7 @@ void main() async {
   // Initialize local notifications
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings(
-          '@mipmap/ic_launcher'); // Change icon if needed
+          '@mipmap/ic_launcher'); 
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );

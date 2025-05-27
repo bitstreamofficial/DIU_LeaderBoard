@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "403149345679",
-    "project_id": "diu-leaderboard",
-    "storage_bucket": "diu-leaderboard.firebasestorage.app"
+    "project_number": "307367250704",
+    "project_id": "diu-leaderboard-9c0e0",
+    "storage_bucket": "diu-leaderboard-9c0e0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:403149345679:android:9e182bd87c2a1e1805f1fa",
+        "mobilesdk_app_id": "1:307367250704:android:eca9f27f0bae165107f395",
         "android_client_info": {
           "package_name": "com.diu.leaderboard"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB3j7s5I2sARbhJaEI_4SX_R9R7Yl5Ztic"
+          "current_key": "AIzaSyDn-C-JEKMUfvfWW0VCL48o7I69Q_ZUlss"
         }
       ],
       "services": {

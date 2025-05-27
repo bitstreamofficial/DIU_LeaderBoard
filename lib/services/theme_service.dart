@@ -8,13 +8,15 @@ class ThemeService extends ChangeNotifier {
   // Color constants for more consistent theming
   static const Color _darkBackground = Color(0xFF121212);
   static const Color _lightBackground = Color(0xFFF5F5F5);
-  static const Color _primaryDark = Color(0xFF2B2E4A);
-  static const Color _primaryLight = Colors.blueGrey;
+  static const Color _primaryDark = Colors.blueAccent;
+  static const Color _primaryLight = Color.fromARGB(255, 83, 167, 114);
 
   // Add your specific colors
   static const Color _cardColorDark = Color(0xFF262626);
   static const Color _cardColorLight = Color(0xFFFFFBF5);
-  static const Color _selectedItemColor = Color.fromARGB(255, 83, 167, 114);
+  static const Color _selectedItemColorLight =
+      Color.fromARGB(255, 83, 167, 114);
+  static const Color _selectedItemColorDark = Colors.blueAccent;
 
   ThemeService() {
     _loadTheme();
@@ -45,16 +47,14 @@ class ThemeService extends ChangeNotifier {
     cardColor: _cardColorDark,
     colorScheme: ColorScheme.dark(
       primary: _primaryDark,
-      secondary: _selectedItemColor,
+      secondary: _primaryDark,
       surface: _cardColorDark,
       background: _darkBackground,
-      tertiary: _selectedItemColor,
+      tertiary: _primaryDark,
       onBackground: Colors.white,
       onSurface: Colors.white,
       onPrimary: Colors.black,
       onSecondary: Colors.white,
-      
-      
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: _darkBackground,
@@ -62,7 +62,7 @@ class ThemeService extends ChangeNotifier {
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: _darkBackground,
-      indicatorColor: _selectedItemColor,
+      indicatorColor: _selectedItemColorDark,
     ),
     textTheme: ThemeData.dark()
         .textTheme
@@ -85,10 +85,10 @@ class ThemeService extends ChangeNotifier {
     cardColor: _cardColorLight,
     colorScheme: ColorScheme.light(
       primary: _primaryLight,
-      secondary: _selectedItemColor,
+      secondary: _selectedItemColorLight,
       surface: _cardColorLight,
       background: Colors.grey[200],
-      tertiary: _selectedItemColor,
+      tertiary: _selectedItemColorLight,
       onBackground: Colors.black87,
       onSurface: Colors.black87,
       onPrimary: Colors.white,

@@ -44,6 +44,12 @@ class _NewHomePageState extends State<NewHomePage>
   late ConfettiController _confettiController;
   late AnimationController _gradientAnimationController;
 
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstStudentIdController =
+      TextEditingController();
+  final TextEditingController _lastStudentIdController =
+      TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +94,8 @@ class _NewHomePageState extends State<NewHomePage>
     _confettiController.dispose();
     _scrollController.dispose();
     _searchController.dispose();
+    _firstStudentIdController.dispose();
+    _lastStudentIdController.dispose();
     _mounted = false;
     super.dispose();
   }
@@ -243,69 +251,159 @@ class _NewHomePageState extends State<NewHomePage>
     }
   }
 
-  String getBatchCsvPath(String batch) {
+  // String getBatchCsvPath(String batch) {
+  //   switch (batch) {
+  //     case '39':
+  //       return 'csv/studentRank39NFE.csv';
+  //     case '61':
+  //       return 'csv/studentRank61CSE.csv';
+  //     case '62':
+  //       return 'csv/studentRank62CSE.csv';
+  //     case '63':
+  //       return 'csv/studentRank63CSE.csv';
+  //     case '64':
+  //       return 'csv/studentRank64CSE.csv';
+  //     case '5':
+  //       return 'csv/studentRank5ITM.csv';
+  //     default:
+  //       throw Exception('No CSV file available for batch: $batch');
+  //   }
+  // }
+
+  // Future<String> loadCsvForBatch(String batch) async {
+  //   final String path = getBatchCsvPath(batch);
+  //   try {
+  //     return await rootBundle.loadString(path);
+  //   } catch (e) {
+  //     throw Exception('Failed to load CSV for batch $batch: $e');
+  //   }
+  // }
+
+  // Future<void> loadStudents(String batch) async {
+  //   if (!mounted) return;
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   try {
+  //     final String csvData = await loadCsvForBatch(batch);
+  //     List<List<dynamic>> csvTable =
+  //         const CsvToListConverter().convert(csvData);
+  //     csvTable.removeAt(0);
+
+  //     List<Student> loadedStudents =
+  //         csvTable.map((row) => Student.fromCsvRow(row)).toList();
+
+  //     if (!mounted) return;
+  //     setState(() {
+  //       students = loadedStudents;
+  //       isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     print('Error loading students: $e');
+  //     if (!mounted) return;
+  //     setState(() {
+  //       isLoading = false;
+  //       students = [];
+  //     });
+
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Error loading ranking data for batch $batch'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
+
+  String _getFirestoreDocumentIdForBatch(String batch) {
     switch (batch) {
       case '39':
-        return 'csv/studentRank39NFE.csv';
+        return 'studentRank39NFE';
       case '61':
-        return 'csv/studentRank61CSE.csv';
+        return 'studentRank61CSE';
       case '62':
-        return 'csv/studentRank62CSE.csv';
+        return 'studentRank62CSE';
       case '63':
-        return 'csv/studentRank63CSE.csv';
+        return 'studentRank63CSE';
       case '64':
-        return 'csv/studentRank64CSE.csv';
-      case '5':
-        return 'csv/studentRank5ITM.csv';
+        return 'studentRank64CSE';
+      case '5': // Assuming '5' is for ITM
+        return 'studentRank5ITM';
       default:
-        throw Exception('No CSV file available for batch: $batch');
-    }
-  }
-
-  Future<String> loadCsvForBatch(String batch) async {
-    final String path = getBatchCsvPath(batch);
-    try {
-      return await rootBundle.loadString(path);
-    } catch (e) {
-      throw Exception('Failed to load CSV for batch $batch: $e');
+        // Fallback or throw an error if the batch mapping is unknown
+        // You might want to derive this more dynamically if possible,
+        // e.g., if _studentInfo contains program/department info.
+        print(
+            'Warning: Unknown batch mapping for Firestore document ID: $batch');
+        return 'studentRank${batch}UNKNOWN'; // Or handle as an error
     }
   }
 
   Future<void> loadStudents(String batch) async {
-    if (!mounted) return;
+    if (!_mounted) return;
     setState(() {
       isLoading = true;
     });
 
     try {
-      final String csvData = await loadCsvForBatch(batch);
-      List<List<dynamic>> csvTable =
-          const CsvToListConverter().convert(csvData);
-      csvTable.removeAt(0);
+      final String documentId = _getFirestoreDocumentIdForBatch(batch);
+      if (documentId.endsWith('UNKNOWN')) {
+        throw Exception(
+            'Could not determine Firestore document for batch: $batch');
+      }
 
-      List<Student> loadedStudents =
-          csvTable.map((row) => Student.fromCsvRow(row)).toList();
+      final DocumentSnapshot docSnapshot =
+          await _firestore.collection('ranking_data').doc(documentId).get();
 
-      if (!mounted) return;
-      setState(() {
-        students = loadedStudents;
-        isLoading = false;
-      });
+      if (!_mounted) return;
+
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        // The student rankings are in a field named 'rankings' which is a List
+        final List<dynamic>? rankingsData = data['rankings'] as List<dynamic>?;
+
+        if (rankingsData != null) {
+          List<Student> loadedStudents = rankingsData
+              .map((studentData) =>
+                  Student.fromMap(studentData as Map<String, dynamic>))
+              .toList();
+
+          // Optional: Sort students by rank if not already sorted in Firestore
+          // loadedStudents.sort((a, b) => a.rank.compareTo(b.rank));
+
+          setState(() {
+            students = loadedStudents;
+          });
+        } else {
+          print(
+              'Error: "rankings" field is missing or not a list in document $documentId');
+          students = []; // Set to empty list if no ranking data
+        }
+      } else {
+        print(
+            'Error: Document $documentId does not exist in ranking_data collection.');
+        students = []; // Set to empty list if document not found
+      }
     } catch (e) {
-      print('Error loading students: $e');
-      if (!mounted) return;
-      setState(() {
-        isLoading = false;
-        students = [];
-      });
-
-      if (mounted) {
+      print('Error loading students from Firestore: $e');
+      if (_mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading ranking data for batch $batch'),
+            content: Text(
+                'Error loading ranking data for batch $batch from Firestore.'),
             backgroundColor: Colors.red,
           ),
         );
+        students = []; // Clear students on error
+      }
+    } finally {
+      if (_mounted) {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -870,51 +968,20 @@ class _NewHomePageState extends State<NewHomePage>
     final bool isMatch = searchQuery.isNotEmpty &&
         student.name.toLowerCase().contains(searchQuery);
 
-    // Special styling for ranks between 3 and 11
-    final bool isSpecialRank = rank > 3 && rank < 11;
+// Special styling for students with CGPA >= 3.90
+    final bool isSpecialRank = student.cgpa >= 3.90;
 
-    // Generate a gradient color based on rank for special ranks
+    // Generate a gradient for top performers
     List<Color> getGradientColors() {
       if (isSpecialRank) {
-        // Different gradient colors based on rank position
-        if (rank == 4) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.9),
-            Colors.blue.withOpacity(0.9)
-          ];
-        } else if (rank == 5) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.8),
-            Colors.blue.withOpacity(0.8)
-          ];
-        } else if (rank == 6) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.7),
-            Colors.blue.withOpacity(0.7)
-          ];
-        } else if (rank == 7) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.6),
-            Colors.blue.withOpacity(0.6)
-          ];
-        } else if (rank == 8) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.5),
-            Colors.blue.withOpacity(0.5)
-          ];
-        } else if (rank == 9) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.4),
-            Colors.blue.withOpacity(0.4)
-          ];
-        } else if (rank == 10) {
-          return [
-            Colors.deepPurpleAccent.withOpacity(0.3),
-            Colors.blue.withOpacity(0.3)
-          ];
-        }
+        // Consistent gradient for all students with CGPA >= 3.90
+        return [
+          Colors.deepPurpleAccent
+              .withOpacity(0.75), // Feel free to adjust these colors
+          Colors.lightBlueAccent.withOpacity(0.75),
+        ];
       }
-      return [];
+      return []; // Fallback, though not strictly needed if called only when isSpecialRank is true
     }
 
     return InkWell(
@@ -1101,85 +1168,209 @@ class _NewHomePageState extends State<NewHomePage>
     );
   }
 
+  // Future<void> _loadInitialData() async {
+  //   if (!_mounted) return;
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   try {
+  //     final hasCache = await _loadCachedData(); // You might want to reconsider caching strategy
+  //                                            // if Firestore is the source of truth.
+  //     if (!hasCache) {
+  //       await _fetchStudentData(); // This presumably fetches _studentInfo
+  //     }
+
+  //     if (_studentInfo != null) {
+  //       final batch = _studentInfo!['batchNo']?.toString();
+  //       if (batch != null) {
+  //         await loadStudents(batch); // This will now call the Firestore version
+  //         await _fetchStudentShowMePreferences(); // This seems okay
+  //       } else {
+  //         setState(() {
+  //           students = [];
+  //         });
+  //       }
+  //     } else {
+  //        // If _studentInfo is null, perhaps there's no batch to load.
+  //        print("Student info is null, cannot determine batch for loading ranks.");
+  //        students = [];
+  //     }
+  //   } catch (e) {
+  //     print('Error loading initial data: $e');
+  //     students = [];
+  //   } finally {
+  //     if (!_mounted) return;
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
+
   Future<void> _loadInitialData() async {
-    if (!mounted) return;
+    if (!_mounted) return;
     setState(() {
       isLoading = true;
     });
 
     try {
-      final hasCache = await _loadCachedData();
+      final hasCache =
+          await _loadCachedData(); // You might want to reconsider caching strategy
+      // if Firestore is the source of truth.
       if (!hasCache) {
-        await _fetchStudentData();
+        await _fetchStudentData(); // This presumably fetches _studentInfo
       }
 
       if (_studentInfo != null) {
         final batch = _studentInfo!['batchNo']?.toString();
         if (batch != null) {
-          await loadStudents(batch);
-          await _fetchStudentShowMePreferences();
+          await loadStudents(batch); // This will now call the Firestore version
+          await _fetchStudentShowMePreferences(); // This seems okay
         } else {
-          // If batch is null, make sure students list is empty
           setState(() {
             students = [];
           });
         }
+      } else {
+        // If _studentInfo is null, perhaps there's no batch to load.
+        print(
+            "Student info is null, cannot determine batch for loading ranks.");
+        students = [];
       }
     } catch (e) {
       print('Error loading initial data: $e');
+      students = [];
     } finally {
-      if (!mounted) return;
+      if (!_mounted) return;
       setState(() {
         isLoading = false;
       });
     }
   }
 
+  // Future<void> _handleRefresh() async {
+  //   if (_isRefreshing) return; // Prevent multiple refreshes
+
+  //   setState(() {
+  //     _isRefreshing = true;
+  //   });
+
+  //   try {
+  //     await _fetchStudentData();
+  //     if (_studentInfo != null) {
+  //       final batch = _studentInfo!['batchNo']?.toString();
+  //       if (batch != null) {
+  //         await loadStudents(batch);
+  //         await _fetchStudentShowMePreferences();
+  //       } else {
+  //         setState(() {
+  //           students = [];
+  //         });
+  //       }
+  //     }
+
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('Data refreshed successfully'),
+  //           backgroundColor: Colors.green,
+  //           duration: Duration(seconds: 2),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error refreshing data: $e');
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('Failed to refresh data'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         _isRefreshing = false;
+  //       });
+  //     }
+  //   }
+  // }
+
   Future<void> _handleRefresh() async {
-    if (_isRefreshing) return; // Prevent multiple refreshes
+    if (_isRefreshing) return;
 
     setState(() {
       _isRefreshing = true;
     });
 
     try {
-      await _fetchStudentData();
+      await _fetchStudentData(); // Refreshes _studentInfo
       if (_studentInfo != null) {
         final batch = _studentInfo!['batchNo']?.toString();
         if (batch != null) {
-          await loadStudents(batch);
+          await loadStudents(batch); // Firestore version
           await _fetchStudentShowMePreferences();
         } else {
           setState(() {
             students = [];
           });
         }
+      } else {
+        students = [];
       }
+      // ... (rest of your refresh logic)
+    } catch (e) {
+      // ...
+    } finally {
+      // ...
+    }
+  }
 
-      if (mounted) {
+  Future<void> _submitBatchIds() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final firstId = _firstStudentIdController.text.trim();
+      final lastId = _lastStudentIdController.text.trim();
+      final batchNumber = _studentInfo?['batchNo']?.toString();
+      final submittedByUserId = userId; // Current logged-in user's ID
+
+      // Show a loading indicator or disable the button
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Submitting batch IDs...'),
+          backgroundColor: Colors.blue,
+        ),
+      );
+
+      try {
+        await _firestore.collection('batch_id_submissions').add({
+          'firstStudentId': firstId,
+          'lastStudentId': lastId,
+          'batchNo': batchNumber,
+          'submittedByUserId': submittedByUserId,
+          'submittedAt': FieldValue.serverTimestamp(),
+          'status': 'pending', // Initial status
+        });
+
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Data refreshed successfully'),
+            content: Text('Batch IDs submitted successfully! Thank you.'),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
           ),
         );
-      }
-    } catch (e) {
-      print('Error refreshing data: $e');
-      if (mounted) {
+        _firstStudentIdController.clear();
+        _lastStudentIdController.clear();
+      } catch (e) {
+        print('Error submitting batch IDs: $e');
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to refresh data'),
+            content: Text('Failed to submit batch IDs. Please try again.'),
             backgroundColor: Colors.red,
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isRefreshing = false;
-        });
       }
     }
   }
@@ -1441,16 +1632,20 @@ class _NewHomePageState extends State<NewHomePage>
                   color: Theme.of(context).colorScheme.tertiary,
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   child: students.isEmpty
-                      ? ListView(
-                          // Replace SingleChildScrollView with ListView for empty state
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.7, // Add height to ensure scrollable
-                              child: _buildEmptyStateView(),
-                            ),
-                          ],
+                      ? LayoutBuilder(
+                          builder: (context, constraints) {
+                            return ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                Container(
+                                  constraints: BoxConstraints(
+                                      minHeight: constraints.maxHeight),
+                                  alignment: Alignment.center,
+                                  child: _buildEmptyStateView(),
+                                ),
+                              ],
+                            );
+                          },
                         )
                       : CustomScrollView(
                           controller: _scrollController,
@@ -1538,45 +1733,339 @@ class _NewHomePageState extends State<NewHomePage>
   }
 
   Widget _buildEmptyStateView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Lottie.asset(
-            'assets/jsons/portal_down.json',
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'No Ranking Data Available',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'We couldn\'t find ranking data for your batch. Please try refreshing or contact support.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Animation Container with background
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceVariant
+                    .withOpacity(0.3),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Lottie.asset(
+                'assets/jsons/portal_down.json',
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.height * 0.2,
+                fit: BoxFit.contain,
               ),
             ),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: _handleRefresh,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            const SizedBox(height: 32),
+
+            // Main heading
+            Text(
+              'No Ranking Data Available',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
-            child: const Text('Refresh'),
-          ),
-        ],
+            const SizedBox(height: 12),
+
+            // Subtitle
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'We couldn\'t find ranking data for your batch. Please try refreshing or help us add your batch information.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7),
+                      height: 1.4,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // Refresh Button
+            Container(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: _isRefreshing ? null : _handleRefresh,
+                icon: _isRefreshing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.refresh_rounded, size: 20),
+                label: Text(_isRefreshing ? 'Refreshing...' : 'Refresh Data'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.onSurface,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  elevation: 2,
+                  shadowColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+
+            // Divider with improved styling
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'OR',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.5),
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+
+            // Help section card
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        Theme.of(context).colorScheme.shadow.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Help icon
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.help_outline_rounded,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Help title
+                  Text(
+                    'Help us add your batch!',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Help description
+                  Text(
+                    'If you know the first and last student IDs of your batch, please submit them below. This will help us add support for your batch faster.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.6),
+                          height: 1.4,
+                        ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Form
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _firstStudentIdController,
+                          decoration: InputDecoration(
+                            labelText: 'First Student ID',
+                            hintText: 'e.g., 221-15-1000',
+                            prefixIcon: Icon(
+                              Icons.person_outline_rounded,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.6),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withOpacity(0.3),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withOpacity(0.3),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceVariant
+                                .withOpacity(0.3),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty)
+                              return 'Please enter the first student ID';
+                            return null;
+                          },
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _lastStudentIdController,
+                          decoration: InputDecoration(
+                            labelText: 'Last Student ID',
+                            hintText: 'e.g., 221-15-1200',
+                            prefixIcon: Icon(
+                              Icons.person_outline_rounded,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.6),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withOpacity(0.3),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withOpacity(0.3),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceVariant
+                                .withOpacity(0.3),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty)
+                              return 'Please enter the last student ID';
+                            return null;
+                          },
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+
+                        // Submit button
+                        Container(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: _submitBatchIds,
+                            icon: const Icon(Icons.send_rounded, size: 18),
+                            label: const Text('Submit Batch IDs'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onSecondary,
+                              elevation: 2,
+                              shadowColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(0.3),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

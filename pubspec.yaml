@@ -39,6 +39,7 @@ dependencies:
 
 
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,6 +66,8 @@ flutter:
     - csv/studentRank61CSE.csv
     - csv/studentRank64CSE.csv
     - csv/studentRank5ITM.csv
+
+
 
     - assets/signup.json
     - assets/login.json

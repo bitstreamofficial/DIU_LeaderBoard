@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:diuleaderboard/Screens/main_screens/newHome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:diuleaderboard/Screens/main_screens/home.dart';

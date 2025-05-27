@@ -61,6 +61,7 @@ class _TeamBottomSheetState extends State<TeamBottomSheet> {
       githubUrl: 'https://github.com/mr-shakib',
       linkedinUrl: 'https://www.linkedin.com/in/shakib-howlader',
     ),
+
     TeamMember(
       name: 'Sabbir Ahamed',
       role: 'Backend Integrator',
@@ -600,7 +601,7 @@ class _SettingsViewState extends State<SettingsView> {
                 child: Row(
                   children: [
                     Icon(Icons.logout, color: Colors.white),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 25),
                     Expanded(
                       child: Text(
                         'Logout',

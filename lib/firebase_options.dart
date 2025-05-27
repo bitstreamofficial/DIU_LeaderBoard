@@ -41,29 +41,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA8tedA3oj-RP_lBnsGulwVNwBxUNNRuWA',
-    appId: '1:403149345679:web:993f68cdb4f51cc505f1fa',
-    messagingSenderId: '403149345679',
-    projectId: 'diu-leaderboard',
-    authDomain: 'diu-leaderboard.firebaseapp.com',
-    storageBucket: 'diu-leaderboard.firebasestorage.app',
-    measurementId: 'G-9RVDMB6M0C',
+    apiKey: 'AIzaSyBaEgHI0YIb0Tw9sSexUTwHGqPQFIdQBfg',
+    appId: '1:307367250704:web:b245c56a44c8ea8607f395',
+    messagingSenderId: '307367250704',
+    projectId: 'diu-leaderboard-9c0e0',
+    authDomain: 'diu-leaderboard-9c0e0.firebaseapp.com',
+    storageBucket: 'diu-leaderboard-9c0e0.firebasestorage.app',
+    measurementId: 'G-14G7LXDH7N',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB3j7s5I2sARbhJaEI_4SX_R9R7Yl5Ztic',
-    appId: '1:403149345679:android:9e182bd87c2a1e1805f1fa',
-    messagingSenderId: '403149345679',
-    projectId: 'diu-leaderboard',
-    storageBucket: 'diu-leaderboard.firebasestorage.app',
+    apiKey: 'AIzaSyDn-C-JEKMUfvfWW0VCL48o7I69Q_ZUlss',
+    appId: '1:307367250704:android:eca9f27f0bae165107f395',
+    messagingSenderId: '307367250704',
+    projectId: 'diu-leaderboard-9c0e0',
+    storageBucket: 'diu-leaderboard-9c0e0.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCyPPd707ii4SVanJpkCa_U4iJji0Psg10',
-    appId: '1:403149345679:ios:171061591c4dd5e605f1fa',
-    messagingSenderId: '403149345679',
-    projectId: 'diu-leaderboard',
-    storageBucket: 'diu-leaderboard.firebasestorage.app',
+    apiKey: 'AIzaSyC0UgTc9VzLGdn-iTx1aPPyUqcUBk5hixw',
+    appId: '1:307367250704:ios:631c130282cc0b0007f395',
+    messagingSenderId: '307367250704',
+    projectId: 'diu-leaderboard-9c0e0',
+    storageBucket: 'diu-leaderboard-9c0e0.firebasestorage.app',
     iosBundleId: 'com.example.flutterFirst',
   );
 

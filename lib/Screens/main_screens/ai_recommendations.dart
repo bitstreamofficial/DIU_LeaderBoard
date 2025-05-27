@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../services/student_data_service.dart';
 import '../../services/gemini_service.dart';
 
@@ -640,7 +641,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Grade: ${recommendation['grade']}',
+                    'GPA: ${recommendation['point'].toStringAsFixed(2)}',
                     style: TextStyle(
                       color: colorScheme.error,
                       fontSize: 14,
@@ -731,8 +732,20 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage>
                           const SizedBox(height: 8),
                           GestureDetector(
                             onTap: () {
-                              // Handle link opening logic here
-                              print('Opening link: ${rec['link']}');
+                              final String? urlString = rec['link'] as String?;
+                              if (urlString != null && urlString.isNotEmpty) {
+                                final Uri? uri = Uri.tryParse(urlString);
+                                if (uri != null) {
+                                  launchUrl(uri).catchError((e) {
+                                    print('Could not launch $uri: $e');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Could not open link: $urlString')),
+                                    );
+                                  });
+                                }
+                              }
                             },
                             child: Row(
                               children: [
@@ -839,7 +852,7 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Current Grade: ${retakeSuggestion['currentGrade']}',
+                    'Current GPA: ${retakeSuggestion['currentPoints'].toStringAsFixed(2)}',
                     style: TextStyle(
                       color: colorScheme.error,
                       fontSize: 14,

@@ -25,7 +25,7 @@ class _AcademicPerformancePageState extends State<AcademicPerformancePage>
     _tabController = TabController(
         length: 2,
         vsync: this,
-        initialIndex: 1); // Starts with "Semester Results"
+        initialIndex: 0); // Starts with "Semester Results"
   }
 
   @override
@@ -78,7 +78,6 @@ class CGPACalculatorTab extends StatefulWidget {
 
 class _CGPACalculatorTabState extends State<CGPACalculatorTab>
     with SingleTickerProviderStateMixin {
-  // Copy all the state variables and methods from _CGPAViewState
   final _formKey = GlobalKey<FormState>();
   final _studentIdController = TextEditingController();
   final _studentDataService = StudentDataService();
@@ -86,9 +85,6 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
   CGPAResult? _result;
   late AnimationController _gradientController;
   double _animationValue = 0.0;
-
-  // Copy all the methods from _CGPAViewState
-  // ... (copy all methods from CGPAView)
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +204,12 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
             ),
           ),
         ),
+
+        const SizedBox(height: 32),
+
+        // Performance Summary Card
+        _buildPerformanceSummary(result),
+
         const SizedBox(height: 24),
         _buildSemestersList(result.semesters),
         const SizedBox(height: 16),
@@ -216,75 +218,520 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
     );
   }
 
-  Widget _buildSemestersList(List<SemesterResult> semesters) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: semesters.length,
-      itemBuilder: (context, index) {
-        final semester = semesters[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-          color: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-                color: Theme.of(context).colorScheme.onSurface, width: 1),
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String label,
+    required String value,
+    required BuildContext context,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 20,
           ),
-          child: InkWell(
-            onTap: () => _showSemesterDetails(semester),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+          ),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 12,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPerformanceSummary(CGPAResult result) {
+    final performance = _analyzePerformance(result.cgpa);
+
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${semester.name} ${semester.year}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'SGPA: ${semester.sgpa.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: performance['color'].withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      performance['icon'],
+                      color: performance['color'],
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Credits: ${semester.credits.toStringAsFixed(1)}',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  Text(
-                    'Courses: ${semester.courses.length}',
-                    style: const TextStyle(color: Colors.grey),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Academic Performance',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        Text(
+                          performance['status'],
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: performance['color'],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: result.cgpa / 4.0,
+                backgroundColor:
+                    Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(performance['color']),
+                minHeight: 6,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                performance['message'],
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
+  }
+
+  String _getGrade(double cgpa) {
+    if (cgpa >= 4.0) return 'A+';
+    if (cgpa >= 3.75) return 'A';
+    if (cgpa >= 3.50) return 'A-';
+    if (cgpa >= 3.25) return 'B+';
+    if (cgpa >= 3.0) return 'B';
+    if (cgpa >= 2.75) return 'B-';
+    if (cgpa >= 2.50) return 'C+';
+    if (cgpa >= 2.25) return 'C-';
+    if (cgpa >= 2.00) return 'D';
+    return 'F';
+  }
+
+  Map<String, dynamic> _analyzePerformance(double cgpa) {
+    if (cgpa >= 3.5) {
+      return {
+        'status': 'Excellent Performance',
+        'color': Colors.green,
+        'icon': Icons.emoji_events,
+        'message':
+            'Outstanding academic achievement! You\'re performing exceptionally well and maintaining high standards.',
+      };
+    } else if (cgpa >= 3.0) {
+      return {
+        'status': 'Good Performance',
+        'color': Colors.blue,
+        'icon': Icons.trending_up,
+        'message':
+            'Good academic performance! You\'re on the right track. Keep up the consistent effort.',
+      };
+    } else if (cgpa >= 2.5) {
+      return {
+        'status': 'Satisfactory Performance',
+        'color': Colors.orange,
+        'icon': Icons.timeline,
+        'message':
+            'Satisfactory performance with room for improvement. Consider focusing on challenging subjects.',
+      };
+    } else {
+      return {
+        'status': 'Needs Improvement',
+        'color': Colors.red,
+        'icon': Icons.trending_down,
+        'message':
+            'There\'s room for improvement. Consider seeking additional support and developing better study strategies.',
+      };
+    }
+  }
+
+  Widget _buildSemestersList(List<SemesterResult> semesters) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section Header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.calendar_view_month_rounded,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Semester Performance',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Semesters List
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: semesters.length,
+          itemBuilder: (context, index) {
+            final semester = semesters[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Card(
+                elevation: 3,
+                shadowColor:
+                    Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: InkWell(
+                  onTap: () => _showSemesterDetails(semester),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header Row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${semester.name} ${semester.year}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Semester ${semesters.length - index}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                            fontSize: 14,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // SGPA Badge
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      _getSGPAColor(semester.sgpa),
+                                      _getSGPAColor(semester.sgpa)
+                                          .withOpacity(0.8),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: _getSGPAColor(semester.sgpa)
+                                          .withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  'SGPA ${semester.sgpa.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Stats Row
+                          Row(
+                            children: [
+                              _buildStatChip(
+                                icon: Icons.credit_card_rounded,
+                                label: 'Credits',
+                                value: semester.credits.toStringAsFixed(1),
+                                color: Theme.of(context).colorScheme.primary,
+                                context: context,
+                              ),
+                              const SizedBox(width: 12),
+                              _buildStatChip(
+                                icon: Icons.book_rounded,
+                                label: 'Courses',
+                                value: '${semester.courses.length}',
+                                color: Theme.of(context).colorScheme.secondary,
+                                context: context,
+                              ),
+                              const Spacer(),
+                              // Performance Indicator
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: _getSGPAColor(semester.sgpa)
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  _getPerformanceIcon(semester.sgpa),
+                                  color: _getSGPAColor(semester.sgpa),
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Progress Bar
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Performance',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                  Text(
+                                    _getPerformanceLabel(semester.sgpa),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: _getSGPAColor(semester.sgpa),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              LinearProgressIndicator(
+                                value: semester.sgpa / 4.0,
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withOpacity(0.2),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    _getSGPAColor(semester.sgpa)),
+                                minHeight: 4,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // Tap hint
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Tap to view details',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant
+                                          .withOpacity(0.6),
+                                      fontSize: 12,
+                                    ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 12,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant
+                                    .withOpacity(0.6),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatChip({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required BuildContext context,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                value,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+              ),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                    ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getSGPAColor(double sgpa) {
+    if (sgpa >= 3.5) return Colors.green;
+    if (sgpa >= 3.0) return Colors.blue;
+    if (sgpa >= 2.5) return Colors.orange;
+    return Colors.red;
+  }
+
+  IconData _getPerformanceIcon(double sgpa) {
+    if (sgpa >= 3.5) return Icons.emoji_events_rounded;
+    if (sgpa >= 3.0) return Icons.trending_up_rounded;
+    if (sgpa >= 2.5) return Icons.timeline_rounded;
+    return Icons.trending_down_rounded;
+  }
+
+  String _getPerformanceLabel(double sgpa) {
+    if (sgpa >= 3.5) return 'Excellent';
+    if (sgpa >= 3.0) return 'Good';
+    if (sgpa >= 2.5) return 'Average';
+    return 'Needs Improvement';
   }
 
   void _showSemesterDetails(SemesterResult semester) {
@@ -585,46 +1032,106 @@ class _CGPACalculatorTabState extends State<CGPACalculatorTab>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: _studentIdController,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                decoration: InputDecoration(
-                  labelText: 'Student ID',
-                  labelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  border: const OutlineInputBorder(),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.6)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.3),
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter student ID';
-                  }
-                  return null;
-                },
+                child: TextFormField(
+                  controller: _studentIdController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Student ID',
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.person,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter student ID';
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _calculateCGPA,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: Text(_isLoading ? 'Calculating...' : 'Calculate CGPA'),
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _calculateCGPA,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Show Results',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
               ),
             ],
           ),
@@ -1045,150 +1552,263 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
   Widget _buildSearchForm() {
     return Form(
       key: _formKey,
-      child: Card(
-        color: Theme.of(context).colorScheme.surface,
-        elevation: 2,
+      child: Container(
+        margin: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surface.withOpacity(0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DropdownButtonFormField<String>(
-                value: _selectedYear,
-                dropdownColor: Theme.of(context)
-                    .colorScheme
-                    .surface, // Dropdown background
-                decoration: InputDecoration(
-                  labelText: 'Year',
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ), // Label text color
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ), // Border color
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ), // Enabled border color
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ), // Highlighted border color
-                  ),
-                ),
-                items: _years.map((year) {
-                  return DropdownMenuItem(
-                    value: year,
-                    child: Text(
-                      year,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ), // Text color in the dropdown
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedYear = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) return 'Please select a year';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedSemester,
-                dropdownColor: Theme.of(context).colorScheme.surface,
-                decoration: InputDecoration(
-                  labelText: 'Semester',
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  border: OutlineInputBorder(),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                items: _semesters.map((semester) {
-                  return DropdownMenuItem(
-                    value: semester,
-                    child: Text(
-                      semester,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
+              // Year Dropdown
+
+              Row(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Align items to the top
+                children: <Widget>[
+                  // Academic Year Dropdown
+                  Expanded(
+                    // Use Expanded to allow the dropdown to take available space
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.3),
+                        ),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedYear,
+                        dropdownColor: Theme.of(context).colorScheme.surface,
+                        decoration: InputDecoration(
+                          labelText: 'Year',
+                          labelStyle: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.calendar_today,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                        items: _years.map((year) {
+                          return DropdownMenuItem(
+                            value: year,
+                            child: Text(
+                              year,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedYear = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) return 'Please select a year';
+                          return null;
+                        },
                       ),
                     ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSemester = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) return 'Please select a semester';
-                  return null;
-                },
+                  ),
+                  const SizedBox(width: 16), // Spacing between the dropdowns
+
+                  // Semester Dropdown
+                  Expanded(
+                    // Use Expanded for the second dropdown as well
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.3),
+                        ),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedSemester,
+                        dropdownColor: Theme.of(context).colorScheme.surface,
+                        decoration: InputDecoration(
+                          labelText: 'Semester',
+                          labelStyle: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.school,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                        items: _semesters.map((semester) {
+                          return DropdownMenuItem(
+                            value: semester,
+                            child: Text(
+                              semester,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSemester = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) return 'Please select a semester';
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _studentIdController,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+
+              const SizedBox(height: 20),
+
+              // Student ID Field
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  ),
                 ),
-                decoration: InputDecoration(
-                  labelText: 'Student ID',
-                  labelStyle: TextStyle(
+                child: TextFormField(
+                  controller: _studentIdController,
+                  style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
                   ),
-                  border: OutlineInputBorder(),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
+                  decoration: InputDecoration(
+                    labelText: 'Student ID',
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.person,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter student ID';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter student ID';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _fetchResults,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              const SizedBox(height: 32),
+
+              // Search Button
+              Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                      )
-                    : const Text('Show Results'),
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _fetchResults,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Show Results',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
               ),
             ],
           ),
@@ -1274,71 +1894,110 @@ class _SemesterResultsTabState extends State<SemesterResultsTab>
   }
 
   Widget _buildResultsTable() {
+    final ThemeData theme = Theme.of(context);
+    final Color onSurfaceColor = theme.colorScheme.onSurface;
+    final TextTheme textTheme = theme.textTheme;
+
+    // Simple local map for grade colors for self-containment
+    Map<String, Color> gradeColors = {
+      'A+': Colors.green.shade700,
+      'A': Colors.green.shade600,
+      'A-': Colors.green.shade500,
+      'B+': Colors.blue.shade700,
+      'B': Colors.blue.shade600,
+      'B-': Colors.blue.shade500,
+      'C+': Colors.orange.shade700,
+      'C': Colors.orange.shade600,
+      'C-': Colors.orange.shade500, // Assuming C- exists
+      'D': Colors.amber.shade700,
+      'F': Colors.red.shade600,
+      'DEFAULT': Colors.grey.shade600,
+    };
+
+    Color getGradeColor(String grade) {
+      return gradeColors[grade.toUpperCase()] ?? gradeColors['DEFAULT']!;
+    }
+
     return Card(
-      elevation: 2,
-      color: Theme.of(context).colorScheme.surface,
+      elevation: 3, // Slightly increased elevation
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: theme.colorScheme.surface,
+      clipBehavior:
+          Clip.antiAlias, // Ensures DataTable respects card's border radius
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
+          headingRowColor: MaterialStateProperty.resolveWith<Color?>(
+            (states) => theme.colorScheme.primaryContainer,
+          ),
+          headingTextStyle: textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
+          columnSpacing: 22, // Adjusted column spacing
+          dataRowMinHeight: 48,
+          dataRowMaxHeight: 56,
           columns: [
             DataColumn(
-              label: Text(
-                'Course',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
+              label: Text('Course'), // Style inherited from headingTextStyle
             ),
             DataColumn(
-              label: Text(
-                'Credits',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
+              label: Text('Credits'),
+              numeric: true,
             ),
             DataColumn(
-              label: Text(
-                'Grade',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
+              label: Text('Grade'),
             ),
             DataColumn(
-              label: Text(
-                'Points',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
+              label: Text('Points'),
+              numeric: true,
             ),
           ],
           rows: _semesterResults?.map((course) {
+                final Color gradeColor = getGradeColor(course.gradeLetter);
                 return DataRow(
                   cells: [
                     DataCell(
-                      Text(
-                        course.courseTitle,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface),
+                      SizedBox(
+                        width: 160, // Give more space for course title
+                        child: Text(
+                          course.courseTitle,
+                          overflow: TextOverflow.ellipsis, // Handle long titles
+                          style: textTheme.bodyMedium
+                              ?.copyWith(color: onSurfaceColor),
+                        ),
                       ),
                     ),
                     DataCell(
                       Text(
-                        course.totalCredit.toString(),
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface),
+                        course.totalCredit.toStringAsFixed(1), // Format credits
+                        style: textTheme.bodyMedium
+                            ?.copyWith(color: onSurfaceColor),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: gradeColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          course.gradeLetter,
+                          style: textTheme.labelLarge?.copyWith(
+                            color: gradeColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     DataCell(
                       Text(
-                        course.gradeLetter,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        course.pointEquivalent.toString(),
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface),
+                        course.pointEquivalent
+                            .toStringAsFixed(2), // Format points
+                        style: textTheme.bodyMedium
+                            ?.copyWith(color: onSurfaceColor),
                       ),
                     ),
                   ],

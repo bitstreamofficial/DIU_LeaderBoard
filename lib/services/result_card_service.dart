@@ -52,7 +52,7 @@ class ResultCardService {
                         ),
                         pw.SizedBox(height: 5),
                         pw.Text(
-                          'Official Academic Transcript',
+                          'Academic Transcript',
                           style: pw.TextStyle(
                             fontSize: 12,
                             color: secondaryColor,

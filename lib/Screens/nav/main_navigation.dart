@@ -37,7 +37,7 @@ class _MainNavigationState extends State<MainNavigation> {
     _screens = [
       AIRecommendationsPage(userId: _auth.getCurrentUserId() ?? ''),
       const AcademicPerformancePage(),
-      const NewHomePage(),
+      const HomePage(),
       const SettingsView(),
       const ProfilePage(),
     ];
