@@ -295,6 +295,39 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage>
                     const SizedBox(height: 32),
                   ],
 
+                  // Retake suggestions section
+                  if (retakeSuggestions.isNotEmpty) ...[
+                    const SizedBox(height: 32),
+                    Text(
+                      'Course Retake Suggestions',
+                      style: textTheme.titleLarge?.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ...retakeSuggestions.map((retakeSuggestion) =>
+                        _buildRetakeSuggestionCard(
+                            retakeSuggestion, colorScheme, textTheme)),
+                  ] else if (lowCgpaRecommendations.isEmpty) ...[
+                    const SizedBox(height: 32),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 20),
+                          Text(
+                            'No Recommended Course Retakes',
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   // Course-specific recommendations
                   if (recommendations.isNotEmpty) ...[
                     Text(
@@ -321,39 +354,6 @@ class _AIRecommendationsPageState extends State<AIRecommendationsPage>
                           const SizedBox(height: 20),
                           Text(
                             'Great job! No improvements needed.',
-                            style: textTheme.bodyLarge?.copyWith(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  // Retake suggestions section
-                  if (retakeSuggestions.isNotEmpty) ...[
-                    const SizedBox(height: 32),
-                    Text(
-                      'Course Retake Suggestions',
-                      style: textTheme.titleLarge?.copyWith(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ...retakeSuggestions.map((retakeSuggestion) =>
-                        _buildRetakeSuggestionCard(
-                            retakeSuggestion, colorScheme, textTheme)),
-                  ] else if (lowCgpaRecommendations.isEmpty) ...[
-                    const SizedBox(height: 32),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 20),
-                          Text(
-                            'No Recommended Course Retakes',
                             style: textTheme.bodyLarge?.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
